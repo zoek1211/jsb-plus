@@ -25,3 +25,9 @@
 - 작업: `AGENTS.md`에 과제 절대 규칙·커밋 규칙 정리, `docs/agents/`에 이슈 트래커·트리아지 라벨·도메인 문서 설정 추가, GitHub 라벨 생성
 - 이유: AI 에이전트가 과제 규칙(작은 작업, 승인 후 진행, 커밋·README 형식)을 매번 자동으로 따르도록 하기 위함
 - 결과: GitHub에 트리아지 라벨 5개 확인, 애플리케이션 코드 변경 없음
+
+### 000-02 AI 에이전트 스킬 설정, CLAUDE.md에서 AGENTS.md 불러오기
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/000-02)
+- 작업: `@AGENTS.md` 한 줄짜리 `CLAUDE.md` 추가
+- 이유: Claude Code는 `CLAUDE.md`만 자동으로 읽으므로, 과제 규칙(`AGENTS.md`)이 매 세션 자동 적용되도록 하기 위함
+- 결과: 규칙은 `AGENTS.md` 한 곳에서만 관리, 애플리케이션 코드 변경 없음
