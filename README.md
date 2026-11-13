@@ -19,3 +19,9 @@
 - 작업: Spring Initializr로 프로젝트 생성(Web, Lombok, DevTools), foojay 플러그인 추가, README 작성
 - 이유: 강사 실습 환경(Spring Boot 4.1.2, Java 25, Gradle Kotlin DSL)과 동일하게 시작하기 위함
 - 결과: `./gradlew test` 통과, 애플리케이션 8080 포트 정상 실행 확인
+
+### 000-01 AI 에이전트 스킬 설정, 이슈 트래커·라벨·도메인 문서 구성
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/000-01)
+- 작업: `AGENTS.md`에 과제 절대 규칙·커밋 규칙 정리, `docs/agents/`에 이슈 트래커·트리아지 라벨·도메인 문서 설정 추가, GitHub 라벨 생성
+- 이유: AI 에이전트가 과제 규칙(작은 작업, 승인 후 진행, 커밋·README 형식)을 매번 자동으로 따르도록 하기 위함
+- 결과: GitHub에 트리아지 라벨 5개 확인, 애플리케이션 코드 변경 없음
