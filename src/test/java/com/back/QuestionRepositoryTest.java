@@ -44,4 +44,28 @@ class QuestionRepositoryTest {
         Question q = all.get(0);
         assertEquals("sbb가 무엇인가요?", q.getSubject());
     }
+
+    @Test
+    @DisplayName("findById: id 1번 질문을 조회한다")
+    void t2() {
+        // findById(1) → SELECT ... WHERE id = 1.
+        // 결과가 없을 수도 있으므로 null 대신 Optional(값이 있거나 비어 있는 상자)을 돌려준다.
+        // orElseThrow(): 상자에 값이 있으면 꺼내고, 비어 있으면 예외(NoSuchElementException)를 던진다 → 테스트 실패.
+        //
+        // 교재·강사는 if (oq.isPresent()) { assertEquals(...) } 로 쓰는데, 값이 없으면 검사를 건너뛰어
+        // 테스트가 "통과"해 버린다(가짜 초록불). orElseThrow() 는 데이터가 없을 때 확실히 실패시킨다.
+        //
+        // findById(1) → SELECT ... WHERE id = 1.
+        // There might be no result, so instead of null it returns an Optional (a box that is either full or empty).
+        // orElseThrow(): takes the value out if the box is full; throws NoSuchElementException if empty → the test fails.
+        //
+        // The book and instructor write if (oq.isPresent()) { assertEquals(...) }, which skips the check when the value is missing,
+        // so the test "passes" anyway (a false green). orElseThrow() makes it fail for sure when the data is missing.
+        //
+        // id 가 1 인 이유: 테스트 DB는 매번 새로 만들어지고, TestInitData 가 이 질문을 가장 먼저 저장하기 때문.
+        // Why id 1: the test database is fresh every run, and TestInitData saves this question first.
+        Question q = questionRepository.findById(1).orElseThrow();
+
+        assertEquals("sbb가 무엇인가요?", q.getSubject());
+    }
 }
