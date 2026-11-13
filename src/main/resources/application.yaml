@@ -1,0 +1,18 @@
+# 모든 환경(dev, test 등)에 공통으로 적용되는 설정.
+# .properties 대신 .yaml 을 쓰면 들여쓰기로 계층을 표현해서 같은 접두어(spring.)를 반복하지 않아도 된다.
+# Settings shared by every environment (dev, test, ...).
+# YAML instead of .properties: indentation shows the hierarchy, so "spring." isn't repeated on every line.
+spring:
+  output:
+    ansi:
+      # 콘솔 로그를 색깔로 표시해서 읽기 쉽게 한다.
+      # Shows console logs in color so they're easier to read.
+      enabled: always
+  application:
+    name: back
+  profiles:
+    # 따로 지정하지 않으면 "dev" 프로필로 실행한다 → application-dev.yaml 이 추가로 적용된다.
+    # 테스트는 @ActiveProfiles("test") 로 이 값을 덮어써서 application-test.yaml 을 쓴다.
+    # Run with the "dev" profile unless told otherwise → application-dev.yaml is applied on top of this file.
+    # Tests override this with @ActiveProfiles("test") and use application-test.yaml instead.
+    active: dev

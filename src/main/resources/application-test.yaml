@@ -1,0 +1,12 @@
+# test 프로필 설정. @ActiveProfiles("test") 가 붙은 테스트에서 쓰인다.
+# Settings for the test profile. Used by tests marked with @ActiveProfiles("test").
+spring:
+  datasource:
+    # jdbc:h2:mem:db_test = 파일이 아니라 "메모리"에만 있는 DB.
+    # 테스트가 끝나면 사라지므로 매번 깨끗한 상태에서 시작하고, 개발 DB(db_dev)를 건드리지 않는다.
+    # jdbc:h2:mem:db_test = a database that lives only in memory, not in a file.
+    # It disappears when tests finish, so every run starts clean and never touches the dev database (db_dev).
+    url: jdbc:h2:mem:db_test
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver

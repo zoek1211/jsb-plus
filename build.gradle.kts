@@ -48,6 +48,15 @@ dependencies {
 	// DevTools: restarts the app automatically when code changes. developmentOnly = left out of the production jar.
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 
+	// H2: 자바로 만든 가벼운 데이터베이스. 따로 설치할 필요 없이 앱 안에서 같이 실행된다.
+	// runtimeOnly = 코드에서 직접 쓰지 않고, 앱이 실행될 때만 필요하다 (스프링이 알아서 연결).
+	// H2: a lightweight database written in Java. It runs inside the app, no separate install needed.
+	// runtimeOnly = our code never uses it directly; it's only needed while the app runs (Spring connects to it).
+	runtimeOnly("com.h2database:h2")
+	// H2 콘솔: 브라우저(/h2-console)에서 DB 안을 들여다볼 수 있는 웹 화면.
+	// H2 console: a web page (/h2-console) for looking inside the database from the browser.
+	implementation("org.springframework.boot:spring-boot-h2console")
+
 	// 테스트에서만 쓰는 라이브러리들 (JUnit, MockMvc 등).
 	// Libraries used only by tests (JUnit, MockMvc, etc).
 	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")

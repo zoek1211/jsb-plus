@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -12,6 +13,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+// "test" 프로필(메모리 DB)로 실행한다. 자세한 설명은 BackApplicationTests 참고.
+// Runs with the "test" profile (in-memory database). See BackApplicationTests for details.
+@ActiveProfiles("test")
 // 스프링 앱 전체를 띄워서 테스트한다.
 // Starts the whole Spring app for this test.
 @SpringBootTest

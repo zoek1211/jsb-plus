@@ -41,3 +41,8 @@ out/
 
 ### Claude Code ###
 .claude/
+
+### H2 개발 DB 파일 (H2 dev database files) ###
+db_dev.mv.db
+db_dev.trace.db
+db_dev.lock.db
