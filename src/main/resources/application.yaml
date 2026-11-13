@@ -16,3 +16,37 @@ spring:
     # Run with the "dev" profile unless told otherwise → application-dev.yaml is applied on top of this file.
     # Tests override this with @ActiveProfiles("test") and use application-test.yaml instead.
     active: dev
+  jpa:
+    # JPA가 실행하는 SQL을 콘솔에 출력한다. 자바 코드가 실제로 어떤 SQL이 되는지 볼 수 있다.
+    # Prints the SQL that JPA runs to the console, so you can see what your Java code turns into.
+    show-sql: true
+    hibernate:
+      # update: 엔티티 클래스를 보고 테이블을 자동으로 만들거나 고친다 (지운 컬럼은 삭제하지 않음). 개발할 때 편리하다.
+      # update: creates or alters tables automatically from entity classes (never drops removed columns). Handy during development.
+      ddl-auto: update
+    properties:
+      hibernate:
+        # SQL을 한 줄이 아니라 줄바꿈·들여쓰기해서 보기 좋게 출력한다.
+        # Prints SQL with line breaks and indentation instead of one long line.
+        format_sql: true
+        # SQL 키워드에 색을 입힌다.
+        # Colors SQL keywords.
+        highlight_sql: true
+        # 어떤 JPA 작업에서 나온 SQL인지 주석으로 붙여준다.
+        # Adds a comment saying which JPA operation produced the SQL.
+        use_sql_comments: true
+
+# 교재와 달리 DB 종류(dialect)를 직접 적지 않는다. Hibernate가 연결된 DB(H2)를 보고 자동으로 고른다.
+# Unlike the book, we don't set the database dialect. Hibernate detects it from the connected database (H2).
+
+logging:
+  level:
+    # SQL의 ? 자리에 실제로 들어간 값(바인딩 값)을 로그로 보여준다. show-sql 만으로는 ? 로만 보인다.
+    # Logs the actual values bound to the ? placeholders. With show-sql alone you only see ?.
+    org.hibernate.orm.jdbc.bind: TRACE
+    # SELECT 결과로 DB에서 꺼내 온 값을 로그로 보여준다.
+    # Logs the values read back from the database by a SELECT.
+    org.hibernate.orm.jdbc.extract: TRACE
+    # @Transactional 트랜잭션이 언제 시작되고 끝나는지 로그로 보여준다 (나중에 트랜잭션을 배울 때 유용).
+    # Logs when @Transactional transactions start and end (useful later when we learn transactions).
+    org.springframework.transaction.interceptor: TRACE

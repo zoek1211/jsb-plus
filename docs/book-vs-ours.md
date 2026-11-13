@@ -13,3 +13,4 @@
 | 첫 컨트롤러 | 처음부터 `@ResponseBody` | `void` 메서드로 먼저 500 에러 확인 → `@ResponseBody` 추가 | 어노테이션이 왜 필요한지 직접 확인 (14163 3~4강) | [002-01](https://github.com/zoek1211/jsb-plus/releases/tag/002-01), [002-02](https://github.com/zoek1211/jsb-plus/releases/tag/002-02) |
 | 테스트 | 컨트롤러 테스트 없음 | 첫 컨트롤러부터 MockMvc 테스트 | 동작을 자동으로 보장 | [002-02](https://github.com/zoek1211/jsb-plus/releases/tag/002-02) |
 | DB 설정 | `~/local.mv.db` 파일을 직접 생성, 설정 파일 하나 | 프로젝트 폴더의 파일 DB, `dev`(파일)·`test`(메모리) 프로필 분리, YAML | 수동 작업 제거, 테스트가 개발 데이터를 건드리지 않음 (14163 5강) | [003-01](https://github.com/zoek1211/jsb-plus/releases/tag/003-01) |
+| JPA·SQL 로그 | `hibernate.dialect` 직접 지정, SQL 출력 설정은 나중에 별도로 | dialect 자동 감지, 처음부터 SQL 정렬·색상·주석 + 바인딩 값(`?` 에 들어간 실제 값)·트랜잭션 TRACE 로그 | 설정을 줄이고, JPA가 실제로 실행하는 SQL과 값을 처음부터 확인 (14163 6강) | [003-02](https://github.com/zoek1211/jsb-plus/releases/tag/003-02) |

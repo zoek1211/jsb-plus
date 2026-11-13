@@ -57,6 +57,15 @@ dependencies {
 	// H2 console: a web page (/h2-console) for looking inside the database from the browser.
 	implementation("org.springframework.boot:spring-boot-h2console")
 
+	// JPA(Java Persistence API): SQL을 직접 쓰지 않고 자바 객체로 DB를 다루게 해주는 표준. 구현체는 Hibernate.
+	// 이 스타터가 DB 연결(DataSource)도 함께 만들어서, 앱이 시작될 때 실제로 DB에 연결한다 → db_dev 파일이 생긴다.
+	// JPA (Java Persistence API): a standard for working with the database through Java objects instead of writing SQL. Hibernate implements it.
+	// This starter also creates the database connection (DataSource), so the app actually connects on startup → the db_dev file is created.
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	// JPA 관련 테스트 도구 (나중에 리포지터리 테스트에서 사용).
+	// Test tools for JPA (used later for repository tests).
+	testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
+
 	// 테스트에서만 쓰는 라이브러리들 (JUnit, MockMvc 등).
 	// Libraries used only by tests (JUnit, MockMvc, etc).
 	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
