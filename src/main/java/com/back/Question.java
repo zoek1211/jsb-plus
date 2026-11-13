@@ -1,11 +1,14 @@
 package com.back;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
@@ -43,4 +46,25 @@ public class Question {
     // columnDefinition = "TEXT": content becomes a TEXT column with no length limit, because a question body can be long.
     @Column(columnDefinition = "TEXT")
     private String content;
+
+    // @OneToMany: "하나(One)의 질문에 여러(Many) 답변" 관계. Answer 쪽 @ManyToOne 의 반대 방향이다.
+    // 이 필드 덕분에 질문에서 답변 목록을 바로 꺼낼 수 있다 (question.answers).
+    // @OneToMany: "one question has many answers". The reverse direction of @ManyToOne in Answer.
+    // This field lets you get a question's answers directly (question.answers).
+    //
+    // ⚠️ 일부러 mappedBy 를 빼 두었다 (005-01 실험). mappedBy 가 없으면 JPA는 이 목록을
+    // answer.question_id 와 무관한 "새로운 관계"로 보고, 저장할 중간 테이블(question_answers)을 따로 만든다.
+    // 같은 정보가 두 군데 저장되는 셈이라 비효율적이다 → 005-02 에서 mappedBy 로 고친다.
+    // ⚠️ mappedBy is left out on purpose (005-01 experiment). Without it, JPA treats this list as a "new relationship"
+    // unrelated to answer.question_id, and creates a separate join table (question_answers) to store it.
+    // That stores the same information twice, which is wasteful → fixed with mappedBy in 005-02.
+    //
+    // cascade = REMOVE: 질문을 삭제하면 그 질문의 답변들도 함께 삭제한다.
+    // 없으면 답변이 아직 질문을 가리키고 있어서(외래 키) DB가 질문 삭제를 거부한다.
+    // cascade = REMOVE: deleting a question also deletes its answers.
+    // Without it, the answers still point to the question (foreign key), so the database refuses to delete the question.
+    @OneToMany(cascade = CascadeType.REMOVE)
+    // List<Answer>: 여러 개의 Answer 를 순서대로 담는 자바 컬렉션.
+    // List<Answer>: a Java collection holding many Answer objects in order.
+    private List<Answer> answers;
 }
