@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -112,5 +113,35 @@ class QuestionRepositoryTest {
         // The book and instructor only check the first result's subject; checking the size too proves the other question was filtered out.
         assertThat(questions).hasSize(1);
         assertThat(questions.get(0).getSubject()).isEqualTo("sbb가 무엇인가요?");
+    }
+
+    @Test
+    @DisplayName("수정: 질문 제목을 바꾸고 저장한다")
+    // @Transactional (테스트에서): 테스트가 끝나면 이 테스트에서 바꾼 데이터를 전부 롤백(되돌리기)한다.
+    // 006-02 의 TestInitData 에서는 "성공하면 커밋"이었지만, 테스트에서는 스프링이 기본으로 롤백한다.
+    // 빼면 질문 1번의 제목이 "수정된 제목"으로 남아서, 뒤에 실행되는 다른 테스트들(t1~t5)이 모두 실패한다 (008-01 에서 직접 확인).
+    // @Transactional (in a test): everything this test changed is rolled back (undone) when the test ends.
+    // In TestInitData (006-02) it meant "commit on success", but in tests Spring rolls back by default.
+    // Without it, question 1 keeps the subject "수정된 제목", and every other test that runs afterwards (t1–t5) fails (seen in 008-01).
+    @Transactional
+    void t6() {
+        Question question = questionRepository.findById(1).orElseThrow();
+
+        // 자바 객체의 값을 바꾼다. 아직 DB는 그대로다.
+        // Change the value on the Java object. The database is unchanged so far.
+        question.setSubject("수정된 제목");
+
+        // save: 이 객체는 이미 id(1)가 있으므로 INSERT 가 아니라 UPDATE 를 실행한다.
+        // save: this object already has an id (1), so it runs UPDATE instead of INSERT.
+        questionRepository.save(question);
+
+        // 바뀐 제목으로 다시 찾으면 같은 1번 질문이 나와야 한다.
+        // (강사는 .get() 뒤에 isNotNull() 로 확인하는데, .get() 은 값이 없으면 이미 예외를 던지므로 isNotNull() 은 절대 실패하지 않는다.
+        //  대신 찾은 질문의 id 가 1 인지 확인한다.)
+        // Searching by the new subject must return the same question 1.
+        // (The instructor checks isNotNull() after .get(), but .get() already throws when empty, so isNotNull() can never fail.
+        //  We check that the found question's id is 1 instead.)
+        Question foundQuestion = questionRepository.findBySubject("수정된 제목").orElseThrow();
+        assertThat(foundQuestion.getId()).isEqualTo(1);
     }
 }
