@@ -52,18 +52,20 @@ public class Question {
     // @OneToMany: "one question has many answers". The reverse direction of @ManyToOne in Answer.
     // This field lets you get a question's answers directly (question.answers).
     //
-    // ⚠️ 일부러 mappedBy 를 빼 두었다 (005-01 실험). mappedBy 가 없으면 JPA는 이 목록을
-    // answer.question_id 와 무관한 "새로운 관계"로 보고, 저장할 중간 테이블(question_answers)을 따로 만든다.
-    // 같은 정보가 두 군데 저장되는 셈이라 비효율적이다 → 005-02 에서 mappedBy 로 고친다.
-    // ⚠️ mappedBy is left out on purpose (005-01 experiment). Without it, JPA treats this list as a "new relationship"
-    // unrelated to answer.question_id, and creates a separate join table (question_answers) to store it.
-    // That stores the same information twice, which is wasteful → fixed with mappedBy in 005-02.
+    // mappedBy = "question": "이 목록은 Answer 클래스의 question 필드가 이미 저장하고 있는 관계의 반대편이다"라는 뜻.
+    // 그래서 JPA는 새 테이블이나 컬럼을 만들지 않고, answer.question_id 를 이용해 답변 목록을 찾는다.
+    // 관계를 실제로 저장하는 쪽(외래 키를 가진 Answer.question)을 "연관관계의 주인"이라고 부른다.
+    // 빼면 JPA가 이것을 별개의 관계로 보고 중간 테이블(question_answers)을 따로 만든다 (005-01 에서 확인).
+    // mappedBy = "question": "this list is the other side of the relationship already stored by Answer's question field".
+    // So JPA creates no new table or column, and finds the answers through answer.question_id.
+    // The side that actually stores the link (Answer.question, which holds the foreign key) is called the "owner" of the relationship.
+    // Without it, JPA treats this as a separate relationship and creates a join table (question_answers), as seen in 005-01.
     //
     // cascade = REMOVE: 질문을 삭제하면 그 질문의 답변들도 함께 삭제한다.
     // 없으면 답변이 아직 질문을 가리키고 있어서(외래 키) DB가 질문 삭제를 거부한다.
     // cascade = REMOVE: deleting a question also deletes its answers.
     // Without it, the answers still point to the question (foreign key), so the database refuses to delete the question.
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "question", cascade = CascadeType.REMOVE)
     // List<Answer>: 여러 개의 Answer 를 순서대로 담는 자바 컬렉션.
     // List<Answer>: a Java collection holding many Answer objects in order.
     private List<Answer> answers;
