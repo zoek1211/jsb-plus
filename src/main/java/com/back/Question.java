@@ -6,6 +6,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,6 +23,14 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 // One object of this class = one row in the table.
 // Without it, this is just a plain Java class and no table is created.
 @Entity
+// @Getter / @Setter (롬복): 모든 필드의 getter(getSubject())와 setter(setSubject(...))를 컴파일할 때 자동으로 만들어준다.
+// 필드가 private 이라서 다른 클래스(테스트, 샘플 데이터 등)가 값을 읽고 쓰려면 이 메서드들이 필요하다.
+// 빼면 question.setSubject("...") 같은 코드가 "메서드를 찾을 수 없다"는 컴파일 오류가 난다.
+// @Getter / @Setter (Lombok): generates a getter (getSubject()) and setter (setSubject(...)) for every field at compile time.
+// The fields are private, so other classes (tests, sample data, ...) need these methods to read and write values.
+// Without them, code like question.setSubject("...") fails to compile with "cannot find symbol".
+@Getter
+@Setter
 public class Question {
 
     // @Id: 기본 키(primary key). 각 행을 구별하는 고유 번호. 엔티티에는 반드시 하나 있어야 한다.
