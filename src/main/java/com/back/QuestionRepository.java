@@ -2,6 +2,7 @@ package com.back;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 // 리포지터리: 엔티티를 DB에 저장하고 꺼내는 일을 맡는 객체. SQL을 직접 쓰지 않아도 된다.
@@ -44,4 +45,16 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
     // 매개변수는 이름에 나온 순서(Subject, Content)대로 SQL의 ? 에 채워진다.
     // The parameters fill the ? placeholders in the same order as in the name (Subject, then Content).
     Optional<Question> findBySubjectAndContent(String subject, String content);
+
+    // findBySubjectLike → WHERE subject LIKE ?
+    // LIKE 는 "패턴"으로 찾는다. 패턴의 % 는 "아무 글자나 0개 이상"이라는 뜻이다.
+    //   "sbb%"  → sbb 로 시작하는 제목     "%sbb"  → sbb 로 끝나는 제목     "%sbb%" → sbb 가 들어간 제목
+    // % 는 자동으로 붙지 않으므로 호출하는 쪽에서 직접 넣어야 한다.
+    // 여러 행이 일치할 수 있으므로 Optional 이 아니라 List 를 반환한다 (결과가 없으면 빈 List).
+    // findBySubjectLike → WHERE subject LIKE ?
+    // LIKE matches a "pattern". In the pattern, % means "any characters, zero or more".
+    //   "sbb%" → subjects starting with sbb   "%sbb" → ending with sbb   "%sbb%" → containing sbb
+    // % is not added for you; the caller must include it.
+    // Many rows can match, so it returns a List instead of an Optional (an empty List when nothing matches).
+    List<Question> findBySubjectLike(String subjectLike);
 }

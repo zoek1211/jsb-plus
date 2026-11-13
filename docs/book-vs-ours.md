@@ -21,3 +21,4 @@
 | `Optional` 검사 | `if (oq.isPresent()) { assertEquals(...) }` — 값이 없으면 검사를 건너뛰어 테스트가 통과함 | `findById(1).orElseThrow()` — 값이 없으면 예외로 테스트 실패 | 데이터가 없을 때 "가짜 초록불"을 막음. `findById(99)` 로 두 방식 차이를 직접 확인 | [007-01](https://github.com/zoek1211/jsb-plus/releases/tag/007-01) |
 | 테스트 검사(assertion) 스타일 | JUnit `assertEquals(기대값, 실제값)` | AssertJ `assertThat(실제값).isEqualTo(기대값)`, `hasSize(n)` | 문장처럼 읽히고 인자 순서 실수가 없으며, 실패 메시지가 더 자세함 (14163 16강) | [007-02](https://github.com/zoek1211/jsb-plus/releases/tag/007-02) |
 | 쿼리 메서드 반환 타입 | `Question findBySubject(...)` — 결과가 없으면 `null` | `Optional<Question> findBySubject(...)` | "없을 수도 있음"을 타입으로 드러내 `NullPointerException` 예방, `findById`와 같은 방식 (14163 16강) | [007-03](https://github.com/zoek1211/jsb-plus/releases/tag/007-03) |
+| LIKE 검색 테스트 | 첫 번째 결과의 제목만 확인 | 결과 개수(`hasSize(1)`)와 제목을 함께 확인 | 조건에 맞지 않는 질문이 실제로 걸러졌는지까지 보장 | [007-04](https://github.com/zoek1211/jsb-plus/releases/tag/007-04) |

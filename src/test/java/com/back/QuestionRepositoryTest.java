@@ -99,4 +99,18 @@ class QuestionRepositoryTest {
 
         assertThat(question.getId()).isEqualTo(1);
     }
+
+    @Test
+    @DisplayName("findBySubjectLike: 제목이 sbb로 시작하는 질문들을 조회한다")
+    void t5() {
+        // SELECT ... FROM question WHERE subject LIKE 'sbb%'
+        // 샘플 질문 2개 중 "sbb가 무엇인가요?" 만 sbb 로 시작한다 ("스프링부트 모델 질문입니다." 는 아님).
+        // Of the 2 sample questions, only "sbb가 무엇인가요?" starts with sbb ("스프링부트 모델 질문입니다." doesn't).
+        List<Question> questions = questionRepository.findBySubjectLike("sbb%");
+
+        // 교재·강사는 첫 번째 결과의 제목만 확인하지만, 개수도 검사해야 "다른 질문은 걸러졌다"는 것까지 보장된다.
+        // The book and instructor only check the first result's subject; checking the size too proves the other question was filtered out.
+        assertThat(questions).hasSize(1);
+        assertThat(questions.get(0).getSubject()).isEqualTo("sbb가 무엇인가요?");
+    }
 }
