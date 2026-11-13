@@ -144,4 +144,26 @@ class QuestionRepositoryTest {
         Question foundQuestion = questionRepository.findBySubject("수정된 제목").orElseThrow();
         assertThat(foundQuestion.getId()).isEqualTo(1);
     }
+
+    @Test
+    @DisplayName("삭제: 질문 1번을 삭제하면 개수가 2 → 1 로 줄어든다")
+    // 삭제도 데이터를 바꾸므로 @Transactional 로 테스트가 끝나면 롤백한다 (t6 와 같은 이유).
+    // Deleting also changes data, so @Transactional rolls it back when the test ends (same reason as t6).
+    @Transactional
+    void t7() {
+        // 삭제 전: 샘플 질문 2개. count() → SELECT COUNT(*) FROM question
+        // Before deleting: 2 sample questions. count() → SELECT COUNT(*) FROM question
+        assertThat(questionRepository.count()).isEqualTo(2);
+
+        // delete → DELETE FROM question WHERE id = ?
+        // Question 의 answers 에 cascade = REMOVE 가 있어서, 답변이 있었다면 답변도 함께 지워진다 (지금 샘플에는 답변이 없다).
+        // delete → DELETE FROM question WHERE id = ?
+        // Question.answers has cascade = REMOVE, so any answers would be deleted too (the sample data has no answers yet).
+        Question question = questionRepository.findById(1).orElseThrow();
+        questionRepository.delete(question);
+
+        // 삭제 후: 1개만 남아야 한다.
+        // After deleting: only 1 must remain.
+        assertThat(questionRepository.count()).isEqualTo(1);
+    }
 }
