@@ -1,0 +1,373 @@
+<!--
+  보안 장 ② GET 금지 원칙, 로그인·403, 추천 (S17–S19, 영상 207.7–240.3 s, 이 장면 기준 0–32.6 s).
+  Security chapter ② no-GET rule, login/403, recommend (S17–S19, film 207.7–240.3 s, local 0–32.6 s).
+
+  S17 0–10.25   표: 삭제·로그아웃·추천 — 교재(GET 링크) vs 우리(DELETE·POST 폼 + 토큰) → 원칙 한 줄.
+                A table: delete, logout, recommend — book (GET links) vs ours (DELETE/POST forms + token) → the rule.
+  S18 10.25–21.43 실제 화면 두 장: 로그인 안 하고 /question/create → 로그인 화면, user2 가 user1 의 글 수정 → 403.
+                그리고 이를 확인하는 실제 테스트 두 줄 (QuestionControllerTest t4_anonymous, t8).
+                Two real pages: not logged in → login page; user2 editing user1's post → 403.
+                Then the two real tests that check it (t4_anonymous, t8).
+  S19 21.43–32.6 실제 화면의 추천 버튼(추천 1). 두 번 눌러도 1 → Set<SiteUser> voter 에 user2 는 한 번만 들어간다.
+                The real recommend button (1). Pressed twice, still 1 → user2 enters Set<SiteUser> voter only once.
+
+  문장 시각 (이 장면 기준):
+    S17 음성 0.4 s — 0.5–4.69 "로그아웃과 추천도 같은 이유로 포스트 폼입니다." / 4.64–9.39 "데이터를 바꾸는 요청은 겟으로 보내지 않는다는 원칙입니다."
+    S18 음성 10.65 s — 10.75–17.21 "로그인하지 않으면 로그인 화면으로, 남의 글을 고치려 하면 사백삼으로 막습니다." / 17.16–20.58 "이 규칙도 모두 테스트로 확인합니다."
+    S19 음성 21.83 s — 21.93–26.26 "같은 사람이 두 번 눌러도 추천은 한 번만 셉니다." / 26.21–31.73 "추천한 사람을 셋에 담아서…"
+-->
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      background: var(--ground);
+      font-family: var(--font-display);
+      color: var(--ink);
+      overflow: hidden;
+    }
+    .s2-card {
+      position: absolute;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(31, 35, 40, 0.12);
+      overflow: hidden;
+    }
+    .s2-url {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+      background: #f6f8fa;
+      font-family: var(--font-code);
+      font-size: 28px;
+      color: #57606a;
+      white-space: nowrap;
+    }
+
+    /* ── S17: 비교 표 ── / ── S17: the comparison table ── */
+    #s2-table {
+      left: 160px;
+      top: 150px;
+      width: 1600px;
+    }
+    .s2-row {
+      display: grid;
+      grid-template-columns: 260px 1fr 1fr;
+      align-items: center;
+      height: 96px;
+      padding: 0 32px;
+      border-bottom: 1px solid var(--line);
+      font-size: 34px;
+      font-weight: 700;
+    }
+    .s2-row:last-child {
+      border-bottom: none;
+    }
+    .s2-head {
+      height: 64px;
+      background: #f6f8fa;
+      font-size: 30px;
+      font-weight: 800;
+    }
+    .s2-head .b {
+      color: var(--book);
+    }
+    .s2-head .o {
+      color: var(--ours);
+    }
+    .s2-row code {
+      font-family: var(--font-code);
+      font-size: 30px;
+      font-weight: 500;
+    }
+    .s2-row .b code {
+      color: var(--book);
+    }
+    .s2-row .o code {
+      color: var(--ours);
+      font-weight: 700;
+    }
+    #s2-rule {
+      position: absolute;
+      left: 160px;
+      top: 700px;
+      width: 1600px;
+      text-align: center;
+      font-size: 64px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    #s2-rule .w {
+      display: inline-block;
+    }
+    #s2-rule .accent {
+      color: var(--ours);
+    }
+
+    /* ── S18 ── */
+    #s2-login {
+      left: 120px;
+      top: 130px;
+      width: 820px;
+    }
+    #s2-login img {
+      display: block;
+      width: 820px;
+      height: 328px;
+    }
+    #s2-403 {
+      left: 1000px;
+      top: 130px;
+      width: 800px;
+    }
+    #s2-403 img {
+      display: block;
+      width: 800px;
+      height: 194px;
+    }
+    .s2-cap {
+      position: absolute;
+      font-size: 40px;
+      font-weight: 800;
+    }
+    #s2-cap-login {
+      left: 120px;
+      top: 540px;
+      color: var(--ours);
+    }
+    #s2-cap-403 {
+      left: 1000px;
+      top: 420px;
+      color: var(--ours);
+    }
+    .s2-cap small {
+      display: block;
+      margin-top: 8px;
+      font-size: 30px;
+      font-weight: 600;
+      color: #57606a;
+    }
+    #s2-tests {
+      left: 120px;
+      top: 700px;
+      width: 1680px;
+    }
+    .s2-tline {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      height: 64px;
+      padding: 0 28px;
+      font-family: var(--font-code);
+      font-size: 28px;
+      white-space: nowrap;
+    }
+    .s2-tline .ok {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--ours);
+    }
+
+    /* ── S19 ── */
+    #s2-vote {
+      left: 120px;
+      top: 160px;
+      width: 960px;
+    }
+    #s2-vote img {
+      display: block;
+      width: 960px;
+      height: 480px;
+    }
+    /* 추천 버튼 위치(캡처 CSS 30–94, 266–296 → 1.5 배) 를 짚는 상자 / Box on the recommend button */
+    #s2-btnbox {
+      position: absolute;
+      left: 158px;
+      top: 609px;
+      width: 112px;
+      height: 62px;
+      border: 4px solid var(--ours);
+      border-radius: 10px;
+    }
+    .s2-press {
+      position: absolute;
+      left: 300px;
+      font-size: 36px;
+      font-weight: 800;
+    }
+    .s2-press b {
+      color: var(--ours);
+    }
+    #s2-press1 {
+      top: 720px;
+    }
+    #s2-press2 {
+      top: 780px;
+    }
+    #s2-set {
+      left: 1180px;
+      top: 160px;
+      width: 620px;
+    }
+    #s2-set .s2-url {
+      color: var(--ink);
+      font-weight: 700;
+    }
+    #s2-set-body {
+      position: relative;
+      height: 300px;
+      padding: 30px;
+    }
+    .s2-chip {
+      position: absolute;
+      left: 40px;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-family: var(--font-code);
+      font-size: 32px;
+      font-weight: 700;
+    }
+    #s2-chip1 {
+      top: 40px;
+      background: var(--ours-soft);
+      color: var(--ours);
+    }
+    #s2-chip2 {
+      top: 140px;
+      background: var(--book-soft);
+      color: var(--book);
+    }
+    #s2-chip2-note {
+      position: absolute;
+      left: 230px;
+      top: 150px;
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--book);
+    }
+    #s2-code {
+      position: absolute;
+      left: 1180px;
+      top: 560px;
+      width: 620px;
+      padding: 20px 24px;
+      border-radius: 10px;
+      background: var(--ours-soft);
+      font-family: var(--font-code);
+      font-size: 28px;
+      line-height: 1.5;
+    }
+  </style>
+
+  <div id="root" data-composition-id="sec2" data-width="1920" data-height="1080">
+    <!-- ── S17 ── -->
+    <div id="s2-s17" class="clip" data-start="0" data-duration="10.5">
+      <div id="s2-table" class="s2-card">
+        <div class="s2-row s2-head"><span>기능</span><span class="b">교재</span><span class="o">우리</span></div>
+        <div class="s2-row" id="s2-r1"><span>삭제</span><span class="b"><code>GET</code> 링크</span><span class="o"><code>DELETE</code> 폼 + 토큰</span></div>
+        <div class="s2-row" id="s2-r2"><span>로그아웃</span><span class="b"><code>GET</code> 링크</span><span class="o"><code>POST</code> 폼 + 토큰</span></div>
+        <div class="s2-row" id="s2-r3"><span>추천</span><span class="b"><code>GET</code> (자바스크립트)</span><span class="o"><code>POST</code> 폼 + 토큰</span></div>
+      </div>
+      <!-- data-hold: 원칙 한 줄을 읽는 정지 / A deliberate hold to read the rule -->
+      <div id="s2-rule" data-hold>
+        <span class="w">데이터를</span> <span class="w">바꾸는</span> <span class="w">요청은</span>
+        <span class="w accent">GET</span><span class="w accent">으로</span> <span class="w accent">보내지</span> <span class="w accent">않는다</span>
+      </div>
+    </div>
+
+    <!-- ── S18 ── -->
+    <div id="s2-s18" class="clip" data-start="10.25" data-duration="11.4">
+      <div id="s2-login" class="s2-card">
+        <div class="s2-url">/question/create → /user/login</div>
+        <img src="assets/shots/login-top.png" alt="" />
+      </div>
+      <div id="s2-cap-login" class="s2-cap">로그인 안 함 → 로그인 화면<small>@PreAuthorize("isAuthenticated()")</small></div>
+      <div id="s2-403" class="s2-card">
+        <div class="s2-url">user2 → /question/modify/1</div>
+        <img src="assets/shots/403-top.png" alt="" />
+      </div>
+      <div id="s2-cap-403" class="s2-cap">남의 글 수정 → 403<small>글쓴이가 아니면 FORBIDDEN</small></div>
+      <div id="s2-tests" class="s2-card">
+        <div class="s2-url">QuestionControllerTest</div>
+        <div class="s2-tline" id="s2-t1"><span class="ok">✔</span><span>t4_anonymous — redirectedUrl("/user/login")</span></div>
+        <div class="s2-tline" id="s2-t2"><span class="ok">✔</span><span>t8 — @WithMockUser(username = "user2") → status().isForbidden()</span></div>
+      </div>
+    </div>
+
+    <!-- ── S19 ── -->
+    <div id="s2-s19" class="clip" data-start="21.43" data-duration="11.17" data-layout-allow-overlap>
+      <div id="s2-vote" class="s2-card">
+        <div class="s2-url">localhost:8080/question/detail/1 (user2)</div>
+        <img src="assets/shots/voted-top.png" alt="" />
+      </div>
+      <div id="s2-btnbox"></div>
+      <div id="s2-press1" class="s2-press">1번 누름 → 추천 <b>1</b></div>
+      <div id="s2-press2" class="s2-press">2번 누름 → 추천 <b>1</b></div>
+      <div id="s2-set" class="s2-card">
+        <div class="s2-url">question.voter (Set)</div>
+        <div id="s2-set-body">
+          <div id="s2-chip1" class="s2-chip">user2</div>
+          <div id="s2-chip2" class="s2-chip">user2</div>
+          <div id="s2-chip2-note">이미 있음 → 안 들어감</div>
+        </div>
+      </div>
+      <div id="s2-code">@ManyToMany<br />private Set&lt;SiteUser&gt; voter<br />&nbsp;&nbsp;&nbsp;&nbsp;= new HashSet&lt;&gt;();</div>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const blurIn = { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power2.out" };
+    const hidden = { opacity: 0, filter: "blur(8px)" };
+
+    // ── S17 ──
+    // 표: 머리줄 → 삭제(앞 장면에서 본 것) → "로그아웃과 추천도" 에 맞춰 두 줄.
+    // Table: header → delete (from the last scene) → logout and recommend as they're named.
+    tl.fromTo("#s2-table", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.4, ease: "expo.out" }, 0.2);
+    tl.fromTo(["#s2-r2", "#s2-r3"], { opacity: 0 }, { opacity: 0, duration: 0.01 }, 0.2);
+    tl.to("#s2-r2", { opacity: 1, duration: 0.25 }, 0.9);
+    tl.to("#s2-r3", { opacity: 1, duration: 0.25 }, 2.0);
+    // 문장 2: 원칙 한 줄이 단어마다. / Sentence 2: the rule, word by word.
+    tl.fromTo("#s2-rule .w", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.13, stagger: 0.09 }, 5.0);
+
+    // ── S18 ──
+    tl.to("#s2-s17 > *", { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power2.in" }, 10.25);
+    // "로그인하지 않으면 로그인 화면으로" / "not logged in → the login page"
+    tl.fromTo("#s2-login", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.4, ease: "expo.out" }, 10.6);
+    tl.fromTo("#s2-cap-login", hidden, blurIn, 11.4);
+    // "남의 글을 고치려 하면 사백삼으로" (≈14.3 s) / "editing someone else's post → 403"
+    tl.fromTo("#s2-403", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.4, ease: "expo.out" }, 14.2);
+    tl.fromTo("#s2-cap-403", hidden, blurIn, 15.0);
+    // "이 규칙도 모두 테스트로" (≈17.4 s): 실제 테스트 두 줄. / The two real tests.
+    tl.fromTo("#s2-tests", hidden, blurIn, 17.4);
+    tl.fromTo(["#s2-t1", "#s2-t2"], { opacity: 0, clipPath: "inset(0 100% 0 0)" }, { opacity: 1, clipPath: "inset(0 0% 0 0)", duration: 0.3, stagger: 0.5 }, 17.6);
+
+    // ── S19 ──
+    tl.to("#s2-s18 > *", { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power2.in" }, 21.43);
+    tl.fromTo("#s2-vote", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.4, ease: "expo.out" }, 21.7);
+    tl.fromTo("#s2-btnbox", { opacity: 0, scale: 1.2 }, { opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" }, 22.4);
+    // "두 번 눌러도" (≈23.6 s): 누를 때마다 버튼이 살짝 눌리고 기록이 한 줄씩 → 둘 다 1.
+    // "pressed twice": the button dips on each press and a line is logged → both say 1.
+    tl.to("#s2-btnbox", { scale: 0.92, duration: 0.08 }, 23.3);
+    tl.to("#s2-btnbox", { scale: 1, duration: 0.1 }, 23.38);
+    tl.fromTo("#s2-press1", hidden, blurIn, 23.4);
+    tl.to("#s2-btnbox", { scale: 0.92, duration: 0.08 }, 24.4);
+    tl.to("#s2-btnbox", { scale: 1, duration: 0.1 }, 24.48);
+    tl.fromTo("#s2-press2", hidden, blurIn, 24.5);
+    // 문장 2 "셋에 담아서" (≈27.0 s): Set 상자 → 첫 user2 들어감 → 둘째 user2 는 "이미 있음".
+    // Sentence 2: the Set box → the first user2 enters → the second is "already there".
+    tl.fromTo("#s2-set", hidden, blurIn, 26.6);
+    tl.fromTo("#s2-chip1", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.35, ease: "expo.out" }, 27.3);
+    tl.fromTo("#s2-chip2", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.35, ease: "expo.out" }, 28.4);
+    tl.fromTo("#s2-chip2-note", hidden, blurIn, 28.9);
+    tl.to("#s2-chip2", { opacity: 0.3, duration: 0.3 }, 29.4);
+    tl.fromTo("#s2-code", hidden, blurIn, 29.8);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["sec2"] = tl;
+  </script>
+</template>

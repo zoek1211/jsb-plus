@@ -1257,3 +1257,25 @@
   ![000-14 404](docs/images/000-14-404.png)
 
   ![000-14 페이징](docs/images/000-14-paging.png)
+
+### 000-15 결과 영상, 보안 장(S15–S19) 만들기
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/000-15)
+- 작업: 보안 장(영상 180.1–240.3 s)을 장면 파일 2개로 만들고 `index.html` 에 올림
+  - `sec1.html` (S15–S16): 시큐리티 추가 직후 POST 테스트 4개 ✘ 403 (025-01 의 실제 테스트: `/question/create`, `/answer/create/1` 와 각각의 빈 입력) → "CSRF 토큰 없음" → `.with(csrf())` 로 4개 ✔ / 교재의 삭제 GET 링크 → 다른 사이트의 `<img src=".../question/delete/1">` 도 GET 을 보낸다(GET 은 CSRF 검사를 받지 않음) → 우리 `th:method="delete"` 폼 + `_csrf` 토큰
+  - `sec2.html` (S17–S19): 삭제·로그아웃·추천 표(교재 GET vs 우리 DELETE·POST 폼) → "데이터를 바꾸는 요청은 GET으로 보내지 않는다" / 실제 화면: 로그인 안 함 → 로그인 화면, user2 가 남의 글 수정 → 403, 이를 확인하는 테스트 `t4_anonymous`·`t8` / 실제 추천 버튼: 두 번 눌러도 1, `Set<SiteUser> voter` 에 user2 는 한 번만
+- 이유: 교재와 다르게 만든 보안 부분(CSRF, GET 링크 대신 DELETE·POST 폼, 로그인·글쓴이 확인, 중복 추천)을 "왜"와 함께 보여주기 위함. 테스트 이름·경로는 해당 태그의 실제 테스트 코드에서 확인(처음 적은 `/answer/create/2` 는 실제로 `/1` 이라 고침)
+- 결과: `npx hyperframes check` 오류·경고 0. 고친 것: 읽기엔 짧게 보였던 라벨 2개, 3초 넘게 멈춘 구간 2곳(링크 주소·폼 속성 강조 추가), 같은 요소에 fromTo 를 여러 번 건 버튼 누름 → `to` 로, 로그인·403 캡처를 더 좁게 잘라 글자 키움, Set 코드 줄바꿈. 내레이션 5개 -16 LUFS
+- 핵심 변경:
+  ```html
+  <!-- 교재: <a href="/question/delete/1">삭제</a>  → GET 은 CSRF 검사를 받지 않는다 -->
+  <form th:action="@{|/question/delete/${question.id}|}" th:method="delete">  <!-- + 숨은 _method, _csrf -->
+  ```
+- 실행화면 (201 s: DELETE 폼 / 213.5 s: 원칙 / 226 s: 로그인·403·테스트 / 240 s: Set 추천):
+
+  ![000-15 실행화면](docs/images/000-15.png)
+
+  ![000-15 원칙](docs/images/000-15-rule.png)
+
+  ![000-15 403](docs/images/000-15-403.png)
+
+  ![000-15 추천](docs/images/000-15-vote.png)
