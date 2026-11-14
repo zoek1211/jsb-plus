@@ -297,3 +297,19 @@
 - 실행화면:
 
   ![011-02 실행화면](docs/images/011-02.png)
+
+### 011-03 루트 URL, / 접속 시 질문 목록으로 리다이렉트
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/011-03)
+- 작업: `MainController` 의 `GET /` 가 `redirect:/question/list` 반환, 연습용 `/hello` 와 "SBB" 응답 제거, `MainControllerTest` 를 리다이렉트 검사로 변경
+- 이유: 교재 2-08 / 14163 33강 — 사이트 첫 화면을 질문 목록으로
+- 결과: 테스트 15개 통과 (`is3xxRedirection`, `redirectedUrl("/question/list")`), 브라우저에서 `/` 접속 시 질문 목록 화면 표시
+- 핵심 변경:
+  ```java
+  @GetMapping("/")
+  public String index() {
+      return "redirect:/question/list";   // HTTP 302 → 브라우저가 다시 요청
+  }
+  ```
+- 실행화면 (`http://localhost:8080/` 접속 결과):
+
+  ![011-03 실행화면](docs/images/011-03.png)

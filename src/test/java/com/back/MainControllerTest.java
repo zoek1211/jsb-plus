@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 // "test" 프로필(메모리 DB)로 실행한다. 자세한 설명은 BackApplicationTests 참고.
@@ -36,7 +36,7 @@ class MainControllerTest {
     // @DisplayName: 테스트 결과에 메서드 이름 대신 보여줄 설명.
     // @DisplayName: a readable label shown in test results instead of the method name.
     @Test
-    @DisplayName("GET / 요청 시 SBB 를 응답한다")
+    @DisplayName("GET / 요청 시 /question/list 로 리다이렉트한다")
     void t1() throws Exception {
         // perform(get("/")): 브라우저가 주소창에 "/" 를 입력한 것처럼 GET 요청을 보낸다.
         // perform(get("/")): sends a GET request, as if a browser typed "/" in the address bar.
@@ -45,21 +45,12 @@ class MainControllerTest {
                 // andDo(print()): prints the request and response to the console. Handy when a test fails.
                 .andDo(print())
                 // andExpect: 응답이 기대와 같은지 검사한다. 다르면 테스트가 실패한다.
-                // status().isOk() = HTTP 상태 코드가 200(성공)인가?
+                // status().is3xxRedirection() = HTTP 상태 코드가 3xx(다른 주소로 이동)인가?
                 // andExpect: checks the response matches what we expect; otherwise the test fails.
-                // status().isOk() = is the HTTP status code 200 (success)?
-                .andExpect(status().isOk())
-                // content().string(...) = 응답 본문이 정확히 이 문자열인가?
-                // content().string(...) = is the response body exactly this string?
-                .andExpect(content().string("SBB"));
-    }
-
-    @Test
-    @DisplayName("GET /hello 요청 시 안녕하세요 ^ ^ 를 응답한다")
-    void t2() throws Exception {
-        mvc.perform(get("/hello"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().string("안녕하세요 ^ ^"));
+                // status().is3xxRedirection() = is the HTTP status code 3xx (go to another URL)?
+                .andExpect(status().is3xxRedirection())
+                // redirectedUrl: 이동할 주소가 정확히 이것인가?
+                // redirectedUrl: is the target URL exactly this?
+                .andExpect(redirectedUrl("/question/list"));
     }
 }
