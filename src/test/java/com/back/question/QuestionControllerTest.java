@@ -59,6 +59,14 @@ class QuestionControllerTest {
     }
 
     @Test
+    @DisplayName("GET /question/list: 답변이 있는 질문(2번, 답변 1개) 옆에 답변 개수가 보인다")
+    void t1_answerCount() throws Exception {
+        mvc.perform(get("/question/list"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("text-danger small ms-2")));
+    }
+
+    @Test
     @DisplayName("GET /question/detail/1: 1번 질문의 제목과 내용이 보인다")
     void t2() throws Exception {
         mvc.perform(get("/question/detail/1"))

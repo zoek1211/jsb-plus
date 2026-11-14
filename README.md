@@ -588,3 +588,18 @@
 - 실행화면 (`?page=1`, 즉 2페이지):
 
   ![023-01 실행화면](docs/images/023-01.jpg)
+
+### 024-01 답변 개수 표시, 목록 제목 옆에 답변 수
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/024-01)
+- 작업: 목록에서 답변이 1개 이상인 질문 제목 옆에 `#lists.size(question.answers)` 를 빨간 작은 글씨로, 컨트롤러 테스트 추가
+- 이유: 교재 3-04 — 목록에서 바로 답변 여부 확인
+- 결과: 테스트 26개 통과, 마지막 페이지의 2번 질문 옆에 답변 수 3 표시
+- 핵심 변경:
+  ```html
+  <span class="text-danger small ms-2"
+        th:if="${#lists.size(question.answers) > 0}"
+        th:text="${#lists.size(question.answers)}"></span>
+  ```
+- 실행화면 (마지막 페이지):
+
+  ![024-01 실행화면](docs/images/024-01.png)

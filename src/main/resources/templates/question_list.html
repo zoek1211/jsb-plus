@@ -39,6 +39,16 @@
             <td th:text="${paging.totalElements - (paging.number * paging.size) - loop.index}"></td>
             <td>
                 <a th:href="@{|/question/detail/${question.id}|}" th:text="${question.subject}"></a>
+                <!--
+                  답변 개수 표시 (교재 3-04). 답변이 1개 이상일 때만 제목 옆에 빨간 숫자로.
+                  th:if: 조건이 거짓이면 이 태그 자체를 그리지 않는다.
+                  Answer count (book 3-04). Shown as a red number next to the subject only when there's at least 1 answer.
+                  th:if: if the condition is false, the tag isn't rendered at all.
+                -->
+                <span class="text-danger small ms-2"
+                      th:if="${#lists.size(question.answers) > 0}"
+                      th:text="${#lists.size(question.answers)}">
+                </span>
             </td>
             <!-- #temporals.format: 날짜를 "2026-11-14 17:16" 형식으로 / formats the date like "2026-11-14 17:16" -->
             <td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></td>
