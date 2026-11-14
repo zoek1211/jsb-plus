@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<!--
+  회원가입 폼 (교재 3-06). th:object="${form}" 으로 UserCreateForm 과 연결.
+  The sign-up form (book 3-06). Tied to UserCreateForm via th:object="${form}".
+-->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>회원가입</title>
+</head>
+<body>
+<div layout:fragment="content" class="container my-3">
+    <div class="my-3 border-bottom">
+        <h4>회원가입</h4>
+    </div>
+    <form th:action="@{/user/signup}" th:object="${form}" method="post">
+        <!-- 검증 오류 (공통 조각, 019-01) / Validation errors (shared fragment, 019-01) -->
+        <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+        <div class="mb-3">
+            <label for="username" class="form-label">사용자ID</label>
+            <input type="text" th:field="*{username}" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label for="password1" class="form-label">비밀번호</label>
+            <!-- type="password": 입력한 글자를 ●●● 로 가린다 / type="password": hides typed characters as ●●● -->
+            <input type="password" th:field="*{password1}" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label for="password2" class="form-label">비밀번호 확인</label>
+            <input type="password" th:field="*{password2}" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">이메일</label>
+            <input type="email" th:field="*{email}" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">회원가입</button>
+    </form>
+</div>
+</body>
+</html>

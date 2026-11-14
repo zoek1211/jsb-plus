@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 
@@ -43,5 +45,14 @@ public class SecurityConfig {
                                 XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
                 );
         return http.build();
+    }
+
+    // 비밀번호 암호화기를 빈으로 등록한다 (교재 3-06). UserService 가 주입받아 쓴다.
+    // BCrypt: 같은 비밀번호라도 매번 다른 결과가 나오고(salt), 일부러 느리게 만들어 무작위 대입 공격을 어렵게 하는 해시 방식.
+    // Registers the password encoder as a bean (book 3-06). UserService receives and uses it.
+    // BCrypt: a hashing scheme that gives a different result each time even for the same password (salt), and is deliberately slow to make brute-force attacks hard.
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

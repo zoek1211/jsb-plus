@@ -623,3 +623,28 @@
 - 실행화면 (시큐리티 적용 후 폼으로 질문 등록 성공):
 
   ![025-01 실행화면](docs/images/025-01.png)
+
+### 026-01 회원가입, SiteUser·UserService·회원가입 폼
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/026-01)
+- 작업: `com.back.user` 패키지 — `SiteUser` (BaseEntity 상속, username·email `unique`), `UserRepository.findByUsername`, `UserService.create` (BCrypt 암호화), `UserCreateForm` record, `UserController` (`/user/signup` GET·POST: 검증 → 비밀번호 확인 `rejectValue` → 중복 `DataIntegrityViolationException` → `reject`), `PasswordEncoder` 빈, `signup_form.html`, 내비게이션 바 "회원가입", `UserControllerTest` 3개
+- 이유: 교재 3-06 — 회원 기능의 시작. 비밀번호는 절대 원문으로 저장하지 않음
+- 결과: 테스트 29개 통과. 비밀번호 확인 불일치 시 오류, 가입 후 DB에는 `$2a$10$...` 형식의 암호화된 비밀번호
+- 핵심 변경:
+  ```java
+  @Bean
+  public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
+
+  user.setPassword(passwordEncoder.encode(password));
+
+  if (!form.password1().equals(form.password2())) {
+      bindingResult.rejectValue("password2", "passwordInCorrect", "2개의 패스워드가 일치하지 않습니다.");
+      return "signup_form";
+  }
+  try { userService.create(...); }
+  catch (DataIntegrityViolationException e) { bindingResult.reject("signupFailed", "이미 등록된 사용자입니다."); ... }
+  ```
+- 실행화면 (비밀번호 불일치 / 가입 후 DB의 암호화된 비밀번호):
+
+  ![026-01 불일치](docs/images/026-01-error.png)
+
+  ![026-01 실행화면](docs/images/026-01.png)
