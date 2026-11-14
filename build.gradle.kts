@@ -77,6 +77,16 @@ dependencies {
 	// 검증(Validation): @NotBlank, @Size 같은 어노테이션으로 폼 입력값을 검사한다 (교재 2-16, 14168 11강).
 	// Validation: checks form input with annotations like @NotBlank and @Size (book 2-16, 14168 lecture 11).
 	implementation("org.springframework.boot:spring-boot-starter-validation")
+
+	// 스프링 시큐리티: 로그인, 권한 검사, CSRF 공격 방어 같은 보안 기능 (교재 3-05, 14168 46강).
+	// Spring Security: security features such as login, permission checks and CSRF protection (book 3-05, 14168 lecture 46).
+	implementation("org.springframework.boot:spring-boot-starter-security")
+	// 타임리프에서 로그인 여부를 확인하는 sec:authorize 같은 문법을 쓰게 해준다.
+	// Lets Thymeleaf use syntax like sec:authorize to check whether the user is logged in.
+	implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
+	// 테스트에서 csrf(), @WithMockUser 등을 쓰기 위한 도구.
+	// Test helpers such as csrf() and @WithMockUser.
+	testImplementation("org.springframework.boot:spring-boot-starter-security-test")
 	// JPA 관련 테스트 도구 (나중에 리포지터리 테스트에서 사용).
 	// Test tools for JPA (used later for repository tests).
 	testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")

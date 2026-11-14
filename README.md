@@ -603,3 +603,23 @@
 - 실행화면 (마지막 페이지):
 
   ![024-01 실행화면](docs/images/024-01.png)
+
+### 025-01 스프링 시큐리티, 도입과 기본 설정 (CSRF)
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/025-01)
+- 작업: `spring-boot-starter-security`, `thymeleaf-extras-springsecurity6`, 테스트용 `spring-boot-starter-security-test` 추가, `com.back.global.security.SecurityConfig` (`SecurityFilterChain`: 모든 요청 허용, `/h2-console/**` 만 CSRF 예외, SAMEORIGIN frame 허용), POST 테스트에 `.with(csrf())`
+- 이유: 교재 3-05 / 14168 46강 — 로그인·권한 기능 준비. CSRF 방어로 다른 사이트의 위조 POST 차단
+- 결과: 시큐리티만 추가했을 때 POST 테스트 4개가 `403` 으로 실패 → `csrf()` 추가 후 테스트 26개 통과. 실제 폼에는 `th:action` 이 숨은 `_csrf` 토큰(96자)을 자동으로 넣어 등록 성공
+- 핵심 변경:
+  ```java
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+      http.authorizeHttpRequests(auth -> auth.requestMatchers("/**").permitAll())
+          .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
+          .headers(h -> h.addHeaderWriter(new XFrameOptionsHeaderWriter(SAMEORIGIN)));
+      return http.build();
+  }
+  // 테스트: mvc.perform(post("/question/create").with(csrf()) ...)
+  ```
+- 실행화면 (시큐리티 적용 후 폼으로 질문 등록 성공):
+
+  ![025-01 실행화면](docs/images/025-01.png)

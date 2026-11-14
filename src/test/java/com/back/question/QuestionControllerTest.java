@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -97,7 +98,7 @@ class QuestionControllerTest {
     @Test
     @DisplayName("POST /question/create: 질문 등록 후 목록으로 이동하고, 새 질문이 보인다")
     void t5() throws Exception {
-        mvc.perform(post("/question/create")
+        mvc.perform(post("/question/create").with(csrf())
                         .param("subject", "새 질문 제목")
                         .param("content", "새 질문 내용"))
                 .andDo(print())
@@ -111,7 +112,7 @@ class QuestionControllerTest {
     @Test
     @DisplayName("POST /question/create: 제목·내용이 비어 있으면 저장하지 않고 오류 메시지와 함께 폼을 다시 보여준다")
     void t6() throws Exception {
-        mvc.perform(post("/question/create")
+        mvc.perform(post("/question/create").with(csrf())
                         .param("subject", "")
                         .param("content", "내용만 있음"))
                 .andDo(print())

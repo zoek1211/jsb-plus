@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -31,8 +32,12 @@ class AnswerControllerTest {
     @DisplayName("POST /answer/create/1: 답변 등록 후 상세 화면으로 이동하고, 답변이 보인다")
     void t1() throws Exception {
         // post(...).param("content", ...): 폼의 textarea(name="content") 에 글을 쓰고 제출한 것과 같다.
+        // .with(csrf()): 시큐리티(025-01)가 요구하는 CSRF 토큰을 넣는다. 실제 화면은 th:action 이 자동으로 넣어 준다.
+        //               없으면 403 Forbidden 으로 거절된다 (025-01 에서 확인).
         // post(...).param("content", ...): the same as typing into the form's textarea (name="content") and submitting.
-        mvc.perform(post("/answer/create/1").param("content", "테스트 답변입니다."))
+        // .with(csrf()): adds the CSRF token Security (025-01) requires. Real pages get it automatically from th:action.
+        //               Without it the request is rejected with 403 Forbidden (seen in 025-01).
+        mvc.perform(post("/answer/create/1").with(csrf()).param("content", "테스트 답변입니다."))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/question/detail/1"));
@@ -48,7 +53,7 @@ class AnswerControllerTest {
     @Test
     @DisplayName("POST /answer/create/1: 내용이 비어 있으면 저장하지 않고 오류 메시지를 보여준다")
     void t2() throws Exception {
-        mvc.perform(post("/answer/create/1").param("content", ""))
+        mvc.perform(post("/answer/create/1").with(csrf()).param("content", ""))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("내용은 필수항목입니다.")))
