@@ -1150,3 +1150,20 @@
   S20  ... 테스트 9개가 실패했습니다. + 그래서 화면에 필요한 도구를 모델에 직접 넣어 주는 방식으로 고쳤습니다.
   ```
 - 실행화면: 해당 없음 (오디오 파일)
+
+### 000-10 결과 영상, 화면 다시 캡처 (2880x1800)
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/000-10)
+- 작업: 영상에 쓸 실제 앱 화면 16장을 `video/assets/shots/` 에 캡처 (XSS 답변, 목록·페이징, 404, 입력 오류, 글쓴이 버튼, 403, 추천, 검색, 테스트 리포트, 교재 비교표)
+- 이유: 기존 `docs/images` 캡처는 480~640 px 폭이라 1920x1080 영상에서 흐림. 1440x900 화면을 2배 픽셀로 찍어 확대해도 선명하게 함. 개발 DB 를 건드리지 않도록 새 H2 DB 로 앱을 8082 포트에 따로 띄워, 샘플 데이터가 처음 상태로 만들어진 화면을 찍음
+- 결과: 16장 모두 2880x1800. 답변에 쓴 `<script>alert('XSS')</script>` 는 화면에 글자로만 보이고 페이지의 `<script>` 태그는 레이아웃의 1개뿐임을 확인. 테스트 다시 실행: 50개 100% 통과. 404·403 화면 아래의 긴 스택 트레이스는 영상에서 잘라 씀
+- 핵심 변경:
+  ```bash
+  # 개발 DB 대신 새 DB 로 앱을 따로 띄움 (.claude/launch.json "capture")
+  ./gradlew bootRun --args="--server.port=8082 --spring.datasource.url=jdbc:h2:<임시 폴더>/capture_db"
+  # 2배 픽셀로 캡처
+  agent-browser set viewport 1440 900 2
+  agent-browser screenshot video/assets/shots/detail-1-xss.png
+  ```
+- 실행화면 (XSS 답변 / 테스트 리포트 / 목록 / 404 / 입력 오류 / 403):
+
+  ![000-10 실행화면](docs/images/000-10.jpg)
