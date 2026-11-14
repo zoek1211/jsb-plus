@@ -1,4 +1,7 @@
-package com.back;
+package com.back.question;
+
+import com.back.answer.Answer;
+import com.back.answer.AnswerRepository;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

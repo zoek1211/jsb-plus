@@ -216,3 +216,19 @@
   ![009-03 수정 전](docs/images/009-03-before.jpg)
 
   ![009-03 실행화면](docs/images/009-03.jpg)
+
+### 010-01 패키지 구조, 도메인별 패키지로 분류
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/010-01)
+- 작업: `Question`·`QuestionRepository` → `com.back.question`, `Answer`·`AnswerRepository` → `com.back.answer`, 테스트 → `com.back.question`, 필요한 import 추가
+- 이유: 교재 2-06 / 14163 26강 — 기능(도메인)별로 파일을 모아 찾기 쉽게 함
+- 결과: 테스트 14개 통과, 테스트 리포트에 `com.back.question.QuestionRepositoryTest` 로 표시
+- 핵심 변경:
+  ```text
+  com.back
+  ├── BackApplication, MainController, TestInitData
+  ├── question/  Question, QuestionRepository
+  └── answer/    Answer, AnswerRepository
+  ```
+- 실행화면:
+
+  ![010-01 실행화면](docs/images/010-01.jpg)

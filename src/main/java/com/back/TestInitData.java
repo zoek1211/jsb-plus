@@ -1,5 +1,8 @@
 package com.back;
 
+import com.back.question.Question;
+import com.back.question.QuestionRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;

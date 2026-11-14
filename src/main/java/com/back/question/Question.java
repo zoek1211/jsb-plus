@@ -1,4 +1,14 @@
-package com.back;
+// 도메인별 패키지 (14163 26강): 질문과 관련된 클래스(엔티티, 리포지터리, 앞으로 만들 컨트롤러·서비스)는 com.back.question 에,
+// 답변 관련 클래스는 com.back.answer 에 모은다. 기능이 늘어도 "질문 기능은 question 폴더"처럼 찾기 쉽다.
+// 다른 패키지의 클래스를 쓰려면 import 해야 한다 (아래 com.back.answer.Answer).
+// 하위 패키지도 com.back 아래라서 @SpringBootApplication 의 컴포넌트 스캔 대상이다.
+// Packages by domain (14163 lecture 26): question-related classes (entity, repository, and later the controller/service) live in com.back.question,
+// answer-related ones in com.back.answer. As features grow, "question code is in the question folder" stays easy to find.
+// Using a class from another package requires an import (com.back.answer.Answer below).
+// Sub-packages are still under com.back, so @SpringBootApplication's component scan still finds them.
+package com.back.question;
+
+import com.back.answer.Answer;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
