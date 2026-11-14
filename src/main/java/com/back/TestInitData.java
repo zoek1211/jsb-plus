@@ -13,16 +13,16 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
 
 
-// 테스트용 샘플 데이터를 만드는 클래스.
-// Creates sample data for tests.
+// 샘플 데이터를 만드는 클래스 (테스트 + 개발 환경).
+// Creates sample data (for tests and for local development).
 //
-// @Profile("test"): "test" 프로필일 때만 이 클래스를 사용한다.
-// 테스트(@ActiveProfiles("test"))에서는 실행되고, bootRun(dev 프로필)에서는 아예 무시된다 → 개발 DB(db_dev)는 건드리지 않는다.
-// 빼면 앱을 실행할 때마다 개발 DB에도 샘플 질문이 들어간다.
-// @Profile("test"): use this class only when the "test" profile is active.
-// It runs in tests (@ActiveProfiles("test")) and is ignored entirely by bootRun (dev profile) → the dev database (db_dev) is never touched.
-// Without it, sample questions would also be inserted into the dev database every time the app runs.
-@Profile("test")
+// @Profile({"dev", "test"}): dev 또는 test 프로필일 때만 이 클래스를 사용한다.
+// 처음(006-02)에는 "test" 만이었지만, 웹 화면(011~)을 만들면서 bootRun(dev)에서도 볼 데이터가 필요해 dev 를 추가했다 (14163 27강).
+// 운영(prod) 같은 다른 프로필에서는 실행되지 않는다. count() > 0 검사 덕분에 앱을 다시 켜도 중복 저장되지 않는다.
+// @Profile({"dev", "test"}): use this class only when the dev or test profile is active.
+// It started as "test" only (006-02); once we built web pages (011+), bootRun (dev) needed data to show, so dev was added (14163 lecture 27).
+// It never runs in other profiles such as prod. The count() > 0 check keeps restarts from inserting duplicates.
+@Profile({"dev", "test"})
 // @Configuration: 스프링 설정 클래스. 스프링이 이 클래스의 객체를 만들고, 안의 @Bean 메서드들을 실행해 객체(빈)를 등록한다.
 // @Configuration: a Spring configuration class. Spring creates an object of it and runs its @Bean methods to register objects (beans).
 @Configuration

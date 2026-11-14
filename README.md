@@ -254,3 +254,23 @@
 - 실행화면:
 
   ![010-02 실행화면](docs/images/010-02.jpg)
+
+### 011-01 질문 목록, 자바 문자열로 HTML 응답
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/011-01)
+- 작업: `QuestionController` 의 `GET /question/list` 가 질문 목록 HTML 을 자바 텍스트 블록으로 만들어 반환, 샘플 데이터를 dev 프로필에서도 생성 (`@Profile({"dev", "test"})`), `QuestionControllerTest` 추가
+- 이유: 14163 27강 — 템플릿 없이 HTML 을 만들어 보며 타임리프가 필요한 이유를 확인. 브라우저로 볼 데이터가 필요해 dev 에도 샘플 데이터
+- 결과: 테스트 16개 통과, 브라우저에서 질문 2개 목록 표시
+- 핵심 변경:
+  ```java
+  @GetMapping("/question/list")
+  @ResponseBody
+  public String list() {
+      String questionLiHtml = questionRepository.findAll().stream()
+              .map(q -> "<li>%d / %s</li>".formatted(q.getId(), q.getSubject()))
+              .collect(Collectors.joining("\n"));
+      return """ <html> ... <ul>%s</ul> ... </html> """.formatted(questionLiHtml);
+  }
+  ```
+- 실행화면:
+
+  ![011-01 실행화면](docs/images/011-01.png)
