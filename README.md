@@ -1123,3 +1123,17 @@
 - 실행화면 (임시 제목 스냅샷):
 
   ![000-07 실행화면](docs/images/000-07.png)
+
+### 000-08 결과 영상, Edge TTS 내레이션 25줄 생성
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/000-08)
+- 작업: `video/assets/vo/script.tsv` 에 장면별 대본 25줄, Edge TTS(`ko-KR-SunHiNeural`)로 `S01.mp3` ~ `S25.mp3` 생성, 길이를 `durations.txt` 에 기록
+- 이유: 내레이션이 영상의 시계 — 장면 길이를 실제 목소리 길이에 맞추기 위해 먼저 만든다. 영어 용어는 한국어 목소리가 읽기 쉽게 한글로 적음 (`mappedBy` → "매핑드 바이", `403` → "사백삼", `CSRF` → "씨에스알에프")
+- 결과: 25개 모두 생성(합계 1.1 MB, 24 kHz 모노). 말소리 합계 182.7 s, 장면 앞뒤 숨을 더하면 약 213 s(3분 33초) → 목표 5분보다 짧음. 발음은 측정만 했고 아직 사람이 들어 보지 않음
+- 핵심 변경:
+  ```bash
+  # 대본 한 줄 = mp3 하나 (다시 만들 때)
+  while IFS=$'\t' read id text; do
+    uvx edge-tts --voice ko-KR-SunHiNeural --text "$text" --write-media $id.mp3
+  done < script.tsv
+  ```
+- 실행화면: 해당 없음 (오디오 파일)
