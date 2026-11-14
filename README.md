@@ -443,3 +443,22 @@
   ![016-02 실행화면](docs/images/016-02.png)
 
   ![016-02 상세](docs/images/016-02-detail.jpg)
+
+### 017-01 템플릿 상속, 레이아웃 방언(layout.html)
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/017-01)
+- 작업: `thymeleaf-layout-dialect` 추가, 공통 틀 `templates/layout.html` (head·부트스트랩·style.css, `layout:title-pattern`), 목록·상세는 `layout:decorate="~{layout}"` + `layout:fragment="content"` 만 작성
+- 이유: 교재 2-15 / 14168 44~45강 — 페이지마다 반복되던 `<head>` 를 한 곳으로. 교재의 `th:replace` 대신 레이아웃 방언으로 페이지가 틀을 "입는" 방식
+- 결과: 테스트 18개 통과, 화면은 그대로, 브라우저 탭 제목이 `질문 목록 | SBB`
+- 핵심 변경:
+  ```html
+  <!-- layout.html -->
+  <title layout:title-pattern="$CONTENT_TITLE | $LAYOUT_TITLE">SBB</title>
+  <th:block layout:fragment="content"></th:block>
+
+  <!-- question_list.html -->
+  <html layout:decorate="~{layout}">
+  <div layout:fragment="content" class="container my-3"> ... </div>
+  ```
+- 실행화면 (탭 제목: 질문 목록 | SBB):
+
+  ![017-01 실행화면](docs/images/017-01.png)

@@ -39,7 +39,10 @@ class QuestionControllerTest {
                 .andExpect(content().string(containsString("스프링부트 모델 질문입니다.")))
                 // 목록의 제목이 상세 화면 링크인지 확인
                 // Check the subjects link to the detail page
-                .andExpect(content().string(containsString("href=\"/question/detail/1\"")));
+                .andExpect(content().string(containsString("href=\"/question/detail/1\"")))
+                // 레이아웃의 title-pattern 이 적용되었는지 확인 (017-01)
+                // Check the layout's title-pattern was applied (017-01)
+                .andExpect(content().string(containsString("<title>질문 목록 | SBB</title>")));
     }
 
     @Test

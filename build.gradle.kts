@@ -69,6 +69,11 @@ dependencies {
 	// When a controller returns "question_list", it renders templates/question_list.html.
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 	testImplementation("org.springframework.boot:spring-boot-starter-thymeleaf-test")
+	// 타임리프 레이아웃 방언: 공통 틀(layout.html)을 만들고 각 페이지는 바뀌는 부분(content)만 채우게 해준다 (14168 44강).
+	// 버전은 스프링부트가 관리하므로 적지 않는다.
+	// Thymeleaf Layout Dialect: lets us write one shared frame (layout.html) and have each page fill in only its changing part (14168 lecture 44).
+	// Spring Boot manages the version, so none is written here.
+	implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
 	// JPA 관련 테스트 도구 (나중에 리포지터리 테스트에서 사용).
 	// Test tools for JPA (used later for repository tests).
 	testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
