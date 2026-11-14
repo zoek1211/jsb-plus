@@ -1279,3 +1279,27 @@
   ![000-15 403](docs/images/000-15-403.png)
 
   ![000-15 추천](docs/images/000-15-vote.png)
+
+### 000-16 결과 영상, 마지막 장(S20–S25) 만들기 — 전체 25장면 완성
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/000-16)
+- 작업: 마지막 장(영상 240.3–308.56 s)을 장면 파일 2개로 만들고 `index.html` 에 올림. 영상 전체 길이 308.56 s (약 5분 9초)
+  - `end1.html` (S20–S22): 교재 `${@commonUtil.markdown(...)}` → 타임리프 3.1.5 의 실제 오류 문구, ✘ 테스트 9개 → `GlobalModelAttributes` + `@` 없는 템플릿 → ✔ 46개 (032-01) / 처음 쓴 기대값 `redirectedUrlPattern("**/user/login")` 의 실제 실패 문구 → `redirectedUrl("/user/login")` ✔ / 검색 "sbb" 실제 화면에서 처음의 질문 카드가 다시 올라오고, 검색 대상 5가지(JPQL where 절)
+  - `end2.html` (S23–S25): 테스트 클래스 8개마다 초록 칸이 테스트 수만큼 인쇄, 숫자 0 → 50, 100% → 훅의 정거장 6개가 하나씩 ✔ / `docs/book-vs-ours.md` 34줄(주제 + 커밋)이 흐르며 1 → 34 / 훅의 마지막 화면과 같은 구성으로 끝(이번엔 길이 모두 초록) + 저장소 주소
+- 이유: 영상의 결말 — 교재 코드가 새 버전에서 깨진 곳, 처음 질문으로 돌아오는 검색, 그리고 결과(테스트 50개, 다르게 만든 34곳). 34줄은 `video/scripts/build_end2.py` 가 문서에서 직접 읽어 `end2.tpl.html` 을 채움
+- 결과: `npx hyperframes check` 오류·경고 0 (영상 전체). 고친 것: 같은 요소에 fromTo 를 여러 번 건 곳 2곳(숫자 세기 포함 — project 장의 1 → 57 도 같이 `to` 로), 검색 대상 5줄 읽는 정지에 `data-hold`. 내레이션 6개 -16 LUFS. 아직 남은 것: 효과음, 영상 전체 리뷰, MP4 렌더
+- 핵심 변경:
+  ```python
+  # build_end2.py — 문서 표에서 주제와 첫 커밋 태그를 읽어 34줄을 만든다
+  cells = [c.strip() for c in line.strip().strip("|").split("|")]
+  topic = cells[0].replace("`", "")
+  tag = re.findall(r"\[(\d{3}-\d{2})\]", cells[-1])[0]
+  ```
+- 실행화면 (256.5 s: 타임리프 3.1.5 / 278.5 s: 검색 / 283.5 s: 테스트 50개 / 308.4 s: 마지막 화면):
+
+  ![000-16 타임리프](docs/images/000-16-thymeleaf.png)
+
+  ![000-16 검색](docs/images/000-16-search.png)
+
+  ![000-16 실행화면](docs/images/000-16.png)
+
+  ![000-16 마지막](docs/images/000-16-end.png)

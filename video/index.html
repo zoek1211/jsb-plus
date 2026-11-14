@@ -87,14 +87,14 @@
   </head>
   <body>
     <!--
-      data-duration: 영상 길이(초). 지금은 보안 장(S15–S19)까지 240.3 초, 장(chapter)을 더할 때마다 늘어난다.
-      data-duration: the video's length in seconds. 240.3 s covers up to the security chapter (S15–S19); it grows with each chapter.
+      data-duration: 영상 길이(초). S01–S25 전체 308.56 초 (약 5분 9초). 마지막 3.5 초는 정지.
+      data-duration: the video's length in seconds. the whole film S01–S25 is 308.56 s (about 5:09); the last 3.5 s is a hold.
     -->
     <div
       id="root"
       data-composition-id="main"
       data-start="0"
-      data-duration="240.3"
+      data-duration="308.56"
       data-width="1920"
       data-height="1080"
     >
@@ -216,6 +216,31 @@
         data-height="1080"
       ></div>
 
+      <!-- 마지막 장 ① 새 버전에서 깨진 것과 검색 (S20–S22) / Final chapter ① version breaks and search (S20–S22) -->
+      <div
+        id="end1"
+        data-composition-id="end1"
+        data-composition-src="compositions/end1.html"
+        data-start="240.3"
+        data-duration="39.26"
+        data-track-index="1"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+      <!-- 마지막 장 ② 테스트 50개·다르게 만든 34곳·마지막 화면 (S23–S25) / Final chapter ② 50 tests, 34 differences, closing frame (S23–S25) -->
+      <div
+        id="end2"
+        data-composition-id="end2"
+        data-composition-src="compositions/end2.html"
+        data-start="279.56"
+        data-duration="29"
+        data-track-index="1"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
       <!--
         내레이션: 장면마다 mp3 하나. 문장은 장면 시작 0.4 초 뒤에 시작하고, 끝나고 0.8 초 숨을 둔다.
         <audio> 는 id 가 있어야 믹스에 들어간다.
@@ -241,6 +266,12 @@
       <audio id="vo-s17" src="assets/vo/S17.mp3" data-start="208.1" data-duration="9.05" data-track-index="10" data-volume="1.135011"></audio>
       <audio id="vo-s18" src="assets/vo/S18.mp3" data-start="218.35" data-duration="9.98" data-track-index="10" data-volume="1.148154"></audio>
       <audio id="vo-s19" src="assets/vo/S19.mp3" data-start="229.53" data-duration="9.96" data-track-index="10" data-volume="1.148154"></audio>
+      <audio id="vo-s20" src="assets/vo/S20.mp3" data-start="240.7" data-duration="16.46" data-track-index="10" data-volume="1.174898"></audio>
+      <audio id="vo-s21" src="assets/vo/S21.mp3" data-start="258.36" data-duration="7.06" data-track-index="10" data-volume="1.148154"></audio>
+      <audio id="vo-s22" src="assets/vo/S22.mp3" data-start="266.62" data-duration="12.14" data-track-index="10" data-volume="1.161449"></audio>
+      <audio id="vo-s23" src="assets/vo/S23.mp3" data-start="279.96" data-duration="11.52" data-track-index="10" data-volume="1.202264"></audio>
+      <audio id="vo-s24" src="assets/vo/S24.mp3" data-start="292.68" data-duration="7.15" data-track-index="10" data-volume="1.135011"></audio>
+      <audio id="vo-s25" src="assets/vo/S25.mp3" data-start="301.03" data-duration="4.01" data-track-index="10" data-volume="1.216186"></audio>
     </div>
     <script>
       // paused: true — 재생하지 않고 멈춰 둔 타임라인. HyperFrames 가 프레임마다 시간을 직접 맞춰(seek) 그린다.

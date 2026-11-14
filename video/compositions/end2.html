@@ -1,0 +1,508 @@
+<!--
+  마지막 장 ② 테스트 50개, 다르게 만든 34곳, 마지막 화면 (S23–S25, 영상 279.56–308.56 s, 이 장면 기준 0–29 s).
+  Final chapter ② 50 tests, 34 differences, the closing frame (S23–S25, film 279.56–308.56 s, local 0–29 s).
+
+  이 파일은 scripts/end2.tpl.html 에서 만들어진다:             <div class="e2-row"><span>빌드 환경</span><code>001-01</code></div>
+            <div class="e2-row"><span>패키지</span><code>001-01</code></div>
+            <div class="e2-row"><span>코드 주석</span><code>000-03</code></div>
+            <div class="e2-row"><span>첫 컨트롤러</span><code>002-01</code></div>
+            <div class="e2-row"><span>테스트</span><code>002-02</code></div>
+            <div class="e2-row"><span>DB 설정</span><code>003-01</code></div>
+            <div class="e2-row"><span>JPA·SQL 로그</span><code>003-02</code></div>
+            <div class="e2-row"><span>엔티티 작성 순서</span><code>004-01</code></div>
+            <div class="e2-row"><span>@OneToMany 와 mappedBy</span><code>005-01</code></div>
+            <div class="e2-row"><span>샘플 데이터 위치</span><code>006-02</code></div>
+            <div class="e2-row"><span>테스트 클래스 구성</span><code>006-03</code></div>
+            <div class="e2-row"><span>Optional 검사</span><code>007-01</code></div>
+            <div class="e2-row"><span>테스트 검사(assertion) 스타일</span><code>007-02</code></div>
+            <div class="e2-row"><span>쿼리 메서드 반환 타입</span><code>007-03</code></div>
+            <div class="e2-row"><span>LIKE 검색 테스트</span><code>007-04</code></div>
+            <div class="e2-row"><span>수정·삭제 테스트 격리</span><code>008-01</code></div>
+            <div class="e2-row"><span>답변 추가 방식</span><code>009-02</code></div>
+            <div class="e2-row"><span>지연 로딩(LAZY)</span><code>009-03</code></div>
+            <div class="e2-row"><span>공통 필드(BaseEntity)</span><code>010-02</code></div>
+            <div class="e2-row"><span>없는 데이터 처리</span><code>013-02</code></div>
+            <div class="e2-row"><span>답변 등록 처리</span><code>015-01</code></div>
+            <div class="e2-row"><span>부트스트랩 불러오기</span><code>016-02</code></div>
+            <div class="e2-row"><span>템플릿 상속</span><code>017-01</code></div>
+            <div class="e2-row"><span>같은 URL 의 GET/POST</span><code>018-01</code></div>
+            <div class="e2-row"><span>폼 객체</span><code>018-02</code></div>
+            <div class="e2-row"><span>페이징 테스트 데이터·정렬·표시</span><code>022-01</code></div>
+            <div class="e2-row"><span>시큐리티 설정 위치·테스트</span><code>025-01</code></div>
+            <div class="e2-row"><span>회원 엔티티·폼</span><code>026-01</code></div>
+            <div class="e2-row"><span>로그아웃 방식</span><code>027-01</code></div>
+            <div class="e2-row"><span>글쓴이 연관관계·테스트</span><code>028-01</code></div>
+            <div class="e2-row"><span>수정·삭제 요청 방식</span><code>029-01</code></div>
+            <div class="e2-row"><span>추천 요청 방식</span><code>030-01</code></div>
+            <div class="e2-row"><span>마크다운과 XSS·빈 호출</span><code>032-01</code></div>
+            <div class="e2-row"><span>검색 구현</span><code>033-01</code></div> 자리에 docs/book-vs-ours.md 의 실제 34줄을 넣는다.
+  다시 만들 때: python3 scripts/build_end2.py
+  Generated from scripts/end2.tpl.html:             <div class="e2-row"><span>빌드 환경</span><code>001-01</code></div>
+            <div class="e2-row"><span>패키지</span><code>001-01</code></div>
+            <div class="e2-row"><span>코드 주석</span><code>000-03</code></div>
+            <div class="e2-row"><span>첫 컨트롤러</span><code>002-01</code></div>
+            <div class="e2-row"><span>테스트</span><code>002-02</code></div>
+            <div class="e2-row"><span>DB 설정</span><code>003-01</code></div>
+            <div class="e2-row"><span>JPA·SQL 로그</span><code>003-02</code></div>
+            <div class="e2-row"><span>엔티티 작성 순서</span><code>004-01</code></div>
+            <div class="e2-row"><span>@OneToMany 와 mappedBy</span><code>005-01</code></div>
+            <div class="e2-row"><span>샘플 데이터 위치</span><code>006-02</code></div>
+            <div class="e2-row"><span>테스트 클래스 구성</span><code>006-03</code></div>
+            <div class="e2-row"><span>Optional 검사</span><code>007-01</code></div>
+            <div class="e2-row"><span>테스트 검사(assertion) 스타일</span><code>007-02</code></div>
+            <div class="e2-row"><span>쿼리 메서드 반환 타입</span><code>007-03</code></div>
+            <div class="e2-row"><span>LIKE 검색 테스트</span><code>007-04</code></div>
+            <div class="e2-row"><span>수정·삭제 테스트 격리</span><code>008-01</code></div>
+            <div class="e2-row"><span>답변 추가 방식</span><code>009-02</code></div>
+            <div class="e2-row"><span>지연 로딩(LAZY)</span><code>009-03</code></div>
+            <div class="e2-row"><span>공통 필드(BaseEntity)</span><code>010-02</code></div>
+            <div class="e2-row"><span>없는 데이터 처리</span><code>013-02</code></div>
+            <div class="e2-row"><span>답변 등록 처리</span><code>015-01</code></div>
+            <div class="e2-row"><span>부트스트랩 불러오기</span><code>016-02</code></div>
+            <div class="e2-row"><span>템플릿 상속</span><code>017-01</code></div>
+            <div class="e2-row"><span>같은 URL 의 GET/POST</span><code>018-01</code></div>
+            <div class="e2-row"><span>폼 객체</span><code>018-02</code></div>
+            <div class="e2-row"><span>페이징 테스트 데이터·정렬·표시</span><code>022-01</code></div>
+            <div class="e2-row"><span>시큐리티 설정 위치·테스트</span><code>025-01</code></div>
+            <div class="e2-row"><span>회원 엔티티·폼</span><code>026-01</code></div>
+            <div class="e2-row"><span>로그아웃 방식</span><code>027-01</code></div>
+            <div class="e2-row"><span>글쓴이 연관관계·테스트</span><code>028-01</code></div>
+            <div class="e2-row"><span>수정·삭제 요청 방식</span><code>029-01</code></div>
+            <div class="e2-row"><span>추천 요청 방식</span><code>030-01</code></div>
+            <div class="e2-row"><span>마크다운과 XSS·빈 호출</span><code>032-01</code></div>
+            <div class="e2-row"><span>검색 구현</span><code>033-01</code></div> is filled with the real 34 rows of docs/book-vs-ours.md.
+  Rebuild with: python3 scripts/build_end2.py
+
+  S23 0–12.72   테스트 클래스 8개마다 초록 칸이 테스트 수만큼 인쇄되고, 숫자 0 → 50, 100% (영상에서 가장 큰 순간).
+                이어서 훅의 정거장 6개가 다시 나오고 하나씩 초록 ✔ — 테스트가 지나온 기능을 지킨다.
+                For each of the 8 test classes, green cells print one per test; the count runs 0 → 50, 100%
+                (the film's biggest moment). Then the hook's 6 stops return and each turns green ✔.
+  S24 12.72–21.07 docs/book-vs-ours.md 의 34줄(주제 + 커밋)이 흐르며 숫자 1 → 34 → 커밋 칸에 초록 띠.
+                The 34 rows (topic + commit) scroll as the count runs 1 → 34 → a green band on the commit column.
+  S25 21.07–29  훅의 마지막 화면과 같은 구성: 한 줄 + 질문 카드 + 길. 이번엔 정거장이 모두 초록. 저장소 주소. 정지.
+                The hook's last frame again — line, card, route — now with every stop green; the repo address; hold.
+
+  문장 시각 (이 장면 기준):
+    S23 음성 0.4 s — 0.5–5.88 "처음 컨트롤러부터 검색까지, 테스트 오십 개가 모두 통과합니다." / 5.83–11.85 "기능을 바꿀 때마다…지켜 줍니다."
+    S24 음성 13.12 s — 13.22–16.81 "교재와 다르게 만든 곳은 서른네 군데." / 16.76–20.22 "모두 이유와 커밋을 함께 남겼습니다."
+    S25 음성 21.47 s — 21.57–25.47 "교재를 따라가되, 이유를 알고 바꿨습니다."
+-->
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      background: var(--ground);
+      font-family: var(--font-display);
+      color: var(--ink);
+      overflow: hidden;
+    }
+    .e2-card {
+      position: absolute;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(31, 35, 40, 0.12);
+      overflow: hidden;
+    }
+    .e2-bar {
+      display: flex;
+      align-items: center;
+      height: 56px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+      background: #f6f8fa;
+      font-family: var(--font-code);
+      font-size: 28px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    /* ── S23: 테스트 클래스 8개 ── / ── S23: the 8 test classes ── */
+    #e2-tests {
+      left: 120px;
+      top: 110px;
+      width: 1180px;
+    }
+    .e2-cls {
+      display: flex;
+      align-items: center;
+      height: 62px;
+      padding: 0 24px;
+      font-family: var(--font-code);
+      font-size: 28px;
+    }
+    .e2-cls .n {
+      width: 470px;
+      flex: none;
+    }
+    .e2-cls .c {
+      width: 48px;
+      flex: none;
+      text-align: right;
+      margin-right: 22px;
+      font-weight: 700;
+      color: #57606a;
+    }
+    .e2-cell {
+      display: inline-block;
+      width: 26px;
+      height: 26px;
+      margin-right: 6px;
+      border-radius: 5px;
+      background: var(--ours);
+    }
+    #e2-count {
+      position: absolute;
+      left: 1380px;
+      top: 150px;
+      font-size: 220px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: var(--ours);
+      font-variant-numeric: tabular-nums;
+    }
+    #e2-count-label {
+      position: absolute;
+      left: 1390px;
+      top: 390px;
+      font-size: 44px;
+      font-weight: 800;
+    }
+    #e2-count-label small {
+      display: block;
+      margin-top: 8px;
+      font-size: 34px;
+      color: var(--ours);
+    }
+    /* 정거장 6개 (훅과 같은 모양, 이번엔 ✔) / The 6 stops (as in the hook, now with ✔) */
+    .e2-route {
+      position: absolute;
+      left: 300px;
+      width: 1320px;
+      height: 110px;
+    }
+    #e2-route1 {
+      top: 830px;
+    }
+    #e2-route2 {
+      top: 800px;
+    }
+    .e2-route .line {
+      position: absolute;
+      left: 0;
+      top: 10px;
+      height: 4px;
+      width: 1320px;
+      background: var(--line);
+    }
+    .e2-route .lineg {
+      position: absolute;
+      left: 0;
+      top: 10px;
+      height: 4px;
+      width: 0;
+      background: var(--ours);
+    }
+    .e2-stop {
+      position: absolute;
+      top: 0;
+      width: 120px;
+      margin-left: -60px;
+      text-align: center;
+      font-size: 32px;
+      font-weight: 600;
+    }
+    .e2-stop i {
+      position: relative;
+      display: block;
+      width: 24px;
+      height: 24px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      background: var(--ink);
+    }
+    .e2-stop i b {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: var(--ours);
+    }
+
+    /* ── S24: 34줄 ── / ── S24: the 34 rows ── */
+    #e2-diff {
+      left: 760px;
+      top: 110px;
+      width: 1040px;
+      height: 860px;
+    }
+    #e2-diff-view {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 70px;
+      height: 782px;
+      overflow: hidden;
+    }
+    #e2-diff-list {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+    }
+    .e2-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 46px;
+      padding: 0 28px;
+      font-size: 28px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .e2-row code {
+      position: relative;
+      font-family: var(--font-code);
+      font-weight: 700;
+      color: var(--ours);
+    }
+    #e2-band {
+      position: absolute;
+      right: 16px;
+      top: 70px;
+      width: 150px;
+      height: 0;
+      background: rgba(218, 251, 225, 0.6);
+    }
+    #e2-n34 {
+      position: absolute;
+      left: 120px;
+      top: 300px;
+      font-size: 240px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    #e2-n34-label {
+      position: absolute;
+      left: 130px;
+      top: 560px;
+      width: 560px;
+      font-size: 44px;
+      font-weight: 800;
+    }
+    #e2-n34-label small {
+      display: block;
+      margin-top: 10px;
+      font-size: 34px;
+      color: var(--ours);
+    }
+
+    /* ── S25: 마지막 화면 (훅 S03 과 같은 자리) ── / ── S25: the closing frame (same places as hook S03) ── */
+    #e2-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 170px;
+      text-align: center;
+      font-size: 72px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    #e2-line .w {
+      display: inline-block;
+    }
+    #e2-line .accent {
+      color: var(--ours);
+    }
+    #e2-card {
+      position: absolute;
+      left: 560px;
+      top: 340px;
+      width: 800px;
+      padding: 40px 48px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(31, 35, 40, 0.12);
+    }
+    #e2-card-title {
+      font-size: 56px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    #e2-card-body {
+      margin-top: 18px;
+      font-size: 34px;
+      font-weight: 600;
+      color: #57606a;
+    }
+    #e2-card-author {
+      margin-top: 24px;
+      text-align: right;
+      font-size: 28px;
+      font-weight: 600;
+      color: #57606a;
+    }
+    #e2-repo {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 960px;
+      text-align: center;
+      font-family: var(--font-code);
+      font-size: 34px;
+      color: #57606a;
+    }
+  </style>
+
+  <div id="root" data-composition-id="end2" data-width="1920" data-height="1080">
+    <!-- ── S23 ── -->
+    <div id="e2-s23" class="clip" data-start="0" data-duration="12.95" data-layout-allow-overlap>
+      <div id="e2-tests" class="e2-card">
+        <div class="e2-bar">./gradlew test — 테스트 클래스 8개</div>
+        <div class="e2-cls"><span class="n">AnswerControllerTest</span><span class="c">7</span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span></div>
+        <div class="e2-cls"><span class="n">BackApplicationTests</span><span class="c">1</span><span class="e2-cell"></span></div>
+        <div class="e2-cls"><span class="n">CommonUtilTest</span><span class="c">2</span><span class="e2-cell"></span><span class="e2-cell"></span></div>
+        <div class="e2-cls"><span class="n">MainControllerTest</span><span class="c">1</span><span class="e2-cell"></span></div>
+        <div class="e2-cls"><span class="n">QuestionControllerTest</span><span class="c">17</span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span></div>
+        <div class="e2-cls"><span class="n">QuestionRepositoryTest</span><span class="c">12</span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span></div>
+        <div class="e2-cls"><span class="n">QuestionServiceTest</span><span class="c">5</span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span></div>
+        <div class="e2-cls"><span class="n">UserControllerTest</span><span class="c">5</span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span><span class="e2-cell"></span></div>
+      </div>
+      <div id="e2-count">0</div>
+      <div id="e2-count-label">테스트 통과<small>100%</small></div>
+      <div id="e2-route1" class="e2-route">
+        <div class="line"></div>
+        <div class="lineg"></div>
+        <div class="e2-stop" style="left: 0%"><i><b></b></i>저장</div>
+        <div class="e2-stop" style="left: 20%"><i><b></b></i>목록</div>
+        <div class="e2-stop" style="left: 40%"><i><b></b></i>답변</div>
+        <div class="e2-stop" style="left: 60%"><i><b></b></i>보안</div>
+        <div class="e2-stop" style="left: 80%"><i><b></b></i>추천</div>
+        <div class="e2-stop" style="left: 100%"><i><b></b></i>검색</div>
+      </div>
+    </div>
+
+    <!-- ── S24 ── -->
+    <div id="e2-s24" class="clip" data-start="12.72" data-duration="8.6" data-layout-allow-overlap>
+      <div id="e2-n34">1</div>
+      <div id="e2-n34-label">교재와 다르게 만든 곳<small>이유 + 커밋을 함께 기록</small></div>
+      <div id="e2-diff" class="e2-card">
+        <div class="e2-bar" data-layout-allow-occlusion>docs/book-vs-ours.md</div>
+        <div id="e2-diff-view" data-layout-allow-overflow data-layout-allow-occlusion>
+          <div id="e2-diff-list" data-layout-allow-occlusion>
+            <div class="e2-row"><span>빌드 환경</span><code>001-01</code></div>
+            <div class="e2-row"><span>패키지</span><code>001-01</code></div>
+            <div class="e2-row"><span>코드 주석</span><code>000-03</code></div>
+            <div class="e2-row"><span>첫 컨트롤러</span><code>002-01</code></div>
+            <div class="e2-row"><span>테스트</span><code>002-02</code></div>
+            <div class="e2-row"><span>DB 설정</span><code>003-01</code></div>
+            <div class="e2-row"><span>JPA·SQL 로그</span><code>003-02</code></div>
+            <div class="e2-row"><span>엔티티 작성 순서</span><code>004-01</code></div>
+            <div class="e2-row"><span>@OneToMany 와 mappedBy</span><code>005-01</code></div>
+            <div class="e2-row"><span>샘플 데이터 위치</span><code>006-02</code></div>
+            <div class="e2-row"><span>테스트 클래스 구성</span><code>006-03</code></div>
+            <div class="e2-row"><span>Optional 검사</span><code>007-01</code></div>
+            <div class="e2-row"><span>테스트 검사(assertion) 스타일</span><code>007-02</code></div>
+            <div class="e2-row"><span>쿼리 메서드 반환 타입</span><code>007-03</code></div>
+            <div class="e2-row"><span>LIKE 검색 테스트</span><code>007-04</code></div>
+            <div class="e2-row"><span>수정·삭제 테스트 격리</span><code>008-01</code></div>
+            <div class="e2-row"><span>답변 추가 방식</span><code>009-02</code></div>
+            <div class="e2-row"><span>지연 로딩(LAZY)</span><code>009-03</code></div>
+            <div class="e2-row"><span>공통 필드(BaseEntity)</span><code>010-02</code></div>
+            <div class="e2-row"><span>없는 데이터 처리</span><code>013-02</code></div>
+            <div class="e2-row"><span>답변 등록 처리</span><code>015-01</code></div>
+            <div class="e2-row"><span>부트스트랩 불러오기</span><code>016-02</code></div>
+            <div class="e2-row"><span>템플릿 상속</span><code>017-01</code></div>
+            <div class="e2-row"><span>같은 URL 의 GET/POST</span><code>018-01</code></div>
+            <div class="e2-row"><span>폼 객체</span><code>018-02</code></div>
+            <div class="e2-row"><span>페이징 테스트 데이터·정렬·표시</span><code>022-01</code></div>
+            <div class="e2-row"><span>시큐리티 설정 위치·테스트</span><code>025-01</code></div>
+            <div class="e2-row"><span>회원 엔티티·폼</span><code>026-01</code></div>
+            <div class="e2-row"><span>로그아웃 방식</span><code>027-01</code></div>
+            <div class="e2-row"><span>글쓴이 연관관계·테스트</span><code>028-01</code></div>
+            <div class="e2-row"><span>수정·삭제 요청 방식</span><code>029-01</code></div>
+            <div class="e2-row"><span>추천 요청 방식</span><code>030-01</code></div>
+            <div class="e2-row"><span>마크다운과 XSS·빈 호출</span><code>032-01</code></div>
+            <div class="e2-row"><span>검색 구현</span><code>033-01</code></div>
+          </div>
+        </div>
+        <div id="e2-band"></div>
+      </div>
+    </div>
+
+    <!-- ── S25: 마지막 정지 (data-hold) ── / ── S25: the final hold (data-hold) ── -->
+    <div id="e2-s25" class="clip" data-start="21.07" data-duration="7.93" data-hold>
+      <div id="e2-line" data-hold>
+        <span class="w">교재를</span> <span class="w">따라가되,</span> <span class="w accent">이유를</span>
+        <span class="w accent">알고</span> <span class="w">바꿨다</span>
+      </div>
+      <div id="e2-card">
+        <div id="e2-card-title">sbb가 무엇인가요?</div>
+        <div id="e2-card-body">sbb에 대해서 알고 싶습니다.</div>
+        <div id="e2-card-author">user1</div>
+      </div>
+      <div id="e2-route2" class="e2-route">
+        <div class="line" style="background: var(--ours)"></div>
+        <div class="e2-stop" style="left: 0%"><i style="background: var(--ours)"></i>저장</div>
+        <div class="e2-stop" style="left: 20%"><i style="background: var(--ours)"></i>목록</div>
+        <div class="e2-stop" style="left: 40%"><i style="background: var(--ours)"></i>답변</div>
+        <div class="e2-stop" style="left: 60%"><i style="background: var(--ours)"></i>보안</div>
+        <div class="e2-stop" style="left: 80%"><i style="background: var(--ours)"></i>추천</div>
+        <div class="e2-stop" style="left: 100%"><i style="background: var(--ours)"></i>검색</div>
+      </div>
+      <div id="e2-repo">github.com/zoek1211/jsb-plus</div>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const blurIn = { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power2.out" };
+    const hidden = { opacity: 0, filter: "blur(8px)" };
+    const setText = (sel, v) => () => (document.querySelector(sel).textContent = Math.round(v.n));
+
+    // ── S23 ──
+    // 문장 1 "테스트 오십 개가 모두 통과": 클래스 줄 → 초록 칸 50개가 차례로 인쇄 (0.045 s 간격), 숫자 0 → 50.
+    // Sentence 1: class rows → 50 green cells print in turn (0.045 s apart) while the count runs 0 → 50.
+    tl.fromTo("#e2-tests", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.4, ease: "expo.out" }, 0.2);
+    tl.fromTo(".e2-cell", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.15, ease: "expo.out", stagger: 0.045 }, 1.2);
+    const c50 = { n: 0 };
+    tl.fromTo("#e2-count", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 1.1);
+    tl.to(c50, { n: 50, duration: 2.25, ease: "none", onUpdate: setText("#e2-count", c50) }, 1.2);
+    tl.fromTo("#e2-count-label", hidden, blurIn, 3.6);
+    // 문장 2 "기능을 바꿀 때마다 …지켜 줍니다": 정거장 6개 → 초록 선이 지나가며 하나씩 ✔.
+    // Sentence 2: the 6 stops → a green line passes and each turns ✔.
+    tl.fromTo("#e2-route1", hidden, blurIn, 6.0);
+    tl.to("#e2-route1 .lineg", { width: 1320, duration: 3.0, ease: "none" }, 7.0);
+    tl.fromTo("#e2-route1 .e2-stop i b", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.25, ease: "expo.out", stagger: 0.6 }, 7.0);
+
+    // ── S24 ──
+    tl.to("#e2-s23 > *", { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power2.in" }, 12.72);
+    tl.fromTo("#e2-diff", { opacity: 0, x: 160, filter: "blur(10px)" }, { opacity: 1, x: 0, filter: "blur(0px)", duration: 0.5, ease: "expo.out" }, 12.9);
+    tl.fromTo("#e2-n34", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 13.2);
+    // "서른네 군데" (≈15.6 s) 에 34 가 닿도록: 13.3–15.8 s 동안 1 → 34, 목록은 (34 − 17) × 46 = 782px 올라간다.
+    // So 34 lands on "서른네 군데" (≈15.6 s): 1 → 34 over 13.3–15.8 s; the list rises (34 − 17) × 46 = 782 px.
+    const c34 = { n: 1 };
+    tl.to(c34, { n: 34, duration: 2.5, ease: "power2.inOut", onUpdate: setText("#e2-n34", c34) }, 13.3);
+    tl.fromTo("#e2-diff-list", { y: 0 }, { y: -782, duration: 2.5, ease: "power2.inOut" }, 13.3);
+    tl.fromTo("#e2-n34-label", hidden, blurIn, 15.9);
+    // 문장 2 "모두 이유와 커밋을 함께": 커밋 칸에 초록 띠가 위에서 아래로.
+    // Sentence 2: a green band runs down the commit column.
+    tl.to("#e2-band", { height: 782, duration: 0.8, ease: "power2.inOut" }, 17.6);
+
+    // ── S25 ──
+    tl.to("#e2-s24 > *", { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power2.in" }, 21.07);
+    tl.fromTo("#e2-card", { opacity: 0, scale: 0.94, filter: "blur(10px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.5, ease: "expo.out" }, 21.3);
+    tl.fromTo("#e2-route2", hidden, blurIn, 21.6);
+    // "교재를 따라가되, 이유를 알고 바꿨습니다" — 말과 함께 한 줄이 단어마다. 그 뒤 저장소 주소, 끝까지 정지.
+    // The line lands word by word with the voice; then the repo address, and a still hold to the end.
+    tl.fromTo("#e2-line .w", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.13, stagger: 0.35 }, 21.7);
+    tl.fromTo("#e2-repo", hidden, blurIn, 25.6);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["end2"] = tl;
+  </script>
+</template>

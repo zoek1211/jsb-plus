@@ -1,0 +1,392 @@
+<!--
+  마지막 장 ① 새 버전에서 깨진 것과 검색 (S20–S22, 영상 240.3–279.56 s, 이 장면 기준 0–39.26 s).
+  Final chapter ① what broke on new versions, and search (S20–S22, film 240.3–279.56 s, local 0–39.26 s).
+
+  S20 0–17.66   교재 템플릿 ${@commonUtil.markdown(...)} → 타임리프 3.1.5 의 실제 오류 문구, ✘ 테스트 9개 (032-01)
+                → GlobalModelAttributes(@ModelAttribute("commonUtil")) + @ 없는 ${commonUtil.markdown(...)} → ✔ 46개.
+                The book's ${@commonUtil.markdown(...)} → Thymeleaf 3.1.5's real error, ✘ 9 tests (032-01)
+                → GlobalModelAttributes + ${commonUtil.markdown(...)} without @ → ✔ 46.
+  S21 17.66–25.92 처음 쓴 기대값 redirectedUrlPattern("**/user/login") ✘ (실제 실패 문구) → redirectedUrl("/user/login") ✔.
+                The first expectation ✘ (real failure message) → the fixed one ✔.
+  S22 25.92–39.26 검색 "sbb" 실제 화면, 카메라 push → 결과 한 줄에서 처음의 질문 카드가 다시 올라온다
+                → 검색 대상 5가지 (QuestionRepository.findAllByKeyword 의 where 절).
+                The real "sbb" search page, camera push → the opening's question card rises from the one result
+                → the 5 things searched (the where clause of findAllByKeyword).
+
+  문장 시각 (이 장면 기준):
+    S20 음성 0.4 s — 0.5–4.66 "교재 코드가 새 버전에서 그대로 깨지기도 했습니다." / 4.61–11.34 "…테스트 아홉 개가 실패했습니다." / 11.34–16.8 "…모델에 직접 넣어 주는 방식으로 고쳤습니다."
+    S21 음성 18.06 s — 18.16–25.1 "스프링 시큐리티 칠은 로그인 주소를 상대 경로로 돌려줘서, 테스트 기대값을 고쳤습니다."
+    S22 음성 26.32 s — 26.42–28.55 "마지막으로 검색." / 28.5–33.15 "에스비비를 찾으면, 처음 그 질문 하나만 남습니다." / 33.15–38.4 "제목뿐 아니라 내용, 글쓴이, 답변까지…"
+-->
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      background: var(--ground);
+      font-family: var(--font-display);
+      color: var(--ink);
+      overflow: hidden;
+    }
+    .e1-card {
+      position: absolute;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(31, 35, 40, 0.12);
+      overflow: hidden;
+    }
+    .e1-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 56px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+      background: #f6f8fa;
+      font-family: var(--font-code);
+      font-size: 28px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .e1-bar b {
+      font-family: var(--font-display);
+      font-weight: 800;
+    }
+    .e1-lines {
+      padding: 14px 0;
+      font-family: var(--font-code);
+      font-size: 28px;
+    }
+    .e1-lines > div {
+      position: relative;
+      min-height: 46px;
+      line-height: 46px;
+      padding: 0 24px;
+      white-space: pre;
+    }
+    .e1-book .e1-bar {
+      background: var(--book-soft);
+      color: var(--book);
+    }
+    .e1-ours .e1-bar {
+      background: var(--ours-soft);
+      color: var(--ours);
+    }
+    .e1-hit {
+      font-weight: 700;
+    }
+    .e1-book .e1-hit {
+      color: var(--book);
+    }
+    .e1-ours .e1-hit {
+      color: var(--ours);
+    }
+    .e1-big {
+      position: absolute;
+      font-size: 56px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .e1-strike {
+      position: absolute;
+      left: 24px;
+      top: 50%;
+      height: 4px;
+      width: 0;
+      background: var(--book);
+    }
+
+    /* ── S20 ── */
+    #e1-tpl-book {
+      left: 160px;
+      top: 110px;
+      width: 1600px;
+    }
+    #e1-err {
+      left: 160px;
+      top: 290px;
+      width: 1120px;
+      border: 3px solid var(--book);
+    }
+    #e1-err-msg {
+      padding: 20px 24px;
+      font-family: var(--font-code);
+      font-size: 28px;
+      line-height: 1.5;
+      color: var(--book);
+    }
+    #e1-fail9 {
+      left: 1330px;
+      top: 320px;
+      color: var(--book);
+    }
+    #e1-gma {
+      left: 160px;
+      top: 520px;
+      width: 1120px;
+    }
+    #e1-tpl-ours {
+      left: 160px;
+      top: 880px;
+      width: 1600px;
+    }
+    #e1-pass46 {
+      left: 1330px;
+      top: 600px;
+      color: var(--ours);
+    }
+    .e1-big small {
+      display: block;
+      margin-top: 6px;
+      font-size: 30px;
+      font-weight: 600;
+      color: #57606a;
+    }
+
+    /* ── S21 ── */
+    #e1-redirect {
+      left: 160px;
+      top: 260px;
+      width: 1600px;
+    }
+    #e1-redirect .msg {
+      padding: 0 24px 18px 72px;
+      font-family: var(--font-code);
+      font-size: 28px;
+      color: #57606a;
+      white-space: pre-wrap;
+    }
+    .e1-mark {
+      display: inline-block;
+      width: 48px;
+      font-family: var(--font-display);
+      font-weight: 800;
+    }
+    #e1-r-bad .e1-mark {
+      color: var(--book);
+    }
+    #e1-r-ok .e1-mark {
+      color: var(--ours);
+    }
+    #e1-rel {
+      background: rgba(218, 251, 225, 0);
+      color: var(--ink);
+    }
+    #e1-sec7 {
+      left: 160px;
+      top: 640px;
+      color: var(--ours);
+    }
+
+    /* ── S22 ── */
+    #e1-cam {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+      transform-origin: 0 0;
+    }
+    #e1-search {
+      left: 80px;
+      top: 120px;
+      width: 1280px;
+    }
+    #e1-search img {
+      display: block;
+      width: 1280px;
+      height: 800px;
+    }
+    .e1-box {
+      position: absolute;
+      border: 4px solid var(--ours);
+      border-radius: 8px;
+    }
+    /* 캡처 CSS 좌표 × 0.889 + 창 위치(80, 180) — 카메라 안이라 함께 확대된다. */
+    /* Capture CSS × 0.889 + window offset (80, 180) — inside the camera, so it zooms along. */
+    #e1-kwbox {
+      left: 726px;
+      top: 240px;
+      width: 330px;
+      height: 42px;
+    }
+    #e1-rowbox {
+      left: 140px;
+      top: 325px;
+      width: 1160px;
+      height: 44px;
+    }
+    #e1-card {
+      position: absolute;
+      left: 160px;
+      top: 640px;
+      width: 760px;
+      padding: 36px 44px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(31, 35, 40, 0.12);
+    }
+    #e1-card-title {
+      font-size: 56px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    #e1-card-body {
+      margin-top: 16px;
+      font-size: 34px;
+      font-weight: 600;
+      color: #57606a;
+    }
+    #e1-where {
+      left: 1000px;
+      top: 620px;
+      width: 760px;
+    }
+    #e1-where .e1-lines > div {
+      font-size: 28px;
+    }
+    .e1-what {
+      display: inline-block;
+      width: 210px;
+      font-family: var(--font-display);
+      font-weight: 800;
+      color: var(--ours);
+    }
+  </style>
+
+  <div id="root" data-composition-id="end1" data-width="1920" data-height="1080">
+    <!-- ── S20 ── -->
+    <div id="e1-s20" class="clip" data-start="0" data-duration="17.9" data-layout-allow-overlap>
+      <div id="e1-tpl-book" class="e1-card e1-book" data-layout-allow-occlusion>
+        <div class="e1-bar"><b>교재</b>question_detail.html (3-12)</div>
+        <div class="e1-lines"><div>th:utext="${<span class="e1-hit">@</span>commonUtil.markdown(question.content)}"<span class="e1-strike" id="e1-st1" data-layout-allow-occlusion></span></div></div>
+      </div>
+      <div id="e1-err" class="e1-card e1-book">
+        <div class="e1-bar"><b>타임리프 3.1.5</b>TemplateProcessingException</div>
+        <div id="e1-err-msg">Instantiation of new objects and access to static classes or parameters is forbidden in this context</div>
+      </div>
+      <div id="e1-fail9" class="e1-big">✘ 테스트 9개<small>렌더링 테스트 실패 (032-01)</small></div>
+      <div id="e1-gma" class="e1-card e1-ours">
+        <div class="e1-bar"><b>우리</b>GlobalModelAttributes.java</div>
+        <div class="e1-lines">
+          <div>@ControllerAdvice</div>
+          <div>public class GlobalModelAttributes {</div>
+          <div>    <span class="e1-hit">@ModelAttribute("commonUtil")</span></div>
+          <div>    public CommonUtil commonUtil() { return commonUtil; }</div>
+          <div>}</div>
+        </div>
+      </div>
+      <div id="e1-tpl-ours" class="e1-card e1-ours">
+        <div class="e1-lines"><div>th:utext="${<span class="e1-hit">commonUtil</span>.markdown(question.content)}"   <span style="font-family: var(--font-display); color: #57606a">← @ 없이 model 에서</span></div></div>
+      </div>
+      <div id="e1-pass46" class="e1-big">✔ 테스트 46개<small>그때 전체 통과</small></div>
+    </div>
+
+    <!-- ── S21 ── -->
+    <div id="e1-s21" class="clip" data-start="17.66" data-duration="8.5">
+      <div id="e1-redirect" class="e1-card">
+        <div class="e1-bar">QuestionControllerTest — 로그인 안 하고 /question/create</div>
+        <div class="e1-lines">
+          <div id="e1-r-bad"><span class="e1-mark">✘</span>.andExpect(redirectedUrlPattern("**/user/login"))</div>
+        </div>
+        <div class="msg">Redirected URL '<span id="e1-rel">/user/login</span>' does not match the expected URL pattern '**/user/login'</div>
+        <div class="e1-lines">
+          <div id="e1-r-ok"><span class="e1-mark">✔</span>.andExpect(redirectedUrl("/user/login"))</div>
+        </div>
+      </div>
+      <div id="e1-sec7" class="e1-big">스프링 시큐리티 7 → 상대 경로<small>"/user/login" 그대로 기대값으로</small></div>
+    </div>
+
+    <!-- ── S22 ── -->
+    <div id="e1-s22" class="clip" data-start="25.92" data-duration="13.34" data-layout-allow-overlap>
+      <div id="e1-cam" data-layout-allow-overflow>
+        <div id="e1-search" class="e1-card">
+          <div class="e1-bar" style="font-weight: 500; color: #57606a">localhost:8080/question/list?kw=sbb</div>
+          <img src="assets/shots/search-sbb.png" alt="" />
+        </div>
+        <div id="e1-kwbox" class="e1-box"></div>
+        <div id="e1-rowbox" class="e1-box"></div>
+      </div>
+      <div id="e1-card">
+        <div id="e1-card-title">sbb가 무엇인가요?</div>
+        <div id="e1-card-body">sbb에 대해서 알고 싶습니다.</div>
+      </div>
+      <!-- data-hold: 다섯 줄을 읽는 정지 / A deliberate hold to read the five lines -->
+      <div id="e1-where" class="e1-card e1-ours" data-hold>
+        <div class="e1-bar"><b>검색 대상</b>@Query (JPQL) where …</div>
+        <div class="e1-lines">
+          <div class="e1-w"><span class="e1-what">제목</span>q.subject like %kw%</div>
+          <div class="e1-w"><span class="e1-what">내용</span>q.content like %kw%</div>
+          <div class="e1-w"><span class="e1-what">질문 글쓴이</span>u1.username like %kw%</div>
+          <div class="e1-w"><span class="e1-what">답변 내용</span>a.content like %kw%</div>
+          <div class="e1-w"><span class="e1-what">답변 글쓴이</span>u2.username like %kw%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const blurIn = { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power2.out" };
+    const hidden = { opacity: 0, filter: "blur(8px)" };
+    const print = (sel, at) =>
+      tl.fromTo(sel, { opacity: 0, clipPath: "inset(0 100% 0 0 round 12px)" }, { opacity: 1, clipPath: "inset(0 0% 0 0 round 12px)", duration: 0.45, ease: "power3.out" }, at);
+
+    // ── S20 ──
+    // 문장 1 "교재 코드가 …깨지기도": 교재 템플릿 줄, @ 에 빨간 배경.
+    // Sentence 1: the book's template line; the @ gets a red tint.
+    tl.fromTo("#e1-tpl-book", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.4, ease: "expo.out" }, 0.4);
+    tl.fromTo("#e1-tpl-book .e1-hit", { backgroundColor: "rgba(255, 206, 203, 0)" }, { backgroundColor: "rgba(255, 206, 203, 1)", duration: 0.3 }, 2.6);
+    // 문장 2 "타임리프 3.1.5가 …막아서" (≈6.6 s) → 실제 오류 문구, "아홉 개가 실패" (≈9.6 s) → ✘ 9.
+    // Sentence 2: the real error, then ✘ 9.
+    tl.fromTo("#e1-err", hidden, blurIn, 6.4);
+    tl.fromTo("#e1-fail9", { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 0.3, ease: "expo.out" }, 9.6);
+    // 문장 3 "모델에 직접 넣어 주는 방식": 취소선 → GlobalModelAttributes 인쇄 → @ 없는 템플릿 → ✔ 46.
+    // Sentence 3: strike → GlobalModelAttributes prints → template without @ → ✔ 46.
+    tl.to("#e1-st1", { width: 940, duration: 0.27, ease: "power2.inOut" }, 11.5);
+    tl.to(["#e1-err", "#e1-fail9"], { opacity: 0.25, duration: 0.3 }, 11.7);
+    print("#e1-gma", 12.0);
+    tl.fromTo("#e1-gma .e1-hit", { backgroundColor: "rgba(218, 251, 225, 0)" }, { backgroundColor: "rgba(218, 251, 225, 1)", duration: 0.3 }, 13.0);
+    print("#e1-tpl-ours", 14.0);
+    tl.fromTo("#e1-pass46", { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 0.3, ease: "expo.out" }, 15.4);
+
+    // ── S21 ──
+    tl.to("#e1-s20 > *", { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power2.in" }, 17.66);
+    tl.fromTo("#e1-redirect", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.4, ease: "expo.out" }, 18.0);
+    tl.fromTo("#e1-r-ok", { opacity: 0, clipPath: "inset(0 100% 0 0)" }, { opacity: 0, clipPath: "inset(0 100% 0 0)", duration: 0.01 }, 18.0);
+    // "로그인 주소를 상대 경로로" (≈20.9 s): 실제로 돌아온 '/user/login' 에 초록 배경 + 라벨.
+    // "the login address as a relative path": the actual '/user/login' gets a green tint + label.
+    tl.to("#e1-rel", { backgroundColor: "rgba(218, 251, 225, 1)", duration: 0.3 }, 20.9);
+    tl.fromTo("#e1-sec7", hidden, blurIn, 21.2);
+    // "테스트 기대값을 고쳤습니다" (≈23.4 s): 고친 줄 ✔. / The fixed line ✔.
+    tl.to("#e1-r-ok", { opacity: 1, clipPath: "inset(0 0% 0 0)", duration: 0.4, ease: "power3.out" }, 23.4);
+    tl.to("#e1-r-bad", { opacity: 0.35, duration: 0.3 }, 23.6);
+
+    // ── S22 ──
+    tl.to("#e1-s21 > *", { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power2.in" }, 25.92);
+    tl.fromTo("#e1-search", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.4, ease: "expo.out" }, 26.2);
+    tl.fromTo(["#e1-card", "#e1-where", "#e1-kwbox", "#e1-rowbox"], { opacity: 0 }, { opacity: 0, duration: 0.01 }, 26.2);
+    // "에스비비를 찾으면" (≈28.9 s): 검색창 상자, 카메라 push (웹 장과 같은 1.7 배).
+    // "searching sbb": the search box, then the same 1.7x push as the web chapter.
+    tl.fromTo("#e1-kwbox", { opacity: 0, scale: 1.2 }, { opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" }, 28.6);
+    tl.fromTo("#e1-cam", { scale: 1, x: 0, y: 0 }, { scale: 1.7, x: -40, y: -190, duration: 1.2, ease: "sine.inOut" }, 28.9);
+    // "처음 그 질문 하나만 남습니다" (≈31.3 s): 결과 줄 상자 → 그 줄에서 처음의 질문 카드가 올라온다.
+    // "only that first question remains": the result row box → the opening's question card rises from it.
+    tl.fromTo("#e1-rowbox", { opacity: 0, scale: 1.2 }, { opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" }, 30.9);
+    tl.fromTo(
+      "#e1-card",
+      { opacity: 0, y: -280, scale: 0.6, transformOrigin: "0 0" },
+      { opacity: 1, y: 0, scale: 1, duration: 0.65, ease: "power3.out" },
+      31.6,
+    );
+    // 문장 3 "제목뿐 아니라 내용, 글쓴이, 답변까지": 검색 대상 5줄이 말 순서대로.
+    // Sentence 3: the five searched fields, in the order spoken.
+    tl.fromTo("#e1-where", hidden, blurIn, 33.3);
+    tl.fromTo(".e1-w", { opacity: 0, clipPath: "inset(0 100% 0 0)" }, { opacity: 1, clipPath: "inset(0 0% 0 0)", duration: 0.25, stagger: 0.5 }, 33.5);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["end1"] = tl;
+  </script>
+</template>
