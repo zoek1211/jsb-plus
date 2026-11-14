@@ -1167,3 +1167,27 @@
 - 실행화면 (XSS 답변 / 테스트 리포트 / 목록 / 404 / 입력 오류 / 403):
 
   ![000-10 실행화면](docs/images/000-10.jpg)
+
+### 000-11 결과 영상, 훅(S01–S03) 장면 만들기
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/000-11)
+- 작업: `video/compositions/hook.html` 에 첫 장(0–38.3 s)을 만들고 `index.html` 에 장면과 내레이션 3개를 올림
+  - S01: 실제 화면(`detail-1-xss.png`) 속 답변 `<script>` 로 카메라 push → 초록 테두리 "글자로만 표시됨"
+  - S02: 창이 whip 으로 빠지고 diff 등장 → 교재 줄(빨강) → 그 스크립트 → 떴을 alert 창 → XSS → 취소선과 우리 줄(초록) 인쇄
+  - S03: 질문 카드 "sbb가 무엇인가요?" + 앞으로 들를 정거장 6개 + "교재를 따라가되, 이유를 알고 바꿨다"
+- 이유: 영상의 첫 2초에 결과(스크립트가 글자로만 보임)를 먼저 보여주고, 교재대로였다면 무슨 일이 생기는지 → 어떻게 고쳤는지 순서로 보여주기 위함. 화면 변화는 내레이션 문장 시각(`assets/vo/S0N.srt`)에 맞춤
+- 결과: `npx hyperframes check` 오류·경고 0 (처음엔 변수 키 오류, 숨긴 줄의 글자 겹침, 3초 넘게 멈춘 구간 4곳 → 모두 고침). 스냅샷 10장으로 확인. 내레이션 음량 -16 LUFS 로 맞춤. Studio 미리보기(localhost:3002)에서 재생 확인 가능
+- 핵심 변경:
+  ```js
+  // 카메라 push: 답변 줄을 2.4 배로 키워 화면 가운데로 (fromTo = 다시 seek 해도 같은 결과)
+  tl.fromTo("#hook-camera", { scale: 1, x: 0, y: 0 },
+            { scale: 2.4, x: -239, y: -612, duration: 1.6, ease: "sine.inOut" }, 1.9);
+  // 고친 코드: 교재 줄 취소선 → 우리 줄 3개가 왼쪽부터 "인쇄"
+  tl.to("#hook-strike", { width: 1060, duration: 0.27 }, 22.4);
+  tl.to(["#hook-ours1", "#hook-ours2", "#hook-ours3"],
+        { opacity: 1, clipPath: "inset(0 0% 0 0)", stagger: 0.1 }, 22.55);
+  ```
+- 실행화면 (7 s: 글자로만 표시됨 / 24.5 s: 고친 diff):
+
+  ![000-11 push](docs/images/000-11-push.png)
+
+  ![000-11 실행화면](docs/images/000-11.png)

@@ -12,13 +12,13 @@
   lang="ko"
   data-resolution="landscape"
   data-composition-variables='[
-    {"id":"ground","type":"color","label":"바탕 / Ground","value":"#F6F8FA"},
-    {"id":"ink","type":"color","label":"잉크 / Ink","value":"#1F2328"},
-    {"id":"book","type":"color","label":"교재·실패 / Book & fail","value":"#CF222E"},
-    {"id":"book-soft","type":"color","label":"교재 배경 / Book tint","value":"#FFEBE9"},
-    {"id":"ours","type":"color","label":"우리·통과 / Ours & pass","value":"#1A7F37"},
-    {"id":"ours-soft","type":"color","label":"우리 배경 / Ours tint","value":"#DAFBE1"},
-    {"id":"line","type":"color","label":"테두리 / Border","value":"#D0D7DE"}
+    {"id":"ground","type":"color","label":"바탕 / Ground","default":"#F6F8FA"},
+    {"id":"ink","type":"color","label":"잉크 / Ink","default":"#1F2328"},
+    {"id":"book","type":"color","label":"교재·실패 / Book & fail","default":"#CF222E"},
+    {"id":"book-soft","type":"color","label":"교재 배경 / Book tint","default":"#FFEBE9"},
+    {"id":"ours","type":"color","label":"우리·통과 / Ours & pass","default":"#1A7F37"},
+    {"id":"ours-soft","type":"color","label":"우리 배경 / Ours tint","default":"#DAFBE1"},
+    {"id":"line","type":"color","label":"테두리 / Border","default":"#D0D7DE"}
   ]'
 >
   <head>
@@ -83,34 +83,48 @@
         justify-content: center;
         font-family: var(--font-display);
       }
-      /* 임시 제목: 4단계(훅 S01–S03)에서 실제 장면으로 바뀐다. */
-      /* Placeholder title: replaced by the real scenes in step 4 (hook S01–S03). */
-      #title {
-        color: var(--ink);
-        font-size: 64px;
-        font-weight: 800;
-        letter-spacing: -0.02em;
-      }
     </style>
   </head>
   <body>
     <!--
-      data-duration: 영상 길이(초). 지금은 임시 10초, 내레이션 길이를 잰 뒤(2단계) 확정한다.
-      data-duration: the video's length in seconds. 10 s for now; fixed after measuring the narration (step 2).
+      data-duration: 영상 길이(초). 지금은 훅(S01–S03)까지 38.3 초, 장(chapter)을 더할 때마다 늘어난다.
+      data-duration: the video's length in seconds. 38.3 s covers the hook (S01–S03); it grows with each chapter.
     -->
     <div
       id="root"
       data-composition-id="main"
       data-start="0"
-      data-duration="10"
+      data-duration="38.3"
       data-width="1920"
       data-height="1080"
     >
-      <!-- class="clip" + data-start/data-duration: 이 요소가 언제부터 얼마 동안 보이는지. -->
-      <!-- class="clip" + data-start/data-duration: when this element shows and for how long. -->
-      <h1 id="title" class="clip" data-start="0" data-duration="10" data-track-index="0">
-        교재를 따라가되, 이유를 알고 바꿨다
-      </h1>
+      <!--
+        장면 자리(host): 장면 파일을 이 시간대에 올린다. id·data-composition-id 를 장면 파일과 똑같이("hook") 맞춰야
+        렌더가 바로 장면을 찾는다 (다르면 장면마다 45 초씩 기다린다).
+        Scene host: mounts the scene file for this time range. Its id and data-composition-id must match the
+        scene file ("hook"), or each render waits 45 s per scene.
+      -->
+      <div
+        id="hook"
+        data-composition-id="hook"
+        data-composition-src="compositions/hook.html"
+        data-start="0"
+        data-duration="38.3"
+        data-track-index="1"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!--
+        내레이션: 장면마다 mp3 하나. 문장은 장면 시작 0.4 초 뒤에 시작하고, 끝나고 0.8 초 숨을 둔다.
+        <audio> 는 id 가 있어야 믹스에 들어간다.
+        Narration: one mp3 per scene, starting 0.4 s into the scene with a 0.8 s breath after.
+        An <audio> needs an id to be part of the mix.
+      -->
+      <audio id="vo-s01" src="assets/vo/S01.mp3" data-start="0.4" data-duration="7.58" data-track-index="10" data-volume="1.148154"></audio>
+      <audio id="vo-s02" src="assets/vo/S02.mp3" data-start="9.2" data-duration="13.08" data-track-index="10" data-volume="1.148154"></audio>
+      <audio id="vo-s03" src="assets/vo/S03.mp3" data-start="25.3" data-duration="12.17" data-track-index="10" data-volume="1.161449"></audio>
     </div>
     <script>
       // paused: true — 재생하지 않고 멈춰 둔 타임라인. HyperFrames 가 프레임마다 시간을 직접 맞춰(seek) 그린다.
