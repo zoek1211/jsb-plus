@@ -157,3 +157,20 @@
   - 실행화면: ![커밋번호 실행화면](docs/images/커밋번호.jpg)
   ```
 - 실행화면: 해당 없음 (문서 변경)
+
+### 009-01 답변, AnswerRepository 추가 및 답변 저장 테스트
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/009-01)
+- 작업: `Answer`에 `@Getter @Setter`, `AnswerRepository` 추가, 2번 질문에 답변을 저장하는 테스트 t8 추가
+- 이유: 14163 20강 — 답변도 리포지터리로 저장. `setQuestion()` 으로 어떤 질문의 답변인지 연결
+- 결과: 테스트 11개 통과, 로그에서 `insert into answer (content, create_date, question_id, id)` 확인
+- 핵심 변경:
+  ```java
+  public interface AnswerRepository extends JpaRepository<Answer, Integer> { }
+
+  Answer answer = new Answer();
+  answer.setQuestion(question);   // question_id = 2
+  answerRepository.save(answer);  // INSERT INTO answer ...
+  ```
+- 실행화면:
+
+  ![009-01 실행화면](docs/images/009-01.jpg)

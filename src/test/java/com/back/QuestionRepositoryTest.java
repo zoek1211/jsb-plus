@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 // AssertJ: 테스트 검사(assertion)를 문장처럼 읽히게 써 주는 라이브러리. 테스트 스타터에 이미 포함되어 있다.
@@ -31,6 +32,11 @@ class QuestionRepositoryTest {
     // Injects the repository implementation that Spring generated.
     @Autowired
     private QuestionRepository questionRepository;
+
+    // 답변 저장·조회 테스트용 리포지터리.
+    // Repository used by the answer save/read tests.
+    @Autowired
+    private AnswerRepository answerRepository;
 
     @Test
     @DisplayName("findAll: 샘플 질문 2개를 모두 조회한다")
@@ -165,5 +171,26 @@ class QuestionRepositoryTest {
         // 삭제 후: 1개만 남아야 한다.
         // After deleting: only 1 must remain.
         assertThat(questionRepository.count()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("답변 생성: answerRepository 로 2번 질문에 답변을 저장한다")
+    @Transactional
+    void t8() {
+        Question question = questionRepository.findById(2).orElseThrow();
+
+        Answer answer = new Answer();
+        answer.setContent("네 자동으로 생성됩니다.");
+        // 어떤 질문의 답변인지 연결한다. DB에는 question_id = 2 로 저장된다 (004-02 의 외래 키).
+        // Link the answer to its question. The database stores question_id = 2 (the foreign key from 004-02).
+        answer.setQuestion(question);
+        answer.setCreateDate(LocalDateTime.now());
+        // → INSERT INTO answer (content, create_date, question_id) VALUES (?, ?, ?)
+        answerRepository.save(answer);
+
+        // 저장되면 DB가 매긴 번호가 id 에 들어간다 (0 이 아니게 된다).
+        // Once saved, the number the database assigned is put into id (it's no longer 0).
+        assertThat(answer.getId()).isGreaterThan(0);
+        assertThat(answer.getQuestion().getId()).isEqualTo(2);
     }
 }

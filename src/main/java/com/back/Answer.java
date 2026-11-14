@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +15,10 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 // 답변 엔티티 → answer 테이블. @Id, @GeneratedValue, @Column 의 뜻은 Question.java 와 같다.
 // Answer entity → answer table. @Id, @GeneratedValue and @Column mean the same as in Question.java.
 @Entity
+// getter/setter 자동 생성 (자세한 설명은 Question.java 참고). 테스트·샘플 데이터에서 답변 값을 넣고 읽기 위해 필요하다.
+// Generates getters/setters (see Question.java for details). Needed to set and read answer values in tests and sample data.
+@Getter
+@Setter
 public class Answer {
     @Id
     @GeneratedValue(strategy = IDENTITY)
