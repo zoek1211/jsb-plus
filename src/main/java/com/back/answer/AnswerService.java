@@ -1,6 +1,7 @@
 package com.back.answer;
 
 import com.back.question.Question;
+import com.back.user.SiteUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,12 +18,15 @@ public class AnswerService {
     // Registers one answer on a question.
     // @Transactional: groups this method's database work and commits at the end (not a test, so it commits instead of rolling back).
     @Transactional
-    public Answer create(Question question, String content) {
+    // author: 답변 글쓴이 (로그인한 회원, 028-01)
+    // author: the answer's writer (the logged-in member, 028-01)
+    public Answer create(Question question, String content, SiteUser author) {
         // addAnswer: 연관관계 양쪽(answer.question, question.answers)을 함께 맞춘다 (009-02).
         // addAnswer: keeps both sides of the relationship (answer.question, question.answers) in sync (009-02).
         Answer answer = question.addAnswer(content);
-        // 저장 → INSERT INTO answer ... (question_id 포함)
-        // Save → INSERT INTO answer ... (including question_id)
+        answer.setAuthor(author);
+        // 저장 → INSERT INTO answer ... (question_id, author_id 포함)
+        // Save → INSERT INTO answer ... (including question_id and author_id)
         return answerRepository.save(answer);
     }
 }

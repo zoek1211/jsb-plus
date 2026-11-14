@@ -677,3 +677,29 @@
   ![027-01 실패](docs/images/027-01-error.png)
 
   ![027-01 실행화면](docs/images/027-01.png)
+
+### 028-01 글쓴이, 질문·답변에 author 와 로그인 필수(@PreAuthorize)
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/028-01)
+- 작업: `Question.author`·`Answer.author` (`@ManyToOne(fetch = LAZY) SiteUser`), `UserService.getUser`, 질문·답변 등록에 `Principal` 로 글쓴이 저장, `@PreAuthorize("isAuthenticated()")` + `@EnableMethodSecurity`, 목록에 글쓴이 열, 상세에 글쓴이 표시, 비로그인 시 답변 입력칸 비활성화(`sec:authorize`), 샘플 데이터에 글쓴이, 테스트에 `@WithMockUser`·비로그인 리다이렉트 검사
+- 이유: 교재 3-08 — 누가 쓴 글인지 기록하고, 로그인한 사용자만 글을 쓰도록
+- 결과: 테스트 34개 통과 (비로그인 → `/user/login` 리다이렉트, 답변 글쓴이 user1 확인). 브라우저: 비로그인 상세 화면은 입력칸 비활성, 로그인 후 쓴 305번 질문의 글쓴이 sbbuser
+- 핵심 변경:
+  ```java
+  @ManyToOne(fetch = LAZY)
+  private SiteUser author;
+
+  @PreAuthorize("isAuthenticated()")
+  @PostMapping("/create")
+  public String create(Principal principal, @ModelAttribute("form") @Valid QuestionForm form, BindingResult bindingResult) {
+      SiteUser author = userService.getUser(principal.getName());
+      questionService.create(form.subject(), form.content(), author);
+  ```
+  ```html
+  <td><span th:if="${question.author != null}" th:text="${question.author.username}"></span></td>
+  <textarea sec:authorize="isAnonymous()" disabled ...></textarea>
+  ```
+- 실행화면 (비로그인 상세 / 로그인 후 등록한 질문의 글쓴이):
+
+  ![028-01 비로그인](docs/images/028-01-anonymous.jpg)
+
+  ![028-01 실행화면](docs/images/028-01.png)

@@ -2,6 +2,7 @@ package com.back.answer;
 
 import com.back.global.jpa.entity.BaseEntity;
 import com.back.question.Question;
+import com.back.user.SiteUser;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -46,4 +47,9 @@ public class Answer extends BaseEntity {
     // The answer text. TEXT type, no length limit.
     @Column(columnDefinition = "TEXT")
     private String content;
+
+    // 답변 글쓴이 (교재 3-08). Question.author 와 같은 방식.
+    // The answer's author (book 3-08). Same approach as Question.author.
+    @ManyToOne(fetch = LAZY)
+    private SiteUser author;
 }

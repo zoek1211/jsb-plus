@@ -2,6 +2,7 @@ package com.back;
 
 import com.back.question.Question;
 import com.back.question.QuestionRepository;
+import com.back.user.SiteUser;
 import com.back.user.UserRepository;
 import com.back.user.UserService;
 
@@ -99,6 +100,11 @@ public class TestInitData {
         // Skip if data already exists, so the questions aren't duplicated even if Spring starts more than once in a test run.
         if (questionRepository.count() > 0) return;
 
+        // 샘플 질문·답변의 글쓴이 (028-01). 없으면 null (글쓴이 없음).
+        // Authors for the sample questions/answers (028-01). null (no author) if missing.
+        SiteUser user1 = userRepository.findByUsername("user1").orElse(null);
+        SiteUser user2 = userRepository.findByUsername("user2").orElse(null);
+
         // new 로 만든 객체는 아직 DB와 무관한 평범한 자바 객체다. id 는 int 기본값 0.
         // An object made with new is just a plain Java object, not in the database yet. Its id is the int default, 0.
         Question q1 = new Question();
@@ -106,6 +112,7 @@ public class TestInitData {
         // Methods available thanks to @Setter (006-01).
         q1.setSubject("sbb가 무엇인가요?");
         q1.setContent("sbb에 대해서 알고 싶습니다.");
+        q1.setAuthor(user1);
         // save → INSERT SQL 실행. 저장 후 DB가 매긴 번호(1)가 q1.id 에 들어간다.
         // save → runs an INSERT. After saving, the number the database assigned (1) is put into q1.id.
         questionRepository.save(q1);
@@ -115,7 +122,8 @@ public class TestInitData {
         q2.setContent("id는 자동으로 생성되나요?");
         // 2번 질문에 샘플 답변 1개. cascade = PERSIST 덕분에 아래 save(q2) 할 때 답변도 함께 INSERT 된다.
         // One sample answer on question 2. Thanks to cascade = PERSIST, save(q2) below also INSERTs the answer.
-        q2.addAnswer("네 자동으로 생성됩니다.");
+        q2.setAuthor(user2);
+        q2.addAnswer("네 자동으로 생성됩니다.").setAuthor(user1);
         questionRepository.save(q2);
     }
 }

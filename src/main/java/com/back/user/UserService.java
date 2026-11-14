@@ -1,5 +1,6 @@
 package com.back.user;
 
+import com.back.global.exception.DataNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,5 +29,12 @@ public class UserService {
         // encode: turns "1234" into an irreversible string like "$2a$10$...". Even if the database leaks, the original password stays unknown.
         user.setPassword(passwordEncoder.encode(password));
         return userRepository.save(user);
+    }
+
+    // 아이디로 회원 찾기 (028-01). 로그인한 사용자(Principal)의 이름으로 SiteUser 를 얻을 때 쓴다.
+    // Find a member by username (028-01). Used to get the SiteUser for the logged-in user's name (Principal).
+    public SiteUser getUser(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new DataNotFoundException("siteuser not found"));
     }
 }

@@ -10,16 +10,20 @@ package com.back.question;
 
 import com.back.answer.Answer;
 import com.back.global.jpa.entity.BaseEntity;
+import com.back.user.SiteUser;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static jakarta.persistence.FetchType.LAZY;
 
 // @Entity: 이 클래스를 DB 테이블과 연결한다. 클래스 이름 Question → 테이블 이름 question.
 // ddl-auto: update 설정 때문에 앱이 시작될 때 Hibernate가 이 클래스를 보고 테이블을 자동으로 만든다.
@@ -53,6 +57,15 @@ public class Question extends BaseEntity {
     // columnDefinition = "TEXT": content becomes a TEXT column with no length limit, because a question body can be long.
     @Column(columnDefinition = "TEXT")
     private String content;
+
+    // 글쓴이 (교재 3-08). 여러 질문이 한 회원에게 속한다 → @ManyToOne, question 테이블에 author_id 컬럼(외래 키).
+    // LAZY: 질문을 읽을 때 회원은 필요할 때만 읽는다 (009-03).
+    // 글쓴이 기능 전에 만든 질문은 author 가 비어 있다(null) → 화면에서 null 을 확인하고 출력한다.
+    // The author (book 3-08). Many questions belong to one member → @ManyToOne, an author_id column (foreign key) in the question table.
+    // LAZY: the member is read only when needed (009-03).
+    // Questions created before this feature have no author (null) → the templates check for null before printing.
+    @ManyToOne(fetch = LAZY)
+    private SiteUser author;
 
     // @OneToMany: "하나(One)의 질문에 여러(Many) 답변" 관계. Answer 쪽 @ManyToOne 의 반대 방향이다.
     // 이 필드 덕분에 질문에서 답변 목록을 바로 꺼낼 수 있다 (question.answers).

@@ -1,9 +1,12 @@
 package com.back.question;
 
 import com.back.answer.AnswerForm;
+import com.back.user.SiteUser;
+import com.back.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -13,6 +16,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.security.Principal;
 
 // 질문 관련 웹 요청을 처리하는 컨트롤러. MainController 와 같은 @Controller 다.
 // The controller that handles question-related web requests. A @Controller just like MainController.
@@ -31,6 +36,9 @@ public class QuestionController {
     // 리포지터리 대신 서비스를 쓴다 (012-01). 컨트롤러는 DB를 직접 다루지 않는다.
     // Uses the service instead of the repository (012-01). The controller doesn't touch the database directly.
     private final QuestionService questionService;
+    // 로그인한 회원(글쓴이)을 찾기 위해 (028-01)
+    // To look up the logged-in member (the author) (028-01)
+    private final UserService userService;
 
     // GET /question/list → 질문 목록 화면.
     // @ResponseBody 가 없으므로 반환값 "question_list" 는 "템플릿 이름"이다 (002-01 에서 배운 것).
@@ -74,6 +82,11 @@ public class QuestionController {
     // GET /question/create → 질문 등록 폼 화면.
     // GET /question/create → the question form page.
     @GetMapping("/create")
+    // @PreAuthorize("isAuthenticated()"): 로그인한 사용자만 실행할 수 있다 (교재 3-08).
+    // 로그인하지 않았으면 시큐리티가 로그인 화면(/user/login)으로 보낸다. SecurityConfig 의 @EnableMethodSecurity 가 있어야 동작한다.
+    // @PreAuthorize("isAuthenticated()"): only logged-in users may run this (book 3-08).
+    // If not logged in, Security sends the user to the login page (/user/login). Requires @EnableMethodSecurity in SecurityConfig.
+    @PreAuthorize("isAuthenticated()")
     // @ModelAttribute("form"): 빈 QuestionForm 을 만들어 "form" 이라는 이름으로 model 에 담는다.
     // 템플릿의 th:object="${form}" 이 이 객체를 쓴다. 처음 화면에서는 값이 모두 비어 있다 (14168 18강).
     // @ModelAttribute("form"): creates an empty QuestionForm and puts it in the model under the name "form".
@@ -87,7 +100,11 @@ public class QuestionController {
     // POST /question/create → handles the submitted form (save, then go to the list).
     // Spring tells GET (show form) and POST (save) apart even on the same URL (14168 lecture 26), so no separate name like doCreate is needed.
     @PostMapping("/create")
+    @PreAuthorize("isAuthenticated()")
     public String create(
+            // Principal: 현재 로그인한 사용자 정보. getName() 은 로그인 아이디 (교재 3-08).
+            // Principal: the currently logged-in user. getName() is the login username (book 3-08).
+            Principal principal,
             // @ModelAttribute: 폼의 subject, content 값을 QuestionForm 하나로 모아 받는다 (@RequestParam 여러 개 대신, 14168 12강).
             // @Valid: QuestionForm 에 붙은 @NotBlank, @Size 규칙으로 검사한다.
             // @ModelAttribute: collects the form's subject and content into one QuestionForm (instead of several @RequestParams, 14168 lecture 12).
@@ -105,7 +122,10 @@ public class QuestionController {
             return "question_form";
         }
 
-        questionService.create(form.subject(), form.content());
+        // 로그인 아이디로 회원을 찾아 글쓴이로 저장
+        // Look up the member by login username and store them as the author
+        SiteUser author = userService.getUser(principal.getName());
+        questionService.create(form.subject(), form.content(), author);
         // POST 처리 후에는 redirect → 새로고침해도 다시 등록되지 않는다 (14168 28강).
         // Redirect after POST → refreshing won't submit again (14168 lecture 28).
         return "redirect:/question/list";

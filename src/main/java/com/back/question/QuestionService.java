@@ -1,6 +1,7 @@
 package com.back.question;
 
 import com.back.global.exception.DataNotFoundException;
+import com.back.user.SiteUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -55,10 +56,13 @@ public class QuestionService {
     // Creates a question. JPA Auditing fills in the created date automatically (010-02).
     // @Transactional: wraps the save in a transaction and commits at the end.
     @Transactional
-    public Question create(String subject, String content) {
+    // author: 글쓴이 (로그인한 회원, 028-01)
+    // author: the writer (the logged-in member, 028-01)
+    public Question create(String subject, String content, SiteUser author) {
         Question question = new Question();
         question.setSubject(subject);
         question.setContent(content);
+        question.setAuthor(author);
         return questionRepository.save(question);
     }
 }

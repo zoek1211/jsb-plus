@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,7 +89,16 @@ class QuestionControllerTest {
     }
 
     @Test
+    @DisplayName("GET /question/create: 로그인하지 않으면 로그인 화면으로 보낸다 (@PreAuthorize)")
+    void t4_anonymous() throws Exception {
+        mvc.perform(get("/question/create"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/user/login"));
+    }
+
+    @Test
     @DisplayName("GET /question/create: 질문 등록 폼이 보인다")
+    @WithMockUser(username = "user1")
     void t4() throws Exception {
         mvc.perform(get("/question/create"))
                 .andExpect(status().isOk())
@@ -97,6 +107,7 @@ class QuestionControllerTest {
 
     @Test
     @DisplayName("POST /question/create: 질문 등록 후 목록으로 이동하고, 새 질문이 보인다")
+    @WithMockUser(username = "user1")
     void t5() throws Exception {
         mvc.perform(post("/question/create").with(csrf())
                         .param("subject", "새 질문 제목")
@@ -111,6 +122,7 @@ class QuestionControllerTest {
 
     @Test
     @DisplayName("POST /question/create: 제목·내용이 비어 있으면 저장하지 않고 오류 메시지와 함께 폼을 다시 보여준다")
+    @WithMockUser(username = "user1")
     void t6() throws Exception {
         mvc.perform(post("/question/create").with(csrf())
                         .param("subject", "")

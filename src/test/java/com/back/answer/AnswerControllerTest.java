@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+// @WithMockUser: 이 테스트를 "로그인한 사용자"로 실행한다 (실제 로그인 과정 없이). username 은 Principal.getName() 이 된다.
+// @WithMockUser: runs the test as a "logged-in user" (without an actual login). username becomes Principal.getName().
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +33,7 @@ class AnswerControllerTest {
 
     @Test
     @DisplayName("POST /answer/create/1: 답변 등록 후 상세 화면으로 이동하고, 답변이 보인다")
+    @WithMockUser(username = "user1")
     void t1() throws Exception {
         // post(...).param("content", ...): 폼의 textarea(name="content") 에 글을 쓰고 제출한 것과 같다.
         // .with(csrf()): 시큐리티(025-01)가 요구하는 CSRF 토큰을 넣는다. 실제 화면은 th:action 이 자동으로 넣어 준다.
@@ -52,6 +56,7 @@ class AnswerControllerTest {
 
     @Test
     @DisplayName("POST /answer/create/1: 내용이 비어 있으면 저장하지 않고 오류 메시지를 보여준다")
+    @WithMockUser(username = "user1")
     void t2() throws Exception {
         mvc.perform(post("/answer/create/1").with(csrf()).param("content", ""))
                 .andDo(print())
@@ -60,5 +65,27 @@ class AnswerControllerTest {
                 // 저장되지 않았으므로 답변은 여전히 0개
                 // Nothing was saved, so there are still 0 answers
                 .andExpect(content().string(containsString("0개의 답변이 있습니다.")));
+    }
+
+    @Test
+    @DisplayName("POST /answer/create/1: 로그인하지 않으면 로그인 화면으로 보낸다 (@PreAuthorize)")
+    void t3() throws Exception {
+        mvc.perform(post("/answer/create/1").with(csrf()).param("content", "익명 답변"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/user/login"));
+    }
+
+    @Test
+    @DisplayName("POST /answer/create/2: 로그인한 사용자(user1)가 답변의 글쓴이로 저장된다")
+    @WithMockUser(username = "user1")
+    void t4() throws Exception {
+        mvc.perform(post("/answer/create/2").with(csrf()).param("content", "글쓴이 확인용 답변"));
+
+        // 2번 질문 상세 화면에 user1 이 글쓴이로 보인다 (샘플 답변도 user1, 질문 글쓴이는 user2)
+        // The question 2 detail page shows user1 as an author (the sample answer is also user1; the question's author is user2)
+        mvc.perform(get("/question/detail/2"))
+                .andExpect(content().string(containsString("글쓴이 확인용 답변")))
+                .andExpect(content().string(containsString("user1")))
+                .andExpect(content().string(containsString("user2")));
     }
 }

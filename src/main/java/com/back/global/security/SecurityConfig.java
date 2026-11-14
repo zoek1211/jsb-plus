@@ -2,6 +2,7 @@ package com.back.global.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,6 +18,11 @@ import org.springframework.security.web.header.writers.frameoptions.XFrameOption
 // @EnableWebSecurity: 모든 웹 요청이 시큐리티 필터를 거치도록 한다.
 // @EnableWebSecurity: routes every web request through Security's filters.
 @EnableWebSecurity
+// @EnableMethodSecurity: 컨트롤러 메서드의 @PreAuthorize("isAuthenticated()") 같은 검사를 켠다 (교재 3-08).
+// 없으면 @PreAuthorize 가 무시되어 로그인하지 않아도 글을 쓸 수 있게 된다.
+// @EnableMethodSecurity: turns on checks like @PreAuthorize("isAuthenticated()") on controller methods (book 3-08).
+// Without it, @PreAuthorize is ignored and anyone could post without logging in.
+@EnableMethodSecurity
 public class SecurityConfig {
 
     // SecurityFilterChain: "어떤 요청을 누구에게 허용할지" 등 보안 규칙의 묶음. @Bean 으로 등록하면 스프링 시큐리티가 사용한다.
