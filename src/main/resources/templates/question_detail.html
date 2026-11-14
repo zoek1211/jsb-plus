@@ -7,6 +7,9 @@
 <head>
     <meta charset="UTF-8">
     <title>질문 상세</title>
+    <!-- static/style.css 를 불러온다. @{/style.css} 는 앱 주소 기준의 URL 로 바뀐다. -->
+    <!-- Loads static/style.css. @{/style.css} becomes a URL relative to the app's root. -->
+    <link rel="stylesheet" type="text/css" th:href="@{/style.css}">
 </head>
 <body>
 <!-- 제목과 내용. th:text 는 HTML 특수문자를 안전하게 바꿔서(escape) 출력한다. -->

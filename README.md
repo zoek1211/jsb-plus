@@ -409,3 +409,20 @@
 - 실행화면:
 
   ![015-01 실행화면](docs/images/015-01.png)
+
+### 016-01 화면 꾸미기, 스타일시트(style.css) 적용
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/016-01)
+- 작업: `static/style.css` (textarea 너비 100%, 버튼 위 여백) 추가, 상세 화면에서 `<link th:href="@{/style.css}">` 로 불러옴
+- 이유: 교재 2-13 / 14163 38강 — `static` 폴더의 정적 파일을 화면에서 사용하는 방법
+- 결과: 테스트 18개 통과, 답변 입력칸이 화면 너비로 늘어남
+- 핵심 변경:
+  ```css
+  textarea { width: 100%; }
+  input[type=submit] { margin-top: 10px; }
+  ```
+  ```html
+  <link rel="stylesheet" type="text/css" th:href="@{/style.css}">
+  ```
+- 실행화면:
+
+  ![016-01 실행화면](docs/images/016-01.jpg)

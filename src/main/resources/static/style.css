@@ -1,0 +1,16 @@
+/*
+  src/main/resources/static 폴더의 파일은 스프링부트가 그대로 웹에 공개한다 → http://localhost:8080/style.css
+  템플릿에서 <link th:href="@{/style.css}"> 로 불러온다 (교재 2-13, 14163 38강).
+  Files in src/main/resources/static are served as-is by Spring Boot → http://localhost:8080/style.css
+  Templates load it with <link th:href="@{/style.css}"> (book 2-13, 14163 lecture 38).
+*/
+
+/* 답변 입력칸을 화면 너비만큼 넓게 / Make the answer box as wide as the page */
+textarea {
+    width: 100%;
+}
+
+/* 등록 버튼과 입력칸 사이 간격 / Space between the box and the submit button */
+input[type=submit] {
+    margin-top: 10px;
+}
