@@ -371,3 +371,20 @@
   ![013-02 수정 전](docs/images/013-02-before.png)
 
   ![013-02 실행화면](docs/images/013-02.png)
+
+### 014-01 URL 프리픽스, @RequestMapping("/question")
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/014-01)
+- 작업: `QuestionController` 클래스에 `@RequestMapping("/question")`, 메서드는 `/list`, `/detail/{id}` 로 줄임
+- 이유: 교재 2-11 / 14163 36강 — 공통 URL 접두어를 한 곳에서 관리
+- 결과: 테스트 17개 통과 (URL 은 그대로 `/question/list`, `/question/detail/{id}`)
+- 핵심 변경:
+  ```java
+  @RequestMapping("/question")
+  public class QuestionController {
+      @GetMapping("/list") ...          // → /question/list
+      @GetMapping("/detail/{id}") ...   // → /question/detail/{id}
+  }
+  ```
+- 실행화면 (컨트롤러 테스트 리포트):
+
+  ![014-01 실행화면](docs/images/014-01.png)

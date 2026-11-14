@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 
@@ -14,6 +15,13 @@ import java.util.List;
 // final 필드(questionService)를 생성자로 주입받는다 (TestInitData 에서 설명).
 // Receives the final field (questionService) through the constructor (explained in TestInitData).
 @RequiredArgsConstructor
+// @RequestMapping("/question"): 이 클래스의 모든 URL 앞에 /question 을 붙인다 (교재 2-11, 14163 36강).
+// 그래서 아래 @GetMapping("/list") 는 실제로 /question/list, @GetMapping("/detail/{id}") 는 /question/detail/{id} 가 된다.
+// 공통 접두어를 한 곳에서 관리해 중복과 오타를 줄인다.
+// @RequestMapping("/question"): prefixes every URL in this class with /question (book 2-11, 14163 lecture 36).
+// So @GetMapping("/list") below is really /question/list, and @GetMapping("/detail/{id}") is /question/detail/{id}.
+// Keeping the shared prefix in one place reduces repetition and typos.
+@RequestMapping("/question")
 public class QuestionController {
     // 리포지터리 대신 서비스를 쓴다 (012-01). 컨트롤러는 DB를 직접 다루지 않는다.
     // Uses the service instead of the repository (012-01). The controller doesn't touch the database directly.
@@ -25,7 +33,7 @@ public class QuestionController {
     // GET /question/list → the question list page.
     // No @ResponseBody, so the return value "question_list" is a "template name" (as learned in 002-01).
     // Thymeleaf finds templates/question_list.html and builds the HTML. No more HTML inside Java code.
-    @GetMapping("/question/list")
+    @GetMapping("/list")
     // Model: 컨트롤러가 템플릿에 넘길 데이터를 담는 상자. 스프링이 매개변수로 넣어준다.
     // Model: a box holding the data the controller passes to the template. Spring passes it in as a parameter.
     public String list(Model model) {
@@ -42,7 +50,7 @@ public class QuestionController {
     // GET /question/detail/1, /question/detail/2 ... → the question detail page.
     // {id}: a placeholder that captures part of the URL path. @PathVariable puts that value into the int id parameter.
     // Without @PathVariable, Spring doesn't know where id comes from and fails.
-    @GetMapping("/question/detail/{id}")
+    @GetMapping("/detail/{id}")
     public String detail(Model model, @PathVariable int id) {
         Question question = questionService.getQuestion(id);
         model.addAttribute("question", question);
