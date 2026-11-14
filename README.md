@@ -274,3 +274,26 @@
 - 실행화면:
 
   ![011-01 실행화면](docs/images/011-01.png)
+
+### 011-02 질문 목록, 타임리프 템플릿으로 변경
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/011-02)
+- 작업: `spring-boot-starter-thymeleaf` 추가, `templates/question_list.html` (표: 번호·제목·작성일시) 작성, 컨트롤러는 `Model` 에 `questionList` 를 담고 템플릿 이름 반환
+- 이유: 교재 2-07 / 14163 28~32강 — HTML 은 템플릿 파일로, 자바는 데이터만 담당하도록 분리
+- 결과: 테스트 16개 통과, 브라우저에서 질문 목록 표 확인
+- 핵심 변경:
+  ```java
+  public String list(Model model) {
+      model.addAttribute("questionList", questionRepository.findAll());
+      return "question_list";   // templates/question_list.html
+  }
+  ```
+  ```html
+  <tr th:each="question : ${questionList}">
+      <td th:text="${question.id}"></td>
+      <td th:text="${question.subject}"></td>
+      <td th:text="${question.createDate}"></td>
+  </tr>
+  ```
+- 실행화면:
+
+  ![011-02 실행화면](docs/images/011-02.png)

@@ -62,6 +62,13 @@ dependencies {
 	// JPA (Java Persistence API): a standard for working with the database through Java objects instead of writing SQL. Hibernate implements it.
 	// This starter also creates the database connection (DataSource), so the app actually connects on startup → the db_dev file is created.
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+	// 타임리프: HTML 템플릿 파일(src/main/resources/templates/*.html)에 자바 데이터를 채워 화면을 만드는 템플릿 엔진.
+	// 컨트롤러가 "question_list" 를 반환하면 templates/question_list.html 을 찾아서 렌더링한다.
+	// Thymeleaf: a template engine that fills HTML template files (src/main/resources/templates/*.html) with Java data.
+	// When a controller returns "question_list", it renders templates/question_list.html.
+	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+	testImplementation("org.springframework.boot:spring-boot-starter-thymeleaf-test")
 	// JPA 관련 테스트 도구 (나중에 리포지터리 테스트에서 사용).
 	// Test tools for JPA (used later for repository tests).
 	testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
