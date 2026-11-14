@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -73,10 +74,35 @@ public class Question {
     //
     // cascade = REMOVE: 질문을 삭제하면 그 질문의 답변들도 함께 삭제한다.
     // 없으면 답변이 아직 질문을 가리키고 있어서(외래 키) DB가 질문 삭제를 거부한다.
+    // cascade = PERSIST: 질문을 저장(save)할 때 answers 목록에 새로 들어간 답변도 함께 저장(INSERT)한다.
+    // 그래서 answerRepository 없이 question.addAnswer(...) 만으로 답변을 만들 수 있다 (14163 21강).
     // cascade = REMOVE: deleting a question also deletes its answers.
     // Without it, the answers still point to the question (foreign key), so the database refuses to delete the question.
-    @OneToMany(mappedBy = "question", cascade = CascadeType.REMOVE)
+    // cascade = PERSIST: saving a question also saves (INSERTs) new answers added to its answers list.
+    // So answers can be created with just question.addAnswer(...), without answerRepository (14163 lecture 21).
+    @OneToMany(mappedBy = "question", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     // List<Answer>: 여러 개의 Answer 를 순서대로 담는 자바 컬렉션.
+    // = new ArrayList<>(): 처음부터 빈 목록으로 만들어 둔다. 그러지 않으면 새 질문의 answers 가 null 이라서
+    // answers.add(...) 를 하는 순간 NullPointerException 이 난다 (14163 23강).
     // List<Answer>: a Java collection holding many Answer objects in order.
-    private List<Answer> answers;
+    // = new ArrayList<>(): start with an empty list. Otherwise a new question's answers is null,
+    // and answers.add(...) throws a NullPointerException (14163 lecture 23).
+    private List<Answer> answers = new ArrayList<>();
+
+    // 이 질문에 답변을 하나 추가하는 편의 메서드.
+    // 연관관계의 양쪽(answer.question 과 question.answers)을 한 번에 맞춰 준다:
+    // - answer.setQuestion(this): DB에 저장될 외래 키(question_id)를 정한다 (연관관계의 주인 쪽).
+    // - answers.add(answer):      자바 객체의 목록에도 넣어서, 저장 전에도 question.getAnswers() 에 바로 보이게 한다.
+    // A convenience method that adds one answer to this question.
+    // It keeps both sides of the relationship in sync at once:
+    // - answer.setQuestion(this): sets the foreign key (question_id) that gets saved (the owner side).
+    // - answers.add(answer):      also adds it to the Java list, so question.getAnswers() shows it even before saving.
+    public Answer addAnswer(String content) {
+        Answer answer = new Answer();
+        answer.setContent(content);
+        answer.setQuestion(this);
+        answer.setCreateDate(LocalDateTime.now());
+        answers.add(answer);
+        return answer;
+    }
 }

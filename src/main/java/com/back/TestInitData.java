@@ -93,6 +93,9 @@ public class TestInitData {
         q2.setSubject("스프링부트 모델 질문입니다.");
         q2.setContent("id는 자동으로 생성되나요?");
         q2.setCreateDate(LocalDateTime.now());
+        // 2번 질문에 샘플 답변 1개. cascade = PERSIST 덕분에 아래 save(q2) 할 때 답변도 함께 INSERT 된다.
+        // One sample answer on question 2. Thanks to cascade = PERSIST, save(q2) below also INSERTs the answer.
+        q2.addAnswer("네 자동으로 생성됩니다.");
         questionRepository.save(q2);
     }
 }

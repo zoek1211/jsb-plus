@@ -193,4 +193,26 @@ class QuestionRepositoryTest {
         assertThat(answer.getId()).isGreaterThan(0);
         assertThat(answer.getQuestion().getId()).isEqualTo(2);
     }
+
+    @Test
+    @DisplayName("답변 생성 by oneToMany: question.addAnswer 로 답변을 추가한다")
+    @Transactional
+    void t9() {
+        Question question = questionRepository.findById(2).orElseThrow();
+        int beforeCount = question.getAnswers().size();
+
+        Answer newAnswer = question.addAnswer("네 자동으로 생성됩니다.");
+
+        // 아직 DB에 INSERT 되기 전이라 id 는 int 기본값 0 이다. 목록에는 이미 들어가 있다.
+        // Not INSERTed yet, so id is still the int default 0. It's already in the Java list, though.
+        assertThat(newAnswer.getId()).isEqualTo(0);
+        assertThat(question.getAnswers()).hasSize(beforeCount + 1);
+
+        // flush(): 지금까지 바뀐 내용을 DB에 바로 보낸다. cascade = PERSIST 덕분에 새 답변이 INSERT 되고 id 가 생긴다.
+        // (트랜잭션 끝의 롤백으로 결국 취소된다.)
+        // flush(): sends the pending changes to the database now. Thanks to cascade = PERSIST the new answer is INSERTed and gets an id.
+        // (It's still undone by the rollback at the end of the test.)
+        questionRepository.flush();
+        assertThat(newAnswer.getId()).isGreaterThan(0);
+    }
 }

@@ -174,3 +174,25 @@
 - 실행화면:
 
   ![009-01 실행화면](docs/images/009-01.jpg)
+
+### 009-02 답변, question.addAnswer 로 답변 추가 (cascade PERSIST)
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/009-02)
+- 작업: `Question.answers` 를 `new ArrayList<>()` 로 초기화, `cascade = {PERSIST, REMOVE}`, `addAnswer(content)` 편의 메서드 추가, 샘플 데이터에 2번 질문 답변 1개, 테스트 t9
+- 이유: 14163 21·23강 — 질문 객체만으로 답변을 추가·저장. 목록을 초기화하지 않으면 새 질문에서 `NullPointerException`
+- 결과: 테스트 12개 통과. `addAnswer` 직후 id 0, `flush()` 후 id 생성 확인. 앱 시작 로그에 샘플 답변 INSERT 확인
+- 핵심 변경:
+  ```java
+  @OneToMany(mappedBy = "question", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+  private List<Answer> answers = new ArrayList<>();
+
+  public Answer addAnswer(String content) {
+      Answer answer = new Answer();
+      answer.setContent(content);
+      answer.setQuestion(this);   // 외래 키(주인 쪽)
+      answers.add(answer);        // 자바 목록
+      return answer;
+  }
+  ```
+- 실행화면:
+
+  ![009-02 실행화면](docs/images/009-02.jpg)
