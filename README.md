@@ -426,3 +426,20 @@
 - 실행화면:
 
   ![016-01 실행화면](docs/images/016-01.jpg)
+
+### 016-02 화면 꾸미기, 부트스트랩 적용
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/016-02)
+- 작업: 목록·상세 템플릿에 부트스트랩 5.3.3 (CDN) 적용 — 표(`table`, `table-dark`), 카드(`card`), 버튼(`btn btn-primary`), 날짜 형식 `#temporals.format(..., 'yyyy-MM-dd HH:mm')`, 번호는 `loop.count`
+- 이유: 교재 2-14 — 클래스 이름만으로 보기 좋은 화면 만들기
+- 결과: 테스트 18개 통과, 목록은 어두운 머리글 표, 상세는 질문·답변 카드와 파란 등록 버튼
+- 핵심 변경:
+  ```html
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <table class="table"><thead class="table-dark"> ...
+  <td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></td>
+  ```
+- 실행화면 (목록 / 상세):
+
+  ![016-02 실행화면](docs/images/016-02.png)
+
+  ![016-02 상세](docs/images/016-02-detail.jpg)
