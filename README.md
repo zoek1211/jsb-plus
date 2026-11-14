@@ -1191,3 +1191,23 @@
   ![000-11 push](docs/images/000-11-push.png)
 
   ![000-11 실행화면](docs/images/000-11.png)
+
+### 000-12 결과 영상, 과제 장(S04–S05) 만들기
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/000-12)
+- 작업: `video/compositions/project.html` (영상 38.3–69.7 s)을 만들고 `index.html` 에 장면과 내레이션 2개를 올림
+  - S04: 훅의 마지막 화면에서 시작 → 질문 카드가 왼쪽 위로 옮겨 가 "운반체"로 남음 → 오른쪽 git log 창에 실제 커밋 57개가 흐르는 동안 숫자 1 → 57 → "교재 Spring Boot 3 · Java 17"(빨강, 취소선) → "우리 Spring Boot 4.1.2 · Java 25"(초록)
+  - S05: 로그의 033-01 줄이 README 작업내역 한 항목으로 펼쳐짐(작업·이유·결과·핵심 변경·실행화면) → 한국어+영어 학습용 주석이 달린 실제 `QuestionController.java` 코드
+- 이유: 과제의 방식(작은 커밋, 기록, 학습용 주석)을 실제 기록으로 보여주기 위함. 커밋 제목을 손으로 옮기면 틀리기 쉬워 `video/scripts/build_project.py` 가 `git log` 에서 읽어 `project.tpl.html` 의 `{{LOG}}` 를 채움
+- 결과: `npx hyperframes check` 오류 0. 남은 경고는 의도된 것 — 빠르게 흐르는 로그 줄(개수를 보여주는 장면), 훅에서 이어진 복제 요소, 파일 길이(커밋 57줄 포함). 고친 것: 줄어든 카드의 작은 글자(28px 미만) → 제목만 남김, 코드 창 빈 줄, 취소선 겹침 표시, 레이아웃 속성(margin) 애니메이션 → clip-path. 000-11 에 잘못 들어간 Studio 캐시(`.thumbnails`, `.waveform-cache`)를 저장소에서 빼고 `.gitignore` 에 추가
+- 핵심 변경:
+  ```js
+  // 숫자 1 → 57 과 로그 스크롤을 같은 3초, 같은 ease 로 묶는다 (값은 타임라인 시간에서만 나온다)
+  tl.fromTo(counter, { n: 1 }, { n: 57, duration: 3.0, ease: "power2.inOut",
+    onUpdate: () => (document.querySelector("#pj-count").textContent = Math.round(counter.n)) }, 6.2);
+  tl.fromTo("#pj-log", { y: 0 }, { y: -1886, duration: 3.0, ease: "power2.inOut" }, 6.2); // (57 − 16) × 46px
+  ```
+- 실행화면 (56.5 s: 57개 커밋과 버전 / 62.4 s: README 항목):
+
+  ![000-12 실행화면](docs/images/000-12.png)
+
+  ![000-12 README](docs/images/000-12-readme.png)

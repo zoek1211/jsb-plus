@@ -87,14 +87,14 @@
   </head>
   <body>
     <!--
-      data-duration: 영상 길이(초). 지금은 훅(S01–S03)까지 38.3 초, 장(chapter)을 더할 때마다 늘어난다.
-      data-duration: the video's length in seconds. 38.3 s covers the hook (S01–S03); it grows with each chapter.
+      data-duration: 영상 길이(초). 지금은 과제 장(S04–S05)까지 69.7 초, 장(chapter)을 더할 때마다 늘어난다.
+      data-duration: the video's length in seconds. 69.7 s covers up to the assignment chapter (S04–S05); it grows with each chapter.
     -->
     <div
       id="root"
       data-composition-id="main"
       data-start="0"
-      data-duration="38.3"
+      data-duration="69.7"
       data-width="1920"
       data-height="1080"
     >
@@ -116,6 +116,19 @@
         data-height="1080"
       ></div>
 
+      <!-- 과제 장 (S04–S05): 훅이 끝나는 38.3 초부터 31.4 초 동안 / Assignment chapter (S04–S05): 31.4 s from 38.3 s -->
+      <div
+        id="project"
+        data-composition-id="project"
+        data-composition-src="compositions/project.html"
+        data-start="38.3"
+        data-duration="31.4"
+        data-track-index="1"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
       <!--
         내레이션: 장면마다 mp3 하나. 문장은 장면 시작 0.4 초 뒤에 시작하고, 끝나고 0.8 초 숨을 둔다.
         <audio> 는 id 가 있어야 믹스에 들어간다.
@@ -125,6 +138,8 @@
       <audio id="vo-s01" src="assets/vo/S01.mp3" data-start="0.4" data-duration="7.58" data-track-index="10" data-volume="1.148154"></audio>
       <audio id="vo-s02" src="assets/vo/S02.mp3" data-start="9.2" data-duration="13.08" data-track-index="10" data-volume="1.148154"></audio>
       <audio id="vo-s03" src="assets/vo/S03.mp3" data-start="25.3" data-duration="12.17" data-track-index="10" data-volume="1.161449"></audio>
+      <audio id="vo-s04" src="assets/vo/S04.mp3" data-start="38.7" data-duration="18.07" data-track-index="10" data-volume="1.188502"></audio>
+      <audio id="vo-s05" src="assets/vo/S05.mp3" data-start="58" data-duration="10.85" data-track-index="10" data-volume="1.148154"></audio>
     </div>
     <script>
       // paused: true — 재생하지 않고 멈춰 둔 타임라인. HyperFrames 가 프레임마다 시간을 직접 맞춰(seek) 그린다.
