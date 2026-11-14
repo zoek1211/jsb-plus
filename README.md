@@ -790,3 +790,26 @@
 - 실행화면 (`/question/detail/2#answer_5`, 새 답변 위치로 스크롤된 화면):
 
   ![031-01 실행화면](docs/images/031-01.jpg)
+
+### 032-01 마크다운, commonmark 로 질문·답변 내용 표시 (XSS 방지)
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/032-01)
+- 작업: `org.commonmark:commonmark:0.24.0`, `com.back.global.util.CommonUtil.markdown` (`HtmlRenderer.escapeHtml(true)`), `GlobalModelAttributes` (`@ControllerAdvice` + `@ModelAttribute("commonUtil")`), 상세 화면 질문·답변 내용을 `th:utext="${commonUtil.markdown(...)}"`, `CommonUtilTest` (마크다운 변환, `<script>` 이스케이프)
+- 이유: 교재 3-12 — 굵게·목록·코드 같은 서식. 교재 그대로면 글에 넣은 `<script>` 가 실행될 수 있어(XSS) 원본 HTML 을 이스케이프. 타임리프 3.1.5 가 템플릿의 `@빈` 직접 호출을 막아 model 속성으로 전달
+- 결과: 교재 방식(`${@commonUtil.markdown(...)}`)으로는 렌더링 테스트 9개가 "Instantiation of new objects and access to static classes or parameters is forbidden" 로 실패 → model 속성 방식으로 테스트 46개 통과. 브라우저: 제목·굵게·목록·코드 표시, `<script>` 는 글자로만 보이고 실행 안 됨
+- 핵심 변경:
+  ```java
+  private final HtmlRenderer renderer = HtmlRenderer.builder().escapeHtml(true).build();
+  public String markdown(String markdown) { return renderer.render(parser.parse(markdown)); }
+
+  @ControllerAdvice
+  public class GlobalModelAttributes {
+      @ModelAttribute("commonUtil")
+      public CommonUtil commonUtil() { return commonUtil; }
+  }
+  ```
+  ```html
+  <div class="card-text" th:utext="${commonUtil.markdown(question.content)}"></div>
+  ```
+- 실행화면 (마크다운 + `<script>` 가 글자로 표시됨):
+
+  ![032-01 실행화면](docs/images/032-01.png)

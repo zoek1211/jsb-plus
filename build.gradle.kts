@@ -87,6 +87,12 @@ dependencies {
 	// 테스트에서 csrf(), @WithMockUser 등을 쓰기 위한 도구.
 	// Test helpers such as csrf() and @WithMockUser.
 	testImplementation("org.springframework.boot:spring-boot-starter-security-test")
+
+	// commonmark: 마크다운 문법(**굵게**, - 목록, ```코드```)을 HTML 로 바꿔 주는 라이브러리 (교재 3-12).
+	// 스프링부트가 버전을 관리하지 않으므로 직접 적는다.
+	// commonmark: a library that turns Markdown (**bold**, - lists, ```code```) into HTML (book 3-12).
+	// Spring Boot doesn't manage its version, so it's written here.
+	implementation("org.commonmark:commonmark:0.24.0")
 	// JPA 관련 테스트 도구 (나중에 리포지터리 테스트에서 사용).
 	// Test tools for JPA (used later for repository tests).
 	testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
