@@ -813,3 +813,29 @@
 - 실행화면 (마크다운 + `<script>` 가 글자로 표시됨):
 
   ![032-01 실행화면](docs/images/032-01.png)
+
+### 033-01 검색, @Query(JPQL) 와 검색창·페이징 유지
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/033-01)
+- 작업: `QuestionRepository.findAllByKeyword` (`@Query` JPQL: 제목·내용·질문 글쓴이·답변 내용·답변 글쓴이, `left outer join`, `distinct`, 별도 `countQuery`), `QuestionService.getList(page, kw)`, 컨트롤러 `@RequestParam(defaultValue = "") String kw`, 목록 위 검색창(GET 폼)과 페이지 링크에 `kw` 유지 (`@{/question/list(page=..., kw=${kw})}`), 테스트 4개
+- 이유: 교재 3-13 — 질문 검색. 교재는 JPA Specification 을 먼저 만든 뒤 @Query 로 바꾸지만 바로 @Query 로. 검색창은 자바스크립트 없이 HTML GET 폼
+- 결과: 테스트 50개 통과 (제목 'sbb' → 1번, 글쓴이 'user2' → 2번, 답변 내용 '자동으로' → 2번 1개). 브라우저: '29' 검색 13건, 2페이지로 이동해도 `?page=1&kw=29` 로 검색 유지
+- 핵심 변경:
+  ```java
+  @Query(value = """
+          select distinct q from Question q
+          left outer join q.author u1
+          left outer join q.answers a
+          left outer join a.author u2
+          where q.subject like '%' || :kw || '%' or q.content like '%' || :kw || '%'
+             or u1.username like '%' || :kw || '%' or a.content like '%' || :kw || '%'
+             or u2.username like '%' || :kw || '%'
+          """, countQuery = "select count(distinct q) ...")
+  Page<Question> findAllByKeyword(@Param("kw") String kw, Pageable pageable);
+  ```
+  ```html
+  <form th:action="@{/question/list}" method="get"><input type="text" name="kw" th:value="${kw}"> ...</form>
+  <a th:href="@{/question/list(page=${page}, kw=${kw})}">
+  ```
+- 실행화면 (`?page=1&kw=29`):
+
+  ![033-01 실행화면](docs/images/033-01.jpg)

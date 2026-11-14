@@ -31,7 +31,9 @@ public class QuestionService {
     // page: 0부터 시작하는 페이지 번호. 한 페이지에 10개씩, 최신 글(id 큰 순)부터.
     // One page of the question list (book 3-02).
     // page: a 0-based page number. 10 per page, newest first (largest id first).
-    public Page<Question> getList(int page) {
+    // kw: 검색어 (교재 3-13). 빈 문자열이면 '%%' 패턴이 되어 모든 질문이 나온다.
+    // kw: the search keyword (book 3-13). An empty string makes the pattern '%%', which matches every question.
+    public Page<Question> getList(int page, String kw) {
         // PageRequest.of(페이지번호, 한 페이지 크기, 정렬): "몇 번째 페이지를 몇 개씩, 어떤 순서로" 가져올지 정한다.
         // 교재는 createDate 내림차순이지만, 300개를 한꺼번에 만들면 시간이 거의 같아 순서가 섞일 수 있어 id 내림차순을 쓴다.
         // PageRequest.of(page, size, sort): decides "which page, how many per page, in what order".
@@ -39,7 +41,7 @@ public class QuestionService {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("id")));
         // findAll(pageable) → SELECT ... ORDER BY id DESC LIMIT 10 OFFSET (page*10) + 전체 개수를 세는 COUNT 쿼리
         // findAll(pageable) → SELECT ... ORDER BY id DESC LIMIT 10 OFFSET (page*10) plus a COUNT query for the total
-        return questionRepository.findAll(pageable);
+        return questionRepository.findAllByKeyword(kw, pageable);
     }
 
     // id 로 질문 하나. 없으면 DataNotFoundException → HTTP 404.

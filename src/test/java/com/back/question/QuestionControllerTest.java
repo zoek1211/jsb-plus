@@ -71,6 +71,16 @@ class QuestionControllerTest {
     }
 
     @Test
+    @DisplayName("GET /question/list?kw=sbb: 검색 결과에 1번만 보이고, 검색창에 검색어가 남는다 (033-01)")
+    void t1_search() throws Exception {
+        mvc.perform(get("/question/list").param("kw", "sbb"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("sbb가 무엇인가요?")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(containsString("스프링부트 모델 질문입니다."))))
+                .andExpect(content().string(containsString("value=\"sbb\"")));
+    }
+
+    @Test
     @DisplayName("GET /question/detail/1: 1번 질문의 제목과 내용이 보인다")
     void t2() throws Exception {
         mvc.perform(get("/question/detail/1"))

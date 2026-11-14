@@ -58,14 +58,20 @@ public class QuestionController {
             Model model,
             // ?page=3 처럼 주소 뒤에 붙는 값을 받는다. 없으면 기본값 0 (첫 페이지) (교재 3-02).
             // Receives a value appended to the URL like ?page=3. Defaults to 0 (the first page) if absent (book 3-02).
-            @RequestParam(value = "page", defaultValue = "0") int page
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            // ?kw=검색어 (교재 3-13). 없으면 빈 문자열 → 전체 목록.
+            // ?kw=keyword (book 3-13). Empty string if absent → the full list.
+            @RequestParam(value = "kw", defaultValue = "") String kw
     ) {
         // Page: 이번 페이지의 질문들 + 전체 개수, 전체 페이지 수, 이전/다음 페이지 여부 같은 정보를 함께 담은 객체.
         // Page: holds this page's questions plus info like the total count, total pages, and whether there's a previous/next page.
-        Page<Question> paging = questionService.getList(page);
+        Page<Question> paging = questionService.getList(page, kw);
         // 템플릿에서 ${paging} 으로 꺼내 쓴다.
         // The template reads it as ${paging}.
         model.addAttribute("paging", paging);
+        // 검색창에 검색어를 다시 보여주고, 페이지 링크에도 붙이기 위해
+        // To show the keyword again in the search box and to attach it to the page links
+        model.addAttribute("kw", kw);
         return "question_list";
     }
 

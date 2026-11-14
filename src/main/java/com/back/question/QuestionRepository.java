@@ -1,6 +1,10 @@
 package com.back.question;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -57,4 +61,47 @@ public interface QuestionRepository extends JpaRepository<Question, Integer> {
     // % is not added for you; the caller must include it.
     // Many rows can match, so it returns a List instead of an Optional (an empty List when nothing matches).
     List<Question> findBySubjectLike(String subjectLike);
+
+    // ── 검색 (교재 3-13) ─────────────────────────────────────────────────────────
+    // 메서드 이름만으로는 표현하기 어려운 복잡한 조회는 @Query 에 JPQL 을 직접 쓴다.
+    // JPQL: 테이블이 아니라 "엔티티(Question)와 필드(q.subject)" 이름으로 쓰는 SQL 비슷한 언어. Hibernate 가 실제 SQL 로 바꾼다.
+    // ── Search (book 3-13) ───────────────────────────────────────────────────────
+    // For complex queries that a method name can't express, write JPQL directly in @Query.
+    // JPQL: a SQL-like language written with "entity (Question) and field (q.subject)" names instead of tables. Hibernate turns it into real SQL.
+    //
+    // 제목·내용·질문 글쓴이·답변 내용·답변 글쓴이 중 하나라도 키워드를 포함하면 결과에 넣는다.
+    // left outer join: 글쓴이나 답변이 없는 질문도 빠지지 않도록 "있으면 붙이고, 없어도 남기는" 조인.
+    // distinct: 답변이 여러 개 걸리면 같은 질문이 여러 번 나오므로 한 번만.
+    // '%' || :kw || '%': "키워드가 어디든 들어 있는" 패턴. :kw 는 아래 @Param("kw") 값.
+    // countQuery: 페이징에 필요한 "전체 개수" 쿼리를 따로 지정 (distinct 개수를 정확히 세기 위해).
+    // Matches when any of subject, content, question author, answer content or answer author contains the keyword.
+    // left outer join: a join that "attaches if present but keeps the row anyway", so questions without an author or answers aren't dropped.
+    // distinct: a question matched by several answers would appear several times, so keep just one.
+    // '%' || :kw || '%': a "keyword anywhere" pattern. :kw is the value of @Param("kw") below.
+    // countQuery: the separate "total count" query paging needs (so the distinct count is exact).
+    @Query(value = """
+            select distinct q
+            from Question q
+            left outer join q.author u1
+            left outer join q.answers a
+            left outer join a.author u2
+            where q.subject like '%' || :kw || '%'
+               or q.content like '%' || :kw || '%'
+               or u1.username like '%' || :kw || '%'
+               or a.content like '%' || :kw || '%'
+               or u2.username like '%' || :kw || '%'
+            """,
+            countQuery = """
+            select count(distinct q)
+            from Question q
+            left outer join q.author u1
+            left outer join q.answers a
+            left outer join a.author u2
+            where q.subject like '%' || :kw || '%'
+               or q.content like '%' || :kw || '%'
+               or u1.username like '%' || :kw || '%'
+               or a.content like '%' || :kw || '%'
+               or u2.username like '%' || :kw || '%'
+            """)
+    Page<Question> findAllByKeyword(@Param("kw") String kw, Pageable pageable);
 }

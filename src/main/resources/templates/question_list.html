@@ -14,6 +14,26 @@
 <body>
 <!-- 레이아웃의 같은 이름(content) 자리에 들어갈 부분 / The part that goes into the layout's slot of the same name (content) -->
 <div layout:fragment="content" class="container my-3">
+    <!--
+      위쪽: 질문 등록 버튼(왼쪽) + 검색창(오른쪽) (교재 3-13).
+      검색은 GET 폼: 제출하면 /question/list?kw=검색어 로 이동한다. 데이터를 바꾸지 않는 "조회"라서 GET 이 맞다.
+      교재는 자바스크립트로 page·kw 숨은 값을 채워 제출하지만, 여기서는 기본 HTML GET 폼과 링크 주소만으로 처리한다.
+      Top: the "ask a question" button (left) + the search box (right) (book 3-13).
+      Search is a GET form: submitting goes to /question/list?kw=keyword. It only "reads" data, so GET is right.
+      The book fills hidden page/kw fields with JavaScript before submitting; here plain HTML GET forms and link URLs do the job.
+    -->
+    <div class="row my-3">
+        <div class="col-6">
+            <a th:href="@{/question/create}" class="btn btn-primary">질문 등록하기</a>
+        </div>
+        <div class="col-6">
+            <form th:action="@{/question/list}" method="get" class="input-group">
+                <!-- th:value="${kw}": 검색 후에도 검색어가 입력칸에 남아 있게 / keeps the keyword in the box after searching -->
+                <input type="text" name="kw" class="form-control" th:value="${kw}" placeholder="검색어">
+                <button class="btn btn-outline-secondary" type="submit">찾기</button>
+            </form>
+        </div>
+    </div>
     <table class="table">
         <thead class="table-dark">
         <!-- text-center: 가운데 정렬 / text-center: centered -->
@@ -73,7 +93,7 @@
         <ul class="pagination justify-content-center">
             <!-- th:classappend: 조건이 참이면 class 를 덧붙인다. 첫 페이지면 "이전"을 비활성화 / th:classappend: adds a class when true. Disable "previous" on the first page -->
             <li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
-                <a class="page-link" th:href="@{|?page=${paging.number - 1}|}">이전</a>
+                <a class="page-link" th:href="@{/question/list(page=${paging.number - 1}, kw=${kw})}">이전</a>
             </li>
             <!--
               #numbers.sequence(0, 마지막): 0, 1, 2 ... 순서대로 숫자를 만든다.
@@ -87,16 +107,19 @@
                 th:if="${page >= paging.number - 5 and page <= paging.number + 5}"
                 th:classappend="${page == paging.number} ? 'active'"
                 class="page-item">
-                <a th:text="${page + 1}" class="page-link" th:href="@{|?page=${page}|}"></a>
+                <a th:text="${page + 1}" class="page-link" th:href="@{/question/list(page=${page}, kw=${kw})}"></a>
             </li>
             <li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'">
-                <a class="page-link" th:href="@{|?page=${paging.number + 1}|}">다음</a>
+                <a class="page-link" th:href="@{/question/list(page=${paging.number + 1}, kw=${kw})}">다음</a>
             </li>
         </ul>
+        <!--
+          페이지 링크의 @{/question/list(page=..., kw=${kw})}: 괄호 안 값이 ?page=1&kw=... 쿼리 문자열로 붙는다 (033-01).
+          kw 를 함께 붙여야 검색 결과의 2페이지로 가도 검색이 유지된다. 한글·공백은 타임리프가 알아서 URL 인코딩한다.
+          @{/question/list(page=..., kw=${kw})} in the page links: the values in parentheses become the query string ?page=1&kw=... (033-01).
+          Including kw keeps the search when going to page 2 of the results. Thymeleaf URL-encodes Korean text and spaces automatically.
+        -->
     </div>
-
-    <!-- 질문 등록 화면으로 가는 버튼 (a 태그를 버튼 모양으로) / A link styled as a button that opens the question form -->
-    <a th:href="@{/question/create}" class="btn btn-primary">질문 등록하기</a>
 </div>
 </body>
 </html>
