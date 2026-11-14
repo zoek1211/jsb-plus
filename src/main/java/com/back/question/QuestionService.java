@@ -1,5 +1,6 @@
 package com.back.question;
 
+import com.back.global.exception.DataNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,9 +29,12 @@ public class QuestionService {
         return questionRepository.findAll();
     }
 
-    // id 로 질문 하나. 없으면 예외 (013-02 에서 404 로 바꾼다).
-    // One question by id. Throws if missing (turned into a 404 in 013-02).
+    // id 로 질문 하나. 없으면 DataNotFoundException → HTTP 404.
+    // orElseThrow(() -> ...): 상자가 비어 있으면 우리가 지정한 예외를 던진다 (교재의 if-isPresent-else 보다 짧다).
+    // One question by id. If missing, DataNotFoundException → HTTP 404.
+    // orElseThrow(() -> ...): throws the exception we choose when the box is empty (shorter than the book's if-isPresent-else).
     public Question getQuestion(int id) {
-        return questionRepository.findById(id).orElseThrow();
+        return questionRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("question not found"));
     }
 }

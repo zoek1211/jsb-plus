@@ -51,4 +51,14 @@ class QuestionControllerTest {
                 .andExpect(content().string(containsString("sbb가 무엇인가요?")))
                 .andExpect(content().string(containsString("sbb에 대해서 알고 싶습니다.")));
     }
+
+    @Test
+    @DisplayName("GET /question/detail/999: 없는 질문이면 404")
+    void t3() throws Exception {
+        mvc.perform(get("/question/detail/999"))
+                .andDo(print())
+                // isNotFound(): HTTP 상태 코드가 404 인가? (DataNotFoundException 의 @ResponseStatus)
+                // isNotFound(): is the HTTP status 404? (from DataNotFoundException's @ResponseStatus)
+                .andExpect(status().isNotFound());
+    }
 }

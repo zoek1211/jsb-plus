@@ -352,3 +352,22 @@
 - 실행화면 (목록에서 제목 클릭 후):
 
   ![013-01 실행화면](docs/images/013-01.png)
+
+### 013-02 질문 상세, 없는 질문은 404 (DataNotFoundException)
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/013-02)
+- 작업: `com.back.global.exception.DataNotFoundException` (`@ResponseStatus(NOT_FOUND)`) 추가, `getQuestion` 이 없으면 이 예외를 던짐, 컨트롤러 테스트 t3
+- 이유: 교재 2-10 / 14163 35강 — 없는 주소를 500(서버 오류)이 아닌 404(없음)로 정확히 응답
+- 결과: 테스트 17개 통과. `/question/detail/999` 가 수정 전 500 → 수정 후 404
+- 핵심 변경:
+  ```java
+  @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "entity not found")
+  public class DataNotFoundException extends RuntimeException { ... }
+
+  return questionRepository.findById(id)
+          .orElseThrow(() -> new DataNotFoundException("question not found"));
+  ```
+- 실행화면 (수정 전 500 → 수정 후 404):
+
+  ![013-02 수정 전](docs/images/013-02-before.png)
+
+  ![013-02 실행화면](docs/images/013-02.png)
