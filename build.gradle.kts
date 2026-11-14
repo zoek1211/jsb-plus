@@ -74,6 +74,9 @@ dependencies {
 	// Thymeleaf Layout Dialect: lets us write one shared frame (layout.html) and have each page fill in only its changing part (14168 lecture 44).
 	// Spring Boot manages the version, so none is written here.
 	implementation("nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect")
+	// 검증(Validation): @NotBlank, @Size 같은 어노테이션으로 폼 입력값을 검사한다 (교재 2-16, 14168 11강).
+	// Validation: checks form input with annotations like @NotBlank and @Size (book 2-16, 14168 lecture 11).
+	implementation("org.springframework.boot:spring-boot-starter-validation")
 	// JPA 관련 테스트 도구 (나중에 리포지터리 테스트에서 사용).
 	// Test tools for JPA (used later for repository tests).
 	testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")

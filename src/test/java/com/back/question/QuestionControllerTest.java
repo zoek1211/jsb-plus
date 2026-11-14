@@ -88,4 +88,20 @@ class QuestionControllerTest {
         mvc.perform(get("/question/list"))
                 .andExpect(content().string(containsString("새 질문 제목")));
     }
+
+    @Test
+    @DisplayName("POST /question/create: 제목·내용이 비어 있으면 저장하지 않고 오류 메시지와 함께 폼을 다시 보여준다")
+    void t6() throws Exception {
+        mvc.perform(post("/question/create")
+                        .param("subject", "")
+                        .param("content", "내용만 있음"))
+                .andDo(print())
+                // 리다이렉트가 아니라 200 + 폼 화면
+                // Not a redirect: 200 with the form page
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("제목은 필수항목입니다.")))
+                // 입력했던 내용은 그대로 남아 있어야 한다
+                // The content the user typed must still be there
+                .andExpect(content().string(containsString("내용만 있음")));
+    }
 }

@@ -1,13 +1,15 @@
 package com.back.question;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -62,7 +64,11 @@ public class QuestionController {
     // GET /question/create → 질문 등록 폼 화면.
     // GET /question/create → the question form page.
     @GetMapping("/create")
-    public String showCreate() {
+    // @ModelAttribute("form"): 빈 QuestionForm 을 만들어 "form" 이라는 이름으로 model 에 담는다.
+    // 템플릿의 th:object="${form}" 이 이 객체를 쓴다. 처음 화면에서는 값이 모두 비어 있다 (14168 18강).
+    // @ModelAttribute("form"): creates an empty QuestionForm and puts it in the model under the name "form".
+    // The template's th:object="${form}" uses it. On first display all its values are empty (14168 lecture 18).
+    public String showCreate(@ModelAttribute("form") QuestionForm form) {
         return "question_form";
     }
 
@@ -72,12 +78,24 @@ public class QuestionController {
     // Spring tells GET (show form) and POST (save) apart even on the same URL (14168 lecture 26), so no separate name like doCreate is needed.
     @PostMapping("/create")
     public String create(
-            // 폼의 <input name="subject">, <textarea name="content"> 값
-            // The values from the form's <input name="subject"> and <textarea name="content">
-            @RequestParam("subject") String subject,
-            @RequestParam("content") String content
+            // @ModelAttribute: 폼의 subject, content 값을 QuestionForm 하나로 모아 받는다 (@RequestParam 여러 개 대신, 14168 12강).
+            // @Valid: QuestionForm 에 붙은 @NotBlank, @Size 규칙으로 검사한다.
+            // @ModelAttribute: collects the form's subject and content into one QuestionForm (instead of several @RequestParams, 14168 lecture 12).
+            // @Valid: checks it against the @NotBlank and @Size rules on QuestionForm.
+            @ModelAttribute("form") @Valid QuestionForm form,
+            // BindingResult: 검사 결과(오류 목록). 반드시 @Valid 매개변수 "바로 뒤"에 와야 한다.
+            // 이게 없으면 검사 실패 시 스프링이 바로 400 오류를 내 버린다. 있으면 우리가 직접 처리할 수 있다 (14168 13강).
+            // BindingResult: the check results (list of errors). It must come "right after" the @Valid parameter.
+            // Without it, Spring answers with a 400 error as soon as a check fails. With it, we can handle failures ourselves (14168 lecture 13).
+            BindingResult bindingResult
     ) {
-        questionService.create(subject, content);
+        // 오류가 있으면 저장하지 않고 폼을 다시 보여준다. 입력했던 값과 오류 메시지가 함께 표시된다 (14168 9~10강).
+        // On errors, don't save; show the form again. The values the user typed and the error messages are shown (14168 lectures 9–10).
+        if (bindingResult.hasErrors()) {
+            return "question_form";
+        }
+
+        questionService.create(form.subject(), form.content());
         // POST 처리 후에는 redirect → 새로고침해도 다시 등록되지 않는다 (14168 28강).
         // Redirect after POST → refreshing won't submit again (14168 lecture 28).
         return "redirect:/question/list";

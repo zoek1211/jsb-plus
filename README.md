@@ -484,3 +484,30 @@
   ![018-01 폼](docs/images/018-01-form.png)
 
   ![018-01 실행화면](docs/images/018-01.png)
+
+### 018-02 질문 등록, 입력값 검증 (record 폼 + @Valid + BindingResult)
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/018-02)
+- 작업: `spring-boot-starter-validation` 추가, `QuestionForm` record (`@NotBlank`, `@Size(max=200)`), `@ModelAttribute("form") @Valid QuestionForm form, BindingResult bindingResult`, 오류 시 폼 다시 표시, 템플릿 `th:object`·`th:field`·`#fields.allErrors()`, 테스트 t6
+- 이유: 교재 2-16 / 14168 9~23·40강 — 잘못된 값은 저장하지 않고, 입력했던 값과 오류 메시지를 함께 보여줌
+- 결과: 테스트 21개 통과. 제목 없이 저장하면 "제목은 필수항목입니다." 와 함께 입력한 내용이 남은 폼이 다시 표시
+- 핵심 변경:
+  ```java
+  public record QuestionForm(
+          @NotBlank(message = "제목은 필수항목입니다.") @Size(max = 200) String subject,
+          @NotBlank(message = "내용은 필수항목입니다.") String content) { }
+
+  @PostMapping("/create")
+  public String create(@ModelAttribute("form") @Valid QuestionForm form, BindingResult bindingResult) {
+      if (bindingResult.hasErrors()) return "question_form";
+      questionService.create(form.subject(), form.content());
+      return "redirect:/question/list";
+  }
+  ```
+  ```html
+  <form th:object="${form}" ...>
+    <div th:if="${#fields.hasAnyErrors()}"> <div th:each="err : ${#fields.allErrors()}" th:text="${err}"></div> </div>
+    <input type="text" th:field="*{subject}">
+  ```
+- 실행화면 (제목 없이 저장):
+
+  ![018-02 실행화면](docs/images/018-02.png)

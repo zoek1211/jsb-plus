@@ -12,19 +12,30 @@
 <div layout:fragment="content" class="container">
     <h5 class="my-3 border-bottom pb-2">질문등록</h5>
     <!--
-      method="post": 데이터를 "만드는" 요청은 POST (14168 7강). action 은 현재 주소(/question/create)와 같으므로 생략할 수도 있다 (14168 5강).
-      method="post": requests that "create" data use POST (14168 lecture 7). The action equals the current URL (/question/create), so it could be omitted (14168 lecture 5).
+      th:object="${form}": 이 폼이 컨트롤러의 QuestionForm("form")과 연결된다. 안에서는 *{필드} 로 짧게 쓴다 (14168 22강).
+      th:object="${form}": ties this form to the controller's QuestionForm ("form"). Inside it, fields are written shortly as *{field} (14168 lecture 22).
     -->
-    <form th:action="@{/question/create}" method="post">
+    <form th:action="@{/question/create}" th:object="${form}" method="post">
+        <!--
+          검증 오류 표시. #fields.hasAnyErrors(): 오류가 하나라도 있는가? #fields.allErrors(): 모든 오류 메시지 (14168 23강).
+          Validation errors. #fields.hasAnyErrors(): is there any error? #fields.allErrors(): every error message (14168 lecture 23).
+        -->
+        <div class="alert alert-danger" role="alert" th:if="${#fields.hasAnyErrors()}">
+            <div th:each="err : ${#fields.allErrors()}" th:text="${err}"></div>
+        </div>
         <div class="mb-3">
-            <!-- label for="subject" 는 id="subject" 인 입력칸과 연결된다 (라벨을 누르면 입력칸에 커서) -->
-            <!-- label for="subject" links to the input with id="subject" (clicking the label focuses the input) -->
             <label for="subject" class="form-label">제목</label>
-            <input type="text" name="subject" id="subject" class="form-control">
+            <!--
+              th:field="*{subject}": name="subject", id="subject", value="(form.subject 값)" 을 한 번에 만들어 준다.
+              그래서 검증에 실패해 폼을 다시 보여줄 때 입력했던 값이 그대로 남는다 (14168 10강).
+              th:field="*{subject}": generates name="subject", id="subject" and value="(form.subject)" in one go.
+              So when validation fails and the form is shown again, the typed value stays (14168 lecture 10).
+            -->
+            <input type="text" th:field="*{subject}" class="form-control">
         </div>
         <div class="mb-3">
             <label for="content" class="form-label">내용</label>
-            <textarea name="content" id="content" class="form-control" rows="10"></textarea>
+            <textarea th:field="*{content}" class="form-control" rows="10"></textarea>
         </div>
         <input type="submit" value="저장하기" class="btn btn-primary my-2">
     </form>
