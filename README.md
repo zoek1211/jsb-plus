@@ -535,3 +535,20 @@
 - 실행화면 (빈 답변 등록):
 
   ![019-01 실행화면](docs/images/019-01.jpg)
+
+### 021-01 내비게이션 바, navbar 조각과 부트스트랩 JS
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/021-01)
+- 작업: `templates/navbar.html` (`th:fragment="navbarFragment"`: SBB 로고 → `/`, 질문 목록 링크, 햄버거 버튼), `layout.html` 이 `th:replace` 로 포함, 부트스트랩 JS 번들 추가
+- 이유: 교재 3-01 — 모든 화면 위쪽의 공통 메뉴. 좁은 화면에서는 햄버거 메뉴로 접힘 (JS 필요)
+- 결과: 테스트 22개 통과, 모든 페이지에 내비게이션 바, 모바일 폭에서 햄버거 버튼으로 메뉴 펼침 확인
+- 핵심 변경:
+  ```html
+  <!-- layout.html -->
+  <nav th:replace="~{navbar :: navbarFragment}"></nav>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  ```
+- 실행화면 (데스크톱 / 모바일 햄버거 메뉴):
+
+  ![021-01 실행화면](docs/images/021-01.png)
+
+  ![021-01 모바일](docs/images/021-01-mobile.jpg)
