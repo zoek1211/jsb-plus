@@ -196,3 +196,23 @@
 - 실행화면:
 
   ![009-02 실행화면](docs/images/009-02.jpg)
+
+### 009-03 답변, LAZY 로딩과 테스트 클래스 @Transactional
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/009-03)
+- 작업: 답변 조회 테스트 t10·t11 추가, `Answer.question` 을 `@ManyToOne(fetch = LAZY)` 로 변경, 테스트 클래스 전체에 `@Transactional` (메서드별 `@Transactional` 제거)
+- 이유: 14163 22~25강 — `@OneToMany` 는 기본 LAZY 라서 트랜잭션 밖에서 `question.getAnswers()` 를 쓰면 `LazyInitializationException`. EAGER 대신 LAZY + 트랜잭션으로 해결
+- 결과: 수정 전 t11 실패 (`Cannot lazily initialize collection ... (no session)`), 수정 후 테스트 14개 통과
+- 핵심 변경:
+  ```java
+  @SpringBootTest
+  @Transactional              // 모든 테스트: 세션 유지(LAZY 동작) + 끝나면 롤백
+  class QuestionRepositoryTest { ... }
+
+  @ManyToOne(fetch = LAZY)    // Answer.question: 필요할 때만 질문 조회
+  private Question question;
+  ```
+- 실행화면 (수정 전 → 수정 후):
+
+  ![009-03 수정 전](docs/images/009-03-before.jpg)
+
+  ![009-03 실행화면](docs/images/009-03.jpg)

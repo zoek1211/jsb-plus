@@ -26,6 +26,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 // "test" profile → in-memory database, and TestInitData has already saved 2 sample questions (006-02).
 @ActiveProfiles("test")
 @SpringBootTest
+// 클래스에 붙인 @Transactional: 이 클래스의 "모든" 테스트 메서드를 각각 하나의 트랜잭션 안에서 실행한다 (14163 25강).
+// 1) 테스트가 끝나면 자동 롤백 → 수정·삭제 테스트가 다른 테스트에 영향을 주지 않는다 (008-01 에서 확인).
+// 2) 테스트 내내 DB 연결(세션)이 열려 있음 → LAZY 로딩(question.getAnswers())이 정상 동작한다.
+//    빼면 t11 이 LazyInitializationException "... (no session)" 으로 실패한다 (009-03 에서 확인).
+// 그래서 메서드마다 붙어 있던 @Transactional 은 지웠다.
+// @Transactional on the class: runs "every" test method in this class inside its own transaction (14163 lecture 25).
+// 1) Auto-rollback when each test ends → update/delete tests don't affect other tests (seen in 008-01).
+// 2) The database connection (session) stays open for the whole test → LAZY loading (question.getAnswers()) works.
+//    Without it, t11 fails with LazyInitializationException "... (no session)" (seen in 009-03).
+// That's why the per-method @Transactional annotations were removed.
+@Transactional
 class QuestionRepositoryTest {
 
     // 스프링이 만든 리포지터리 구현 객체를 주입받는다.
@@ -123,13 +134,12 @@ class QuestionRepositoryTest {
 
     @Test
     @DisplayName("수정: 질문 제목을 바꾸고 저장한다")
-    // @Transactional (테스트에서): 테스트가 끝나면 이 테스트에서 바꾼 데이터를 전부 롤백(되돌리기)한다.
+    // 클래스의 @Transactional 덕분에 이 테스트에서 바꾼 데이터는 끝나면 롤백된다.
     // 006-02 의 TestInitData 에서는 "성공하면 커밋"이었지만, 테스트에서는 스프링이 기본으로 롤백한다.
-    // 빼면 질문 1번의 제목이 "수정된 제목"으로 남아서, 뒤에 실행되는 다른 테스트들(t1~t5)이 모두 실패한다 (008-01 에서 직접 확인).
-    // @Transactional (in a test): everything this test changed is rolled back (undone) when the test ends.
+    // 롤백이 없으면 질문 1번의 제목이 "수정된 제목"으로 남아서, 뒤에 실행되는 다른 테스트들이 모두 실패한다 (008-01 에서 직접 확인).
+    // Thanks to the class-level @Transactional, whatever this test changes is rolled back when it ends.
     // In TestInitData (006-02) it meant "commit on success", but in tests Spring rolls back by default.
-    // Without it, question 1 keeps the subject "수정된 제목", and every other test that runs afterwards (t1–t5) fails (seen in 008-01).
-    @Transactional
+    // Without the rollback, question 1 keeps the subject "수정된 제목" and every test that runs afterwards fails (seen in 008-01).
     void t6() {
         Question question = questionRepository.findById(1).orElseThrow();
 
@@ -153,9 +163,8 @@ class QuestionRepositoryTest {
 
     @Test
     @DisplayName("삭제: 질문 1번을 삭제하면 개수가 2 → 1 로 줄어든다")
-    // 삭제도 데이터를 바꾸므로 @Transactional 로 테스트가 끝나면 롤백한다 (t6 와 같은 이유).
-    // Deleting also changes data, so @Transactional rolls it back when the test ends (same reason as t6).
-    @Transactional
+    // 삭제도 데이터를 바꾸지만, 클래스의 @Transactional 로 테스트가 끝나면 롤백된다 (t6 와 같은 이유).
+    // Deleting also changes data, but the class-level @Transactional rolls it back when the test ends (same reason as t6).
     void t7() {
         // 삭제 전: 샘플 질문 2개. count() → SELECT COUNT(*) FROM question
         // Before deleting: 2 sample questions. count() → SELECT COUNT(*) FROM question
@@ -175,7 +184,6 @@ class QuestionRepositoryTest {
 
     @Test
     @DisplayName("답변 생성: answerRepository 로 2번 질문에 답변을 저장한다")
-    @Transactional
     void t8() {
         Question question = questionRepository.findById(2).orElseThrow();
 
@@ -196,7 +204,6 @@ class QuestionRepositoryTest {
 
     @Test
     @DisplayName("답변 생성 by oneToMany: question.addAnswer 로 답변을 추가한다")
-    @Transactional
     void t9() {
         Question question = questionRepository.findById(2).orElseThrow();
         int beforeCount = question.getAnswers().size();
@@ -214,5 +221,28 @@ class QuestionRepositoryTest {
         // (It's still undone by the rollback at the end of the test.)
         questionRepository.flush();
         assertThat(newAnswer.getId()).isGreaterThan(0);
+    }
+
+    @Test
+    @DisplayName("답변 조회: answerRepository.findById(1)")
+    void t10() {
+        Answer answer = answerRepository.findById(1).orElseThrow();
+
+        assertThat(answer.getContent()).isEqualTo("네 자동으로 생성됩니다.");
+    }
+
+    @Test
+    @DisplayName("답변 조회 by oneToMany: question.getAnswers()")
+    void t11() {
+        Question question = questionRepository.findById(2).orElseThrow();
+
+        // @OneToMany 는 기본이 LAZY(지연 로딩): 질문을 꺼낼 때 답변은 아직 DB에서 읽지 않고,
+        // answers 를 처음 실제로 사용하는 순간 SELECT 를 실행한다. 그때 DB 연결(트랜잭션)이 살아 있어야 한다.
+        // @OneToMany is LAZY by default: loading the question doesn't read its answers yet;
+        // the SELECT runs the first time answers is actually used. The database connection (transaction) must still be open then.
+        List<Answer> answers = question.getAnswers();
+
+        assertThat(answers).hasSize(1);
+        assertThat(answers.get(0).getContent()).isEqualTo("네 자동으로 생성됩니다.");
     }
 }

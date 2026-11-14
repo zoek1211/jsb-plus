@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 // 답변 엔티티 → answer 테이블. @Id, @GeneratedValue, @Column 의 뜻은 Question.java 와 같다.
@@ -36,7 +37,14 @@ public class Answer {
     // Column name question_id = field name (question) + "_" + the other entity's @Id name (id).
     // In Java you use answer.question as a real Question object; JPA converts between the id and the object for you.
     // Without it, JPA doesn't know how to store a Question-typed field and the app fails at startup.
-    @ManyToOne
+    //
+    // fetch = LAZY: 답변을 꺼낼 때 질문은 바로 읽지 않고, answer.getQuestion() 의 값을 실제로 쓸 때 읽는다.
+    // @ManyToOne 의 기본값은 EAGER(항상 같이 읽기)라서, 필요 없는 질문까지 매번 조회하게 된다.
+    // 강사 권장: "웬만하면 LAZY만 사용" (14163 24강). 대신 사용할 때 트랜잭션이 열려 있어야 한다.
+    // fetch = LAZY: loading an answer doesn't read its question right away; it's read when answer.getQuestion()'s data is actually used.
+    // @ManyToOne defaults to EAGER (always load together), which fetches the question every time even when it isn't needed.
+    // The instructor's advice: "use LAZY whenever possible" (14163 lecture 24). In exchange, a transaction must be open when it's used.
+    @ManyToOne(fetch = LAZY)
     private Question question;
 
     // 답변 내용. 길이 제한 없는 TEXT 타입.
