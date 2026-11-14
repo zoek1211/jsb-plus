@@ -552,3 +552,26 @@
   ![021-01 실행화면](docs/images/021-01.png)
 
   ![021-01 모바일](docs/images/021-01-mobile.jpg)
+
+### 022-01 페이징, Page·PageRequest 와 페이지 이동 버튼
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/022-01)
+- 작업: `QuestionService.getList(int page)` → `Page<Question>` (10개씩, id 내림차순), 컨트롤러 `@RequestParam(defaultValue = "0") int page`, 목록에 부트스트랩 페이지네이션 (현재 ±5, 이전·다음), dev 전용 `DevInitData` 로 질문 300개 생성 (`@Order`), `QuestionServiceTest`
+- 이유: 교재 3-02 — 많은 글을 한 번에 보여주지 않고 페이지로 나눔
+- 결과: 테스트 24개 통과, SQL `order by q1_0.id desc offset ? rows fetch first ? rows only`, 브라우저 `?page=7` 에서 8번 페이지 활성화
+- 핵심 변경:
+  ```java
+  public Page<Question> getList(int page) {
+      Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("id")));
+      return questionRepository.findAll(pageable);
+  }
+  ```
+  ```html
+  <li th:each="page : ${#numbers.sequence(0, paging.totalPages - 1)}"
+      th:if="${page >= paging.number - 5 and page <= paging.number + 5}"
+      th:classappend="${page == paging.number} ? 'active'" class="page-item">
+      <a th:text="${page + 1}" class="page-link" th:href="@{|?page=${page}|}"></a>
+  </li>
+  ```
+- 실행화면 (`/question/list?page=7`):
+
+  ![022-01 실행화면](docs/images/022-01.jpg)

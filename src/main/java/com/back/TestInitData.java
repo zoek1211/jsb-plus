@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -58,6 +59,9 @@ public class TestInitData {
     // @Bean: registers the object this method returns as a Spring bean.
     // ApplicationRunner: code that runs once, right after the app (Spring) has fully started. The perfect moment to insert sample data.
     @Bean
+    // @Order(1): 여러 ApplicationRunner 중 가장 먼저 실행. DevInitData(@Order(2)) 보다 먼저 기본 샘플 2개를 넣기 위함 (022-01).
+    // @Order(1): runs first among the ApplicationRunners, so the 2 base samples go in before DevInitData (@Order(2)) (022-01).
+    @Order(1)
     public ApplicationRunner testInitDataApplicationRunner() {
         // args -> { ... } 는 람다(이름 없는 함수). ApplicationRunner 의 run(args) 메서드 내용을 짧게 쓴 것이다.
         // args -> { ... } is a lambda (an unnamed function): a short way to write ApplicationRunner's run(args) method.

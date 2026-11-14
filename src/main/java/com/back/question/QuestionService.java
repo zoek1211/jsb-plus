@@ -2,10 +2,12 @@ package com.back.question;
 
 import com.back.global.exception.DataNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 // @Service: 비즈니스 로직(실제 처리 규칙)을 담는 "서비스" 클래스라고 스프링에 알린다. 스프링이 객체를 만들어 둔다.
 // 컨트롤러 → 서비스 → 리포지터리 순서로 호출한다 (교재 2-09, 14163 34강).
@@ -24,10 +26,19 @@ import java.util.List;
 public class QuestionService {
     private final QuestionRepository questionRepository;
 
-    // 질문 전체 목록.
-    // All questions.
-    public List<Question> getList() {
-        return questionRepository.findAll();
+    // 질문 목록의 한 페이지 (교재 3-02).
+    // page: 0부터 시작하는 페이지 번호. 한 페이지에 10개씩, 최신 글(id 큰 순)부터.
+    // One page of the question list (book 3-02).
+    // page: a 0-based page number. 10 per page, newest first (largest id first).
+    public Page<Question> getList(int page) {
+        // PageRequest.of(페이지번호, 한 페이지 크기, 정렬): "몇 번째 페이지를 몇 개씩, 어떤 순서로" 가져올지 정한다.
+        // 교재는 createDate 내림차순이지만, 300개를 한꺼번에 만들면 시간이 거의 같아 순서가 섞일 수 있어 id 내림차순을 쓴다.
+        // PageRequest.of(page, size, sort): decides "which page, how many per page, in what order".
+        // The book sorts by createDate descending; when 300 rows are created at once their times are nearly equal and can tie, so we sort by id descending.
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("id")));
+        // findAll(pageable) → SELECT ... ORDER BY id DESC LIMIT 10 OFFSET (page*10) + 전체 개수를 세는 COUNT 쿼리
+        // findAll(pageable) → SELECT ... ORDER BY id DESC LIMIT 10 OFFSET (page*10) plus a COUNT query for the total
+        return questionRepository.findAll(pageable);
     }
 
     // id 로 질문 하나. 없으면 DataNotFoundException → HTTP 404.

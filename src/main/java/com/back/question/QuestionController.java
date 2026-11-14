@@ -3,6 +3,7 @@ package com.back.question;
 import com.back.answer.AnswerForm;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -11,8 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.RequestParam;
 
 // 질문 관련 웹 요청을 처리하는 컨트롤러. MainController 와 같은 @Controller 다.
 // The controller that handles question-related web requests. A @Controller just like MainController.
@@ -41,11 +41,18 @@ public class QuestionController {
     @GetMapping("/list")
     // Model: 컨트롤러가 템플릿에 넘길 데이터를 담는 상자. 스프링이 매개변수로 넣어준다.
     // Model: a box holding the data the controller passes to the template. Spring passes it in as a parameter.
-    public String list(Model model) {
-        List<Question> questionList = questionService.getList();
-        // "questionList" 라는 이름으로 담으면 템플릿에서 ${questionList} 로 꺼내 쓸 수 있다.
-        // Stored under the name "questionList", the template can read it as ${questionList}.
-        model.addAttribute("questionList", questionList);
+    public String list(
+            Model model,
+            // ?page=3 처럼 주소 뒤에 붙는 값을 받는다. 없으면 기본값 0 (첫 페이지) (교재 3-02).
+            // Receives a value appended to the URL like ?page=3. Defaults to 0 (the first page) if absent (book 3-02).
+            @RequestParam(value = "page", defaultValue = "0") int page
+    ) {
+        // Page: 이번 페이지의 질문들 + 전체 개수, 전체 페이지 수, 이전/다음 페이지 여부 같은 정보를 함께 담은 객체.
+        // Page: holds this page's questions plus info like the total count, total pages, and whether there's a previous/next page.
+        Page<Question> paging = questionService.getList(page);
+        // 템플릿에서 ${paging} 으로 꺼내 쓴다.
+        // The template reads it as ${paging}.
+        model.addAttribute("paging", paging);
         return "question_list";
     }
 
