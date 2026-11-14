@@ -274,7 +274,9 @@
 
     // ── S15 ──
     // 문장 1: 테스트 4개가 한 줄씩 ✘ 403. / Sentence 1: four tests, each ✘ 403.
-    tl.fromTo("#s1-tests", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.4, ease: "expo.out" }, 0.2);
+    // 장면 첫 프레임부터 반쯤 보이게 시작(흐림 → 선명): 장 사이에 빈 화면이 깜빡이지 않게 한다 (리뷰 P1).
+    // Start half-visible from the first frame (blur → sharp) so no blank frame blinks between chapters (review P1).
+    tl.fromTo("#s1-tests", { opacity: 0.4, filter: "blur(12px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.35, ease: "expo.out" }, 0);
     tl.fromTo(".s1-test .ok", { opacity: 0 }, { opacity: 0, duration: 0.01 }, 0.2);
     tl.fromTo(".s1-test .bad", { opacity: 0, scale: 1.3 }, { opacity: 1, scale: 1, duration: 0.25, ease: "expo.out", stagger: 0.35 }, 2.6);
     // 문장 2 "씨에스알에프 토큰이 없었기 때문": 이유. / Sentence 2: the reason.

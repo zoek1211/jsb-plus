@@ -271,7 +271,9 @@
 
     // 시작 상태: 두 번째 캡처·주소는 숨김. / Start: the second capture and URL hidden.
     tl.fromTo(["#w2-img2", "#w2-u2"], { opacity: 0 }, { opacity: 0, duration: 0.01 }, 0);
-    tl.fromTo("#w2-win", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.45, ease: "expo.out" }, 0.1);
+    // 장면 첫 프레임부터 반쯤 보이게 시작(흐림 → 선명): 장 사이에 빈 화면이 깜빡이지 않게 한다 (리뷰 P1).
+    // Start half-visible from the first frame (blur → sharp) so no blank frame blinks between chapters (review P1).
+    tl.fromTo("#w2-win", { opacity: 0.4, filter: "blur(12px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.35, ease: "expo.out" }, 0);
 
     // ── S13 문장 1: "제목을 비우면 저장하지 않고" (≈2.4 s) → 오류 상자, "입력한 내용은 그대로" (≈4.4 s) → 내용 상자.
     // Sentence 1: the error box, then the kept-content box.

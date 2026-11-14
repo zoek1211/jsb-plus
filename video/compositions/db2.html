@@ -200,7 +200,9 @@
 
     // 문장 1 "교재의 테스트는 데이터가 없어도 통과했습니다": 테스트 코드 → 빈 테이블 → ✔ 통과.
     // Sentence 1: the test code → the empty table → ✔ passes.
-    tl.fromTo("#db2-book", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.4, ease: "expo.out" }, 0.2);
+    // 장면 첫 프레임부터 반쯤 보이게 시작(흐림 → 선명): 장 사이에 빈 화면이 깜빡이지 않게 한다 (리뷰 P1).
+    // Start half-visible from the first frame (blur → sharp) so no blank frame blinks between chapters (review P1).
+    tl.fromTo("#db2-book", { opacity: 0.4, filter: "blur(12px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.35, ease: "expo.out" }, 0);
     tl.fromTo("#db2-table", hidden, blurIn, 1.9);
     tl.fromTo("#db2-pass", { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 0.3, ease: "expo.out" }, 3.4);
 

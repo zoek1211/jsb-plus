@@ -1303,3 +1303,17 @@
   ![000-16 실행화면](docs/images/000-16.png)
 
   ![000-16 마지막](docs/images/000-16-end.png)
+
+### 000-17 결과 영상, 효과음·전체 리뷰·MP4 렌더
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/000-17)
+- 작업: 효과음 22개(`video/assets/sfx`, Pixabay 번들 — pop·whoosh·error·bass impact)를 화면 동작에 맞춰 `index.html` 에 배치, `snapshot --review` 로 영상 전체 리뷰 후 `video/REVIEW.md` 작성, 장 사이 빈 화면 깜빡임 수정, `npx hyperframes render --quality delivery` 로 MP4 렌더
+- 이유: 소리 없는 5분은 길게 느껴진다 — 초록 ✔ 에는 pop, 빠른 이동에는 whoosh, 실패 두 번에는 error, 테스트 50개에서 한 번만 큰 소리. 배경음은 HeyGen 로그인이 없어 넣지 않음. 리뷰는 "고장 난 것"이 아니라 "약한 것"을 찾는 단계
+- 결과: `check` 오류 0. 리뷰에서 찾은 P1 — 장이 바뀔 때 다음 장면 첫 카드가 투명에서 시작해 0.2–0.4초 빈 화면 → 첫 요소를 반쯤 보이고 흐린 상태에서 0초에 시작하도록 7곳 수정. 렌더: 5분 8.6초, 1920x1080 30fps, 19.9 MB (`video/renders/jsb-plus-video.mp4`, 저장소에는 넣지 않음). 소리 측정 -13 LUFS, true peak -1 dBTP, 클리핑 없음. 소리는 측정만 했고 사람이 듣지는 않음
+- 핵심 변경:
+  ```html
+  <!-- 효과음 시작 = 동작 시각 + 1프레임 − 소리의 최고점 (hyperframes audio 로 측정) → 소리가 그림보다 살짝 늦게 -->
+  <audio id="sfx-21" src="assets/sfx/impact-bass-1.mp3" data-start="282.97" data-duration="2.12" data-volume="0.5"></audio>
+  ```
+- 실행화면 (렌더된 MP4 의 283.5 s — 테스트 50개):
+
+  ![000-17 실행화면](docs/images/000-17.png)

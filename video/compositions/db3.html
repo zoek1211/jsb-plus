@@ -298,7 +298,9 @@ where question_id = ?</div>
     // ── S09 (0–14.2) ──
     // 문장 1: 실패한 테스트와 실제 오류 메시지 (009-03 수정 전).
     // Sentence 1: the failing test and its real error message (009-03 before the fix).
-    tl.fromTo("#db3-err", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.4, ease: "expo.out" }, 0.2);
+    // 장면 첫 프레임부터 반쯤 보이게 시작(흐림 → 선명): 장 사이에 빈 화면이 깜빡이지 않게 한다 (리뷰 P1).
+    // Start half-visible from the first frame (blur → sharp) so no blank frame blinks between chapters (review P1).
+    tl.fromTo("#db3-err", { opacity: 0.4, filter: "blur(12px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.35, ease: "expo.out" }, 0);
     tl.fromTo("#db3-err-ok", { opacity: 0 }, { opacity: 0, duration: 0.01 }, 0.2);
     // "지연 로딩 오류가 났습니다" (≈2.4 s): 오류 이름에 빨간 밑줄. / A red underline sweeps under the error name.
     tl.to("#db3-err-band", { width: "100%", duration: 0.4, ease: "power2.inOut" }, 2.4);
