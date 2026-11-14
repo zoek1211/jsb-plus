@@ -3,6 +3,7 @@ package com.back.question;
 import com.back.global.exception.DataNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -36,5 +37,17 @@ public class QuestionService {
     public Question getQuestion(int id) {
         return questionRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("question not found"));
+    }
+
+    // 질문 등록. 작성일시는 JPA Auditing 이 자동으로 넣는다 (010-02).
+    // @Transactional: 저장 작업을 트랜잭션으로 묶어 끝나면 커밋한다.
+    // Creates a question. JPA Auditing fills in the created date automatically (010-02).
+    // @Transactional: wraps the save in a transaction and commits at the end.
+    @Transactional
+    public Question create(String subject, String content) {
+        Question question = new Question();
+        question.setSubject(subject);
+        question.setContent(content);
+        return questionRepository.save(question);
     }
 }

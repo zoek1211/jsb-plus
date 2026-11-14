@@ -11,8 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 // QuestionController 의 화면(HTTP 응답)을 검사한다. MockMvc 사용법은 MainControllerTest 참고.
@@ -63,5 +65,27 @@ class QuestionControllerTest {
                 // isNotFound(): HTTP 상태 코드가 404 인가? (DataNotFoundException 의 @ResponseStatus)
                 // isNotFound(): is the HTTP status 404? (from DataNotFoundException's @ResponseStatus)
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("GET /question/create: 질문 등록 폼이 보인다")
+    void t4() throws Exception {
+        mvc.perform(get("/question/create"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("질문등록")));
+    }
+
+    @Test
+    @DisplayName("POST /question/create: 질문 등록 후 목록으로 이동하고, 새 질문이 보인다")
+    void t5() throws Exception {
+        mvc.perform(post("/question/create")
+                        .param("subject", "새 질문 제목")
+                        .param("content", "새 질문 내용"))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/question/list"));
+
+        mvc.perform(get("/question/list"))
+                .andExpect(content().string(containsString("새 질문 제목")));
     }
 }

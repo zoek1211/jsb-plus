@@ -5,7 +5,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -55,5 +57,29 @@ public class QuestionController {
         Question question = questionService.getQuestion(id);
         model.addAttribute("question", question);
         return "question_detail";
+    }
+
+    // GET /question/create → 질문 등록 폼 화면.
+    // GET /question/create → the question form page.
+    @GetMapping("/create")
+    public String showCreate() {
+        return "question_form";
+    }
+
+    // POST /question/create → 폼 제출 처리 (저장 후 목록으로).
+    // 같은 URL 이라도 GET(폼 보여주기)과 POST(저장하기)는 스프링이 구분한다 (14168 26강). 교재처럼 doCreate 같은 별도 이름이 필요 없다.
+    // POST /question/create → handles the submitted form (save, then go to the list).
+    // Spring tells GET (show form) and POST (save) apart even on the same URL (14168 lecture 26), so no separate name like doCreate is needed.
+    @PostMapping("/create")
+    public String create(
+            // 폼의 <input name="subject">, <textarea name="content"> 값
+            // The values from the form's <input name="subject"> and <textarea name="content">
+            @RequestParam("subject") String subject,
+            @RequestParam("content") String content
+    ) {
+        questionService.create(subject, content);
+        // POST 처리 후에는 redirect → 새로고침해도 다시 등록되지 않는다 (14168 28강).
+        // Redirect after POST → refreshing won't submit again (14168 lecture 28).
+        return "redirect:/question/list";
     }
 }

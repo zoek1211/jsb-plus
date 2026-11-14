@@ -462,3 +462,25 @@
 - 실행화면 (탭 제목: 질문 목록 | SBB):
 
   ![017-01 실행화면](docs/images/017-01.png)
+
+### 018-01 질문 등록, 등록 폼과 저장
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/018-01)
+- 작업: `GET /question/create` (폼 화면 `question_form.html`), `POST /question/create` (저장 후 목록으로 redirect), `QuestionService.create`, 목록에 "질문 등록하기" 버튼, 컨트롤러 테스트 t4·t5
+- 이유: 교재 2-16 — 질문 등록 기능. 14168 26강처럼 GET/POST 를 같은 URL 로 (교재처럼 별도 이름 불필요)
+- 결과: 테스트 20개 통과, 브라우저에서 제목·내용 입력 → 저장 → 목록 3번에 새 질문
+- 핵심 변경:
+  ```java
+  @GetMapping("/create")
+  public String showCreate() { return "question_form"; }
+
+  @PostMapping("/create")
+  public String create(@RequestParam("subject") String subject, @RequestParam("content") String content) {
+      questionService.create(subject, content);
+      return "redirect:/question/list";
+  }
+  ```
+- 실행화면 (입력 → 저장 후 목록):
+
+  ![018-01 폼](docs/images/018-01-form.png)
+
+  ![018-01 실행화면](docs/images/018-01.png)
