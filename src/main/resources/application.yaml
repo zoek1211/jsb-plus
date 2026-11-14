@@ -16,6 +16,16 @@ spring:
     # Run with the "dev" profile unless told otherwise → application-dev.yaml is applied on top of this file.
     # Tests override this with @ActiveProfiles("test") and use application-test.yaml instead.
     active: dev
+  mvc:
+    hiddenmethod:
+      filter:
+        # HTML 폼은 GET·POST 만 보낼 수 있다. 이 필터를 켜면 숨은 _method=put / _method=delete 값을 보고
+        # 스프링이 PUT·DELETE 요청으로 바꿔서 @PutMapping·@DeleteMapping 으로 보낸다 (14168 41강, 029-01).
+        # 타임리프의 th:method="delete" 가 이 숨은 값을 자동으로 넣어준다.
+        # HTML forms can only send GET and POST. With this filter on, Spring reads a hidden _method=put / _method=delete
+        # and turns the request into PUT/DELETE, routed to @PutMapping/@DeleteMapping (14168 lecture 41, 029-01).
+        # Thymeleaf's th:method="delete" adds that hidden value automatically.
+        enabled: true
   jpa:
     # JPA가 실행하는 SQL을 콘솔에 출력한다. 자바 코드가 실제로 어떤 SQL이 되는지 볼 수 있다.
     # Prints the SQL that JPA runs to the console, so you can see what your Java code turns into.

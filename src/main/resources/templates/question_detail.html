@@ -21,11 +21,40 @@
         <div class="card-body">
             <div class="card-text" style="white-space: pre-line;" th:text="${question.content}"></div>
             <div class="d-flex justify-content-end">
+                <!--
+                  수정일시 (029-01). 생성 때도 @LastModifiedDate 가 채워지므로, 생성 후 1초 넘게 지나 바뀐 경우에만 "modified" 로 보여준다.
+                  Modified date (029-01). @LastModifiedDate is also filled at creation, so show "modified" only when it changed more than 1 second after creation.
+                -->
+                <div th:if="${question.modifyDate.isAfter(question.createDate.plusSeconds(1))}"
+                     class="badge bg-light text-dark p-2 text-start mx-3">
+                    <div class="mb-2">modified at</div>
+                    <div th:text="${#temporals.format(question.modifyDate, 'yyyy-MM-dd HH:mm')}"></div>
+                </div>
                 <div class="badge bg-light text-dark p-2 text-start">
                     <!-- 글쓴이 (028-01, null 이면 생략) / Author (028-01, skipped if null) -->
                     <div class="mb-2"><span th:if="${question.author != null}" th:text="${question.author.username}"></span></div>
                     <div th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></div>
                 </div>
+            </div>
+            <!--
+              수정·삭제 버튼 (029-01). 로그인했고, 글쓴이가 로그인한 사용자일 때만 보인다.
+              #authentication.name: 로그인한 사용자 아이디 (sec:authentication="name" 과 같은 값)
+              Edit/delete buttons (029-01). Shown only when logged in and the author is the logged-in user.
+              #authentication.name: the logged-in username (same value as sec:authentication="name")
+            -->
+            <div class="my-3" sec:authorize="isAuthenticated()"
+                 th:if="${question.author != null and question.author.username == #authentication.name}">
+                <a th:href="@{|/question/modify/${question.id}|}" class="btn btn-sm btn-outline-secondary">수정</a>
+                <!--
+                  삭제는 DELETE 요청 폼. th:method="delete" → 숨은 _method=delete + CSRF 토큰.
+                  onsubmit 의 confirm(): "정말로 삭제하시겠습니까?" 확인창. 취소하면 return false 로 제출을 막는다.
+                  Delete is a DELETE-request form. th:method="delete" → a hidden _method=delete plus the CSRF token.
+                  confirm() in onsubmit: an "are you sure?" dialog. Cancel returns false, which stops the submit.
+                -->
+                <form th:action="@{|/question/delete/${question.id}|}" th:method="delete" class="d-inline"
+                      onsubmit="return confirm('정말로 삭제하시겠습니까?');">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">삭제</button>
+                </form>
             </div>
         </div>
     </div>

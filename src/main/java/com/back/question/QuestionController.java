@@ -6,18 +6,23 @@ import com.back.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.util.Objects;
 
 // 질문 관련 웹 요청을 처리하는 컨트롤러. MainController 와 같은 @Controller 다.
 // The controller that handles question-related web requests. A @Controller just like MainController.
@@ -129,5 +134,70 @@ public class QuestionController {
         // POST 처리 후에는 redirect → 새로고침해도 다시 등록되지 않는다 (14168 28강).
         // Redirect after POST → refreshing won't submit again (14168 lecture 28).
         return "redirect:/question/list";
+    }
+
+    // 글쓴이 본인인지 확인 (029-01). 아니면 403 Forbidden.
+    // Objects.equals: author 가 null(글쓴이 없는 예전 글)이어도 안전하게 비교한다.
+    // Checks the user is the author (029-01). Otherwise 403 Forbidden.
+    // Objects.equals: compares safely even when author is null (old posts without an author).
+    private void checkAuthor(Question question, Principal principal, String message) {
+        String authorName = question.getAuthor() == null ? null : question.getAuthor().getUsername();
+        if (!Objects.equals(authorName, principal.getName())) {
+            // ResponseStatusException: 원하는 HTTP 상태 코드로 응답하게 하는 예외
+            // ResponseStatusException: an exception that makes the response use the HTTP status we choose
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, message);
+        }
+    }
+
+    // GET /question/modify/{id} → 수정 폼 (교재 3-09). 등록 폼(question_form.html)을 함께 쓴다.
+    // GET /question/modify/{id} → the edit form (book 3-09). Shares the create form (question_form.html).
+    @GetMapping("/modify/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String showModify(Model model, @PathVariable int id, Principal principal) {
+        Question question = questionService.getQuestion(id);
+        checkAuthor(question, principal, "수정권한이 없습니다.");
+        // 기존 제목·내용을 채운 폼. record 라서 생성자로 바로 만든다.
+        // A form pre-filled with the current subject/content. It's a record, so we build it with the constructor.
+        model.addAttribute("form", new QuestionForm(question.getSubject(), question.getContent()));
+        // 템플릿이 "등록"인지 "수정"인지 구분하도록 질문 id 를 넘긴다.
+        // Pass the question id so the template can tell "create" from "edit".
+        model.addAttribute("questionId", id);
+        return "question_form";
+    }
+
+    // PUT /question/modify/{id} → 수정 처리. "수정(갱신)"은 HTTP 메서드 PUT 으로 표현한다 (14168 41강).
+    // 폼은 POST 로 보내지만 숨은 _method=put 덕분에 이 메서드로 온다 (application.yaml 의 hiddenmethod 필터).
+    // PUT /question/modify/{id} → handles the edit. "Updating" is expressed with the HTTP method PUT (14168 lecture 41).
+    // The form is sent as POST, but the hidden _method=put routes it here (the hiddenmethod filter in application.yaml).
+    @PutMapping("/modify/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String modify(
+            Model model,
+            @PathVariable int id,
+            Principal principal,
+            @ModelAttribute("form") @Valid QuestionForm form,
+            BindingResult bindingResult
+    ) {
+        Question question = questionService.getQuestion(id);
+        checkAuthor(question, principal, "수정권한이 없습니다.");
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("questionId", id);
+            return "question_form";
+        }
+        questionService.modify(question, form.subject(), form.content());
+        return "redirect:/question/detail/%d".formatted(id);
+    }
+
+    // DELETE /question/delete/{id} → 삭제 처리 (교재 3-09).
+    // 교재는 GET 링크(<a href>)로 삭제하지만, 주소만 열어도 삭제되는 GET 은 위험하므로 DELETE + CSRF 토큰으로 받는다 (14168 41~43강).
+    // DELETE /question/delete/{id} → handles deletion (book 3-09).
+    // The book deletes via a GET link (<a href>); since a GET that deletes just by opening a URL is dangerous, we accept DELETE with a CSRF token (14168 lectures 41–43).
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String delete(@PathVariable int id, Principal principal) {
+        Question question = questionService.getQuestion(id);
+        checkAuthor(question, principal, "삭제권한이 없습니다.");
+        questionService.delete(question);
+        return "redirect:/";
     }
 }

@@ -6,16 +6,27 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-    <title>질문 등록</title>
+    <!-- 등록/수정에 따라 탭 제목도 바꾼다 (029-01) / The tab title also follows create/edit (029-01) -->
+    <title th:text="${questionId == null} ? '질문 등록' : '질문 수정'">질문 등록</title>
 </head>
 <body>
 <div layout:fragment="content" class="container">
-    <h5 class="my-3 border-bottom pb-2">질문등록</h5>
+    <!--
+      등록과 수정이 이 폼을 함께 쓴다 (029-01). 컨트롤러가 questionId 를 넘기면 "수정" 화면.
+      This form is shared by create and edit (029-01). If the controller passes questionId, it's the edit screen.
+    -->
+    <h5 class="my-3 border-bottom pb-2" th:text="${questionId == null} ? '질문등록' : '질문수정'"></h5>
     <!--
       th:object="${form}": 이 폼이 컨트롤러의 QuestionForm("form")과 연결된다. 안에서는 *{필드} 로 짧게 쓴다 (14168 22강).
+      등록: POST /question/create, 수정: PUT /question/modify/{id}.
+      th:method="put" 이면 타임리프가 method="post" 와 숨은 <input name="_method" value="put"> 을 함께 만든다 (14168 41강).
       th:object="${form}": ties this form to the controller's QuestionForm ("form"). Inside it, fields are written shortly as *{field} (14168 lecture 22).
+      Create: POST /question/create, edit: PUT /question/modify/{id}.
+      With th:method="put", Thymeleaf writes method="post" plus a hidden <input name="_method" value="put"> (14168 lecture 41).
     -->
-    <form th:action="@{/question/create}" th:object="${form}" method="post">
+    <form th:action="${questionId == null} ? @{/question/create} : @{|/question/modify/${questionId}|}"
+          th:method="${questionId == null} ? 'post' : 'put'"
+          th:object="${form}">
         <!--
           검증 오류 표시: 공통 조각 form_errors.html 로 바꿔 끼운다 (019-01, 교재 2-17).
           th:replace="~{파일이름 :: 조각이름}": 이 div 를 그 조각으로 통째로 교체한다.

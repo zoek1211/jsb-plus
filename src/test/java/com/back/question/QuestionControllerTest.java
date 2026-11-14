@@ -13,7 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -135,5 +137,66 @@ class QuestionControllerTest {
                 // 입력했던 내용은 그대로 남아 있어야 한다
                 // The content the user typed must still be there
                 .andExpect(content().string(containsString("내용만 있음")));
+    }
+
+    // ── 수정·삭제 (029-01). 1번 질문의 글쓴이는 user1 ─────────────────────────────
+    // ── Edit/delete (029-01). Question 1's author is user1 ─────────────────────────
+
+    @Test
+    @DisplayName("GET /question/modify/1: 글쓴이(user1)는 기존 내용이 채워진 수정 폼을 본다")
+    @WithMockUser(username = "user1")
+    void t7() throws Exception {
+        mvc.perform(get("/question/modify/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("질문수정")))
+                .andExpect(content().string(containsString("sbb가 무엇인가요?")))
+                // th:method="put" 이 만든 숨은 필드 / The hidden field made by th:method="put"
+                .andExpect(content().string(containsString("name=\"_method\" value=\"put\"")));
+    }
+
+    @Test
+    @DisplayName("GET /question/modify/1: 다른 사용자(user2)는 403")
+    @WithMockUser(username = "user2")
+    void t8() throws Exception {
+        mvc.perform(get("/question/modify/1"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("PUT /question/modify/1: 글쓴이가 수정하면 상세 화면에 바뀐 제목이 보인다")
+    @WithMockUser(username = "user1")
+    void t9() throws Exception {
+        // put(...): HTTP PUT 요청. 실제 화면에서는 POST + _method=put 이 필터를 거쳐 PUT 이 된다.
+        // put(...): an HTTP PUT request. In the real page, POST + _method=put becomes PUT through the filter.
+        mvc.perform(put("/question/modify/1").with(csrf())
+                        .param("subject", "수정된 제목")
+                        .param("content", "수정된 내용"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/question/detail/1"));
+
+        mvc.perform(get("/question/detail/1"))
+                .andExpect(content().string(containsString("수정된 제목")));
+    }
+
+    @Test
+    @DisplayName("POST + _method=delete /question/delete/2: 글쓴이(user2)가 삭제하면 / 로 이동하고 상세는 404")
+    @WithMockUser(username = "user2")
+    void t10() throws Exception {
+        // 화면과 똑같이 POST + 숨은 _method=delete 로 보낸다 → HiddenHttpMethodFilter 가 DELETE 로 바꾼다.
+        // Send POST + hidden _method=delete just like the page → HiddenHttpMethodFilter turns it into DELETE.
+        mvc.perform(post("/question/delete/2").with(csrf()).param("_method", "delete"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
+
+        mvc.perform(get("/question/detail/2"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("DELETE /question/delete/2: 글쓴이가 아닌 user1 은 403")
+    @WithMockUser(username = "user1")
+    void t11() throws Exception {
+        mvc.perform(delete("/question/delete/2").with(csrf()))
+                .andExpect(status().isForbidden());
     }
 }

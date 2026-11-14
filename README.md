@@ -703,3 +703,29 @@
   ![028-01 비로그인](docs/images/028-01-anonymous.jpg)
 
   ![028-01 실행화면](docs/images/028-01.png)
+
+### 029-01 질문 수정·삭제, PUT·DELETE 와 글쓴이 확인
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/029-01)
+- 작업: `spring.mvc.hiddenmethod.filter.enabled: true`, `QuestionService.modify`·`delete`, `GET /question/modify/{id}` (기존 값 채운 폼), `@PutMapping("/modify/{id}")`, `@DeleteMapping("/delete/{id}")`, 글쓴이가 아니면 `403` (`checkAuthor`), `question_form.html` 을 등록/수정 공용으로 (`th:method` 로 post/put), 상세에 수정·삭제 버튼(글쓴이만)과 "modified at" 표시, 테스트 5개(수정 폼, 타인 403, PUT 수정, `_method=delete` 삭제, 타인 삭제 403)
+- 이유: 교재 3-09 — 글쓴이만 자기 글을 고치고 지움. 교재의 GET 링크 삭제 대신 14168 41~43강처럼 PUT·DELETE + CSRF 토큰으로 안전하게
+- 결과: 테스트 39개 통과. 브라우저: 305번 질문 수정 → "modified at" 표시, 삭제(확인창) → 목록에서 사라짐
+- 핵심 변경:
+  ```java
+  @PutMapping("/modify/{id}")
+  @PreAuthorize("isAuthenticated()")
+  public String modify(..., @PathVariable int id, Principal principal, @ModelAttribute("form") @Valid QuestionForm form, BindingResult bindingResult) {
+      Question question = questionService.getQuestion(id);
+      checkAuthor(question, principal, "수정권한이 없습니다.");   // 아니면 ResponseStatusException(FORBIDDEN)
+      questionService.modify(question, form.subject(), form.content());
+      return "redirect:/question/detail/%d".formatted(id);
+  }
+  ```
+  ```html
+  <form th:action="@{|/question/delete/${question.id}|}" th:method="delete" onsubmit="return confirm('정말로 삭제하시겠습니까?');">
+  <!-- → <form method="post"><input type="hidden" name="_method" value="delete"><input type="hidden" name="_csrf" ...> -->
+  ```
+- 실행화면 (수정 후 / 삭제 후 목록):
+
+  ![029-01 실행화면](docs/images/029-01.png)
+
+  ![029-01 삭제 후](docs/images/029-01-deleted.png)

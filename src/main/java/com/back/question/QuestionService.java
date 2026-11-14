@@ -65,4 +65,21 @@ public class QuestionService {
         question.setAuthor(author);
         return questionRepository.save(question);
     }
+
+    // 질문 수정 (교재 3-09). 수정일시는 JPA Auditing(@LastModifiedDate)이 자동으로 갱신한다.
+    // Edits a question (book 3-09). JPA Auditing (@LastModifiedDate) updates the modified date automatically.
+    @Transactional
+    public void modify(Question question, String subject, String content) {
+        question.setSubject(subject);
+        question.setContent(content);
+        // save → UPDATE question SET ... WHERE id = ?
+        questionRepository.save(question);
+    }
+
+    // 질문 삭제 (교재 3-09). cascade = REMOVE 라서 답변도 함께 삭제된다 (005-01).
+    // Deletes a question (book 3-09). With cascade = REMOVE its answers are deleted too (005-01).
+    @Transactional
+    public void delete(Question question) {
+        questionRepository.delete(question);
+    }
 }
