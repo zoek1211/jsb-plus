@@ -212,7 +212,7 @@ class QuestionControllerTest {
     void t13() throws Exception {
         mvc.perform(post("/answer/vote/1").with(csrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/question/detail/2"));
+                .andExpect(redirectedUrl("/question/detail/2#answer_1"));
 
         mvc.perform(get("/question/detail/2"))
                 .andExpect(content().string(containsString("badge rounded-pill bg-success\">1</span>")));

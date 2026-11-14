@@ -21,6 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 // AnswerController 테스트. 클래스 @Transactional 로 등록한 답변은 테스트가 끝나면 롤백된다.
@@ -46,7 +47,7 @@ class AnswerControllerTest {
         mvc.perform(post("/answer/create/1").with(csrf()).param("content", "테스트 답변입니다."))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/question/detail/1"));
+                .andExpect(redirectedUrlPattern("/question/detail/1#answer_*"));
 
         // 상세 화면에 새 답변과 개수가 나오는지 확인
         // Check the detail page shows the new answer and the count
@@ -100,7 +101,7 @@ class AnswerControllerTest {
     void t5() throws Exception {
         mvc.perform(put("/answer/modify/1").with(csrf()).param("content", "수정된 답변"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/question/detail/2"));
+                .andExpect(redirectedUrl("/question/detail/2#answer_1"));
 
         mvc.perform(get("/question/detail/2"))
                 .andExpect(content().string(containsString("수정된 답변")));

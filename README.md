@@ -773,3 +773,20 @@
 - 실행화면 (질문 2번 클릭 → 1, 답변 1번 클릭 → 1):
 
   ![030-01 실행화면](docs/images/030-01.png)
+
+### 031-01 앵커, 답변 등록·수정·추천 후 해당 답변 위치로 이동
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/031-01)
+- 작업: 답변 카드에 `th:id="|answer_${answer.id}|"`, 답변 등록·수정·추천 후 `redirect:/question/detail/{질문id}#answer_{답변id}`, 관련 테스트의 리다이렉트 주소 수정
+- 이유: 교재 3-11 — 답변이 많을 때 방금 작업한 답변을 찾으려 스크롤하지 않도록
+- 결과: 테스트 44개 통과. 브라우저: 2번 질문에 답변 등록 → 주소 `#answer_5`, 화면이 새 답변 위치로 스크롤
+- 핵심 변경:
+  ```java
+  Answer answer = answerService.create(question, answerForm.content(), author);
+  return "redirect:/question/detail/%d#answer_%d".formatted(id, answer.getId());
+  ```
+  ```html
+  <div class="card my-3" th:each="answer : ${question.answers}" th:id="|answer_${answer.id}|">
+  ```
+- 실행화면 (`/question/detail/2#answer_5`, 새 답변 위치로 스크롤된 화면):
+
+  ![031-01 실행화면](docs/images/031-01.jpg)

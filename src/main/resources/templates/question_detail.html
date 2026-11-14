@@ -74,7 +74,11 @@
     <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(question.answers)}개의 답변이 있습니다.|"></h5>
 
     <!-- 답변 카드 목록 / Answer cards -->
-    <div class="card my-3" th:each="answer : ${question.answers}">
+    <!--
+      th:id="|answer_${answer.id}|": 각 답변 카드에 answer_4 같은 id 를 붙인다 → 주소 끝의 #answer_4 가 이 위치를 가리킨다 (앵커, 교재 3-11).
+      th:id="|answer_${answer.id}|": gives each answer card an id like answer_4 → #answer_4 at the end of a URL points here (anchor, book 3-11).
+    -->
+    <div class="card my-3" th:each="answer : ${question.answers}" th:id="|answer_${answer.id}|">
         <div class="card-body">
             <div class="card-text" style="white-space: pre-line;" th:text="${answer.content}"></div>
             <div class="d-flex justify-content-end">

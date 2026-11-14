@@ -61,10 +61,14 @@ public class AnswerController {
         }
 
         SiteUser author = userService.getUser(principal.getName());
-        answerService.create(question, answerForm.content(), author);
+        Answer answer = answerService.create(question, answerForm.content(), author);
         // 저장 후 상세 화면으로 다시 이동 (POST 뒤 redirect: 새로고침해도 답변이 두 번 등록되지 않는다).
+        // #answer_{id}: 앵커 (교재 3-11). 브라우저가 상세 화면의 id="answer_{id}" 요소 위치로 바로 스크롤한다.
+        // 답변이 많아도 방금 쓴 답변을 찾느라 스크롤할 필요가 없다.
         // After saving, go back to the detail page (redirect after POST: refreshing won't submit the answer twice).
-        return "redirect:/question/detail/%d".formatted(id);
+        // #answer_{id}: an anchor (book 3-11). The browser scrolls straight to the element with id="answer_{id}" on the detail page.
+        // Even with many answers, there's no scrolling to find the one just written.
+        return "redirect:/question/detail/%d#answer_%d".formatted(id, answer.getId());
     }
 
     // 글쓴이 본인인지 확인 (029-02). 아니면 403. 설명은 QuestionController.checkAuthor 참고.
@@ -106,7 +110,8 @@ public class AnswerController {
             return "answer_form";
         }
         answerService.modify(answer, answerForm.content());
-        return "redirect:/question/detail/%d".formatted(answer.getQuestion().getId());
+        // 수정한 답변 위치로 (앵커, 031-01) / Back to the edited answer (anchor, 031-01)
+        return "redirect:/question/detail/%d#answer_%d".formatted(answer.getQuestion().getId(), answer.getId());
     }
 
     // DELETE /answer/delete/{id} → 답변 삭제 처리 (14168 41~43강: 삭제는 DELETE)
@@ -131,6 +136,7 @@ public class AnswerController {
         Answer answer = answerService.getAnswer(id);
         SiteUser siteUser = userService.getUser(principal.getName());
         answerService.vote(answer, siteUser);
-        return "redirect:/question/detail/%d".formatted(answer.getQuestion().getId());
+        // 추천한 답변 위치로 (앵커, 031-01) / Back to the recommended answer (anchor, 031-01)
+        return "redirect:/question/detail/%d#answer_%d".formatted(answer.getQuestion().getId(), answer.getId());
     }
 }
