@@ -13,5 +13,25 @@
 <!-- Subject and content. th:text prints the value with HTML special characters safely escaped. -->
 <h1 th:text="${question.subject}"></h1>
 <div th:text="${question.content}"></div>
+
+<!--
+  답변 개수. #lists.size(...) 는 타임리프의 목록 도구로 목록의 크기를 구한다.
+  question.answers 는 LAZY 지만 화면을 그리는 동안 DB 연결이 열려 있어(open-in-view) 정상적으로 읽힌다.
+  Answer count. #lists.size(...) is Thymeleaf's list utility for getting a list's size.
+  question.answers is LAZY, but the database connection stays open while the page renders (open-in-view), so it loads fine.
+-->
+<h5 th:text="|${#lists.size(question.answers)}개의 답변이 있습니다.|"></h5>
+<ul>
+    <li th:each="answer : ${question.answers}" th:text="${answer.content}"></li>
+</ul>
+
+<!--
+  답변 등록 폼. 제출하면 POST /answer/create/{질문id} 로 content 값을 보낸다.
+  The answer form. Submitting sends the content value to POST /answer/create/{question id}.
+-->
+<form th:action="@{|/answer/create/${question.id}|}" method="post">
+    <textarea name="content" id="content" rows="15"></textarea>
+    <input type="submit" value="답변등록">
+</form>
 </body>
 </html>

@@ -388,3 +388,24 @@
 - 실행화면 (컨트롤러 테스트 리포트):
 
   ![014-01 실행화면](docs/images/014-01.png)
+
+### 015-01 답변 등록, AnswerService·AnswerController 와 답변 폼
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/015-01)
+- 작업: `AnswerService.create` (`@Transactional`, `question.addAnswer` + `save`), `AnswerController` 의 `POST /answer/create/{id}`, 상세 화면에 답변 개수·목록·등록 폼, `AnswerControllerTest`
+- 이유: 교재 2-12 / 14163 37강 — 질문에 답변을 다는 기능. 생성 요청은 POST, 처리 후 redirect (새로고침 중복 등록 방지)
+- 결과: 테스트 18개 통과, 브라우저에서 답변 등록 → 상세 화면으로 돌아와 답변 목록에 표시 (같은 답변 2개는 시연 중 두 번 제출한 것)
+- 핵심 변경:
+  ```java
+  @PostMapping("/create/{id}")
+  public String createAnswer(@PathVariable int id, @RequestParam("content") String content) {
+      answerService.create(questionService.getQuestion(id), content);
+      return "redirect:/question/detail/%d".formatted(id);
+  }
+  ```
+  ```html
+  <h5 th:text="|${#lists.size(question.answers)}개의 답변이 있습니다.|"></h5>
+  <form th:action="@{|/answer/create/${question.id}|}" method="post"> ... </form>
+  ```
+- 실행화면:
+
+  ![015-01 실행화면](docs/images/015-01.png)
