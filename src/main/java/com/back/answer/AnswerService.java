@@ -57,4 +57,12 @@ public class AnswerService {
         answer.getQuestion().getAnswers().remove(answer);
         answerRepository.delete(answer);
     }
+
+    // 답변 추천 (교재 3-10). 설명은 QuestionService.vote.
+    // Recommend an answer (book 3-10). See QuestionService.vote.
+    @Transactional
+    public void vote(Answer answer, SiteUser siteUser) {
+        answer.getVoter().add(siteUser);
+        answerRepository.save(answer);
+    }
 }

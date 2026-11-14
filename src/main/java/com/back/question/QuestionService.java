@@ -82,4 +82,13 @@ public class QuestionService {
     public void delete(Question question) {
         questionRepository.delete(question);
     }
+
+    // 추천 (교재 3-10). Set 이라서 이미 추천한 회원이면 그대로다.
+    // Recommend (book 3-10). It's a Set, so a member who already recommended is simply ignored.
+    @Transactional
+    public void vote(Question question, SiteUser siteUser) {
+        question.getVoter().add(siteUser);
+        // → INSERT INTO question_voter (question_id, voter_id) VALUES (?, ?)
+        questionRepository.save(question);
+    }
 }

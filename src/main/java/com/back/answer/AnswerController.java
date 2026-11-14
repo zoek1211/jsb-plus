@@ -122,4 +122,15 @@ public class AnswerController {
         answerService.delete(answer);
         return "redirect:/question/detail/%d".formatted(questionId);
     }
+
+    // POST /answer/vote/{id} → 답변 추천 (교재 3-10). 설명은 QuestionController.vote.
+    // POST /answer/vote/{id} → recommends an answer (book 3-10). See QuestionController.vote.
+    @PostMapping("/vote/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String vote(@PathVariable int id, Principal principal) {
+        Answer answer = answerService.getAnswer(id);
+        SiteUser siteUser = userService.getUser(principal.getName());
+        answerService.vote(answer, siteUser);
+        return "redirect:/question/detail/%d".formatted(answer.getQuestion().getId());
+    }
 }

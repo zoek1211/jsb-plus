@@ -42,6 +42,17 @@
               Edit/delete buttons (029-01). Shown only when logged in and the author is the logged-in user.
               #authentication.name: the logged-in username (same value as sec:authentication="name")
             -->
+            <!--
+              추천 버튼 (교재 3-10). POST 폼 (CSRF 토큰 포함). 버튼 안의 숫자는 추천 수 (#lists.size 는 Set 에도 쓸 수 있다).
+              로그인하지 않고 누르면 @PreAuthorize 때문에 로그인 화면으로 간다.
+              The recommend button (book 3-10). A POST form (with the CSRF token). The number on the button is the vote count (#lists.size works on a Set too).
+              Pressing it without logging in goes to the login page because of @PreAuthorize.
+            -->
+            <form th:action="@{|/question/vote/${question.id}|}" method="post" class="d-inline-block mt-3">
+                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                    추천 <span class="badge rounded-pill bg-success" th:text="${#lists.size(question.voter)}"></span>
+                </button>
+            </form>
             <div class="my-3" sec:authorize="isAuthenticated()"
                  th:if="${question.author != null and question.author.username == #authentication.name}">
                 <a th:href="@{|/question/modify/${question.id}|}" class="btn btn-sm btn-outline-secondary">수정</a>
@@ -79,6 +90,12 @@
                 </div>
             </div>
             <!-- 답변 수정·삭제 버튼: 답변 글쓴이에게만 (029-02) / Answer edit/delete buttons: only for the answer's author (029-02) -->
+            <!-- 답변 추천 버튼 (교재 3-10) / Answer recommend button (book 3-10) -->
+            <form th:action="@{|/answer/vote/${answer.id}|}" method="post" class="d-inline-block mt-3">
+                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                    추천 <span class="badge rounded-pill bg-success" th:text="${#lists.size(answer.voter)}"></span>
+                </button>
+            </form>
             <div class="my-3" sec:authorize="isAuthenticated()"
                  th:if="${answer.author != null and answer.author.username == #authentication.name}">
                 <a th:href="@{|/answer/modify/${answer.id}|}" class="btn btn-sm btn-outline-secondary">수정</a>

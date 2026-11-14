@@ -15,13 +15,16 @@ import com.back.user.SiteUser;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static jakarta.persistence.FetchType.LAZY;
 
@@ -66,6 +69,17 @@ public class Question extends BaseEntity {
     // Questions created before this feature have no author (null) → the templates check for null before printing.
     @ManyToOne(fetch = LAZY)
     private SiteUser author;
+
+    // 추천한 회원들 (교재 3-10).
+    // @ManyToMany: 한 질문을 여러 회원이 추천하고, 한 회원도 여러 질문을 추천할 수 있다 → 중간 테이블(question_voter)이 생긴다.
+    // (005-01 의 중간 테이블은 실수였지만, 다대다 관계에서는 중간 테이블이 꼭 필요하다.)
+    // Set: 같은 회원이 두 번 들어가지 않는다 → 한 사람이 여러 번 눌러도 추천 수는 1 만 올라간다.
+    // The members who recommended this (book 3-10).
+    // @ManyToMany: one question can be recommended by many members, and one member can recommend many questions → a join table (question_voter) is created.
+    // (The join table in 005-01 was a mistake, but a many-to-many relationship genuinely needs one.)
+    // Set: the same member can't be in it twice → pressing it many times raises the count by only 1.
+    @ManyToMany
+    private Set<SiteUser> voter = new HashSet<>();
 
     // @OneToMany: "하나(One)의 질문에 여러(Many) 답변" 관계. Answer 쪽 @ManyToOne 의 반대 방향이다.
     // 이 필드 덕분에 질문에서 답변 목록을 바로 꺼낼 수 있다 (question.answers).

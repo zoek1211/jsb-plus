@@ -193,6 +193,32 @@ class QuestionControllerTest {
     }
 
     @Test
+    @DisplayName("POST /question/vote/1: 같은 사람이 두 번 추천해도 추천 수는 1 (Set, 030-01)")
+    @WithMockUser(username = "user2")
+    void t12() throws Exception {
+        mvc.perform(post("/question/vote/1").with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/question/detail/1"));
+        mvc.perform(post("/question/vote/1").with(csrf()));
+
+        // 추천 배지의 숫자가 1 / The recommend badge shows 1
+        mvc.perform(get("/question/detail/1"))
+                .andExpect(content().string(containsString("badge rounded-pill bg-success\">1</span>")));
+    }
+
+    @Test
+    @DisplayName("POST /answer/vote/1: 답변 추천 후 추천 수 1 (030-01)")
+    @WithMockUser(username = "user2")
+    void t13() throws Exception {
+        mvc.perform(post("/answer/vote/1").with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/question/detail/2"));
+
+        mvc.perform(get("/question/detail/2"))
+                .andExpect(content().string(containsString("badge rounded-pill bg-success\">1</span>")));
+    }
+
+    @Test
     @DisplayName("DELETE /question/delete/2: 글쓴이가 아닌 user1 은 403")
     @WithMockUser(username = "user1")
     void t11() throws Exception {

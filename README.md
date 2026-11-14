@@ -752,3 +752,24 @@
 - 실행화면 (답변 수정 후):
 
   ![029-02 실행화면](docs/images/029-02.jpg)
+
+### 030-01 추천, @ManyToMany voter 와 추천 버튼
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/030-01)
+- 작업: `Question.voter`·`Answer.voter` (`@ManyToMany Set<SiteUser>`), `QuestionService.vote`·`AnswerService.vote`, `POST /question/vote/{id}`·`POST /answer/vote/{id}` (`@PreAuthorize`), 상세 화면 추천 버튼(추천 수 배지), 테스트 2개(중복 추천 시 1, 답변 추천)
+- 이유: 교재 3-10 — 추천 기능. 다대다 관계는 중간 테이블이 필요하고, `Set` 이라 한 사람은 한 번만 추천
+- 결과: 테스트 44개 통과, `create table question_voter (question_id, voter_id, primary key (question_id, voter_id))`. 브라우저: 질문 추천 2번 눌러도 1, 답변 추천 1
+- 핵심 변경:
+  ```java
+  @ManyToMany
+  private Set<SiteUser> voter = new HashSet<>();
+
+  @PostMapping("/vote/{id}")
+  @PreAuthorize("isAuthenticated()")
+  public String vote(@PathVariable int id, Principal principal) {
+      questionService.vote(questionService.getQuestion(id), userService.getUser(principal.getName()));
+      return "redirect:/question/detail/%d".formatted(id);
+  }
+  ```
+- 실행화면 (질문 2번 클릭 → 1, 답변 1번 클릭 → 1):
+
+  ![030-01 실행화면](docs/images/030-01.png)

@@ -6,9 +6,13 @@ import com.back.user.SiteUser;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static jakarta.persistence.FetchType.LAZY;
 
@@ -52,4 +56,9 @@ public class Answer extends BaseEntity {
     // The answer's author (book 3-08). Same approach as Question.author.
     @ManyToOne(fetch = LAZY)
     private SiteUser author;
+
+    // 답변을 추천한 회원들 (교재 3-10, 설명은 Question.voter) → 중간 테이블 answer_voter
+    // Members who recommended this answer (book 3-10; see Question.voter) → join table answer_voter
+    @ManyToMany
+    private Set<SiteUser> voter = new HashSet<>();
 }

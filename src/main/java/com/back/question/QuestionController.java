@@ -200,4 +200,17 @@ public class QuestionController {
         questionService.delete(question);
         return "redirect:/";
     }
+
+    // POST /question/vote/{id} → 질문 추천 (교재 3-10).
+    // 교재는 GET 링크로 추천하지만, 데이터를 바꾸는 요청이므로 POST + CSRF 토큰으로 받는다 (029-01 과 같은 이유).
+    // POST /question/vote/{id} → recommends a question (book 3-10).
+    // The book recommends via a GET link; since it changes data, we accept POST with a CSRF token (same reason as 029-01).
+    @PostMapping("/vote/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String vote(@PathVariable int id, Principal principal) {
+        Question question = questionService.getQuestion(id);
+        SiteUser siteUser = userService.getUser(principal.getName());
+        questionService.vote(question, siteUser);
+        return "redirect:/question/detail/%d".formatted(id);
+    }
 }
