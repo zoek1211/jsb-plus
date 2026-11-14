@@ -1,5 +1,6 @@
 package com.back.answer;
 
+import com.back.global.exception.DataNotFoundException;
 import com.back.question.Question;
 import com.back.user.SiteUser;
 import lombok.RequiredArgsConstructor;
@@ -28,5 +29,32 @@ public class AnswerService {
         // 저장 → INSERT INTO answer ... (question_id, author_id 포함)
         // Save → INSERT INTO answer ... (including question_id and author_id)
         return answerRepository.save(answer);
+    }
+
+    // id 로 답변 하나. 없으면 404 (029-02).
+    // One answer by id. 404 if missing (029-02).
+    public Answer getAnswer(int id) {
+        return answerRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("answer not found"));
+    }
+
+    // 답변 수정 (교재 3-09). 수정일시는 JPA Auditing 이 갱신.
+    // Edits an answer (book 3-09). JPA Auditing updates the modified date.
+    @Transactional
+    public void modify(Answer answer, String content) {
+        answer.setContent(content);
+        answerRepository.save(answer);
+    }
+
+    // 답변 삭제 (교재 3-09).
+    // 질문의 answers 목록에서도 빼 준다. Question.answers 에 cascade = PERSIST 가 있어서, 목록에 남아 있으면
+    // 같은 트랜잭션 안에서 "다시 저장하라"는 신호가 되어 삭제와 충돌할 수 있다 (연관관계 양쪽을 함께 맞추기, 009-02 와 같은 원리).
+    // Deletes an answer (book 3-09).
+    // Also removes it from the question's answers list. Question.answers has cascade = PERSIST, so leaving it in the list
+    // could signal "save this again" within the same transaction and clash with the delete (keeping both sides in sync, as in 009-02).
+    @Transactional
+    public void delete(Answer answer) {
+        answer.getQuestion().getAnswers().remove(answer);
+        answerRepository.delete(answer);
     }
 }

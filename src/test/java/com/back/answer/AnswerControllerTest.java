@@ -15,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -87,5 +89,40 @@ class AnswerControllerTest {
                 .andExpect(content().string(containsString("글쓴이 확인용 답변")))
                 .andExpect(content().string(containsString("user1")))
                 .andExpect(content().string(containsString("user2")));
+    }
+
+    // ── 답변 수정·삭제 (029-02). 샘플 답변 1번(2번 질문)의 글쓴이는 user1 ─────────────
+    // ── Answer edit/delete (029-02). Sample answer 1 (on question 2) is by user1 ─────
+
+    @Test
+    @DisplayName("PUT /answer/modify/1: 글쓴이(user1)가 수정하면 2번 질문 상세로 이동하고 바뀐 내용이 보인다")
+    @WithMockUser(username = "user1")
+    void t5() throws Exception {
+        mvc.perform(put("/answer/modify/1").with(csrf()).param("content", "수정된 답변"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/question/detail/2"));
+
+        mvc.perform(get("/question/detail/2"))
+                .andExpect(content().string(containsString("수정된 답변")));
+    }
+
+    @Test
+    @DisplayName("GET /answer/modify/1: 다른 사용자(user2)는 403")
+    @WithMockUser(username = "user2")
+    void t6() throws Exception {
+        mvc.perform(get("/answer/modify/1"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("DELETE /answer/delete/1: 글쓴이가 삭제하면 2번 질문의 답변이 0개가 된다")
+    @WithMockUser(username = "user1")
+    void t7() throws Exception {
+        mvc.perform(delete("/answer/delete/1").with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/question/detail/2"));
+
+        mvc.perform(get("/question/detail/2"))
+                .andExpect(content().string(containsString("0개의 답변이 있습니다.")));
     }
 }

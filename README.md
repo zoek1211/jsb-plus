@@ -729,3 +729,26 @@
   ![029-01 실행화면](docs/images/029-01.png)
 
   ![029-01 삭제 후](docs/images/029-01-deleted.png)
+
+### 029-02 답변 수정·삭제, PUT·DELETE 와 글쓴이 확인
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/029-02)
+- 작업: `AnswerService.getAnswer`·`modify`·`delete` (삭제 시 `question.answers` 에서도 제거), `AnswerController` 의 `GET /answer/modify/{id}`, `@PutMapping`, `@DeleteMapping`, 글쓴이 확인(403), `answer_form.html`, 상세 화면 답변별 수정·삭제 버튼과 "modified at", 테스트 3개
+- 이유: 교재 3-09 — 답변도 글쓴이만 수정·삭제. 029-01 과 같은 PUT·DELETE 방식
+- 결과: 테스트 42개 통과. 브라우저: 304번 질문에 답변 등록 → 수정(PUT) → "modified at" 표시
+- 핵심 변경:
+  ```java
+  @Transactional
+  public void delete(Answer answer) {
+      answer.getQuestion().getAnswers().remove(answer);   // 양쪽 관계를 함께 정리
+      answerRepository.delete(answer);
+  }
+  ```
+  ```html
+  <div th:if="${answer.author != null and answer.author.username == #authentication.name}">
+      <a th:href="@{|/answer/modify/${answer.id}|}">수정</a>
+      <form th:action="@{|/answer/delete/${answer.id}|}" th:method="delete">...</form>
+  </div>
+  ```
+- 실행화면 (답변 수정 후):
+
+  ![029-02 실행화면](docs/images/029-02.jpg)

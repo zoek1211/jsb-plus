@@ -6,16 +6,22 @@ import com.back.user.SiteUser;
 import com.back.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.util.Objects;
 
 // 답변 관련 웹 요청을 처리하는 컨트롤러. 모든 URL 이 /answer 로 시작한다.
 // The controller for answer-related web requests. Every URL starts with /answer.
@@ -59,5 +65,61 @@ public class AnswerController {
         // 저장 후 상세 화면으로 다시 이동 (POST 뒤 redirect: 새로고침해도 답변이 두 번 등록되지 않는다).
         // After saving, go back to the detail page (redirect after POST: refreshing won't submit the answer twice).
         return "redirect:/question/detail/%d".formatted(id);
+    }
+
+    // 글쓴이 본인인지 확인 (029-02). 아니면 403. 설명은 QuestionController.checkAuthor 참고.
+    // Checks the user is the author (029-02). Otherwise 403. See QuestionController.checkAuthor.
+    private void checkAuthor(Answer answer, Principal principal, String message) {
+        String authorName = answer.getAuthor() == null ? null : answer.getAuthor().getUsername();
+        if (!Objects.equals(authorName, principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, message);
+        }
+    }
+
+    // GET /answer/modify/{id} → 답변 수정 폼 (교재 3-09)
+    // GET /answer/modify/{id} → the answer edit form (book 3-09)
+    @GetMapping("/modify/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String showModify(Model model, @PathVariable int id, Principal principal) {
+        Answer answer = answerService.getAnswer(id);
+        checkAuthor(answer, principal, "수정권한이 없습니다.");
+        model.addAttribute("answerForm", new AnswerForm(answer.getContent()));
+        model.addAttribute("answerId", id);
+        return "answer_form";
+    }
+
+    // PUT /answer/modify/{id} → 답변 수정 처리 (14168 41강: 수정은 PUT)
+    // PUT /answer/modify/{id} → handles the answer edit (14168 lecture 41: edits use PUT)
+    @PutMapping("/modify/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String modify(
+            Model model,
+            @PathVariable int id,
+            Principal principal,
+            @ModelAttribute("answerForm") @Valid AnswerForm answerForm,
+            BindingResult bindingResult
+    ) {
+        Answer answer = answerService.getAnswer(id);
+        checkAuthor(answer, principal, "수정권한이 없습니다.");
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("answerId", id);
+            return "answer_form";
+        }
+        answerService.modify(answer, answerForm.content());
+        return "redirect:/question/detail/%d".formatted(answer.getQuestion().getId());
+    }
+
+    // DELETE /answer/delete/{id} → 답변 삭제 처리 (14168 41~43강: 삭제는 DELETE)
+    // DELETE /answer/delete/{id} → handles answer deletion (14168 lectures 41–43: deletes use DELETE)
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public String delete(@PathVariable int id, Principal principal) {
+        Answer answer = answerService.getAnswer(id);
+        checkAuthor(answer, principal, "삭제권한이 없습니다.");
+        // 삭제 전에 질문 id 를 기억해 둔다 (삭제 후 상세 화면으로 돌아가기 위해)
+        // Remember the question id before deleting (to go back to its detail page afterwards)
+        int questionId = answer.getQuestion().getId();
+        answerService.delete(answer);
+        return "redirect:/question/detail/%d".formatted(questionId);
     }
 }
