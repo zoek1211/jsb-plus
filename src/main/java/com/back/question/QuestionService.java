@@ -27,4 +27,10 @@ public class QuestionService {
     public List<Question> getList() {
         return questionRepository.findAll();
     }
+
+    // id 로 질문 하나. 없으면 예외 (013-02 에서 404 로 바꾼다).
+    // One question by id. Throws if missing (turned into a 404 in 013-02).
+    public Question getQuestion(int id) {
+        return questionRepository.findById(id).orElseThrow();
+    }
 }

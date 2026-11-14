@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -33,5 +34,18 @@ public class QuestionController {
         // Stored under the name "questionList", the template can read it as ${questionList}.
         model.addAttribute("questionList", questionList);
         return "question_list";
+    }
+
+    // GET /question/detail/1, /question/detail/2 ... → 질문 상세 화면.
+    // {id}: URL 경로의 일부를 변수로 받는 자리. @PathVariable 이 그 값을 int id 매개변수에 넣어준다.
+    // 빼면(@PathVariable 없이) 스프링은 id 가 URL 의 어디에서 오는지 몰라 오류가 난다.
+    // GET /question/detail/1, /question/detail/2 ... → the question detail page.
+    // {id}: a placeholder that captures part of the URL path. @PathVariable puts that value into the int id parameter.
+    // Without @PathVariable, Spring doesn't know where id comes from and fails.
+    @GetMapping("/question/detail/{id}")
+    public String detail(Model model, @PathVariable int id) {
+        Question question = questionService.getQuestion(id);
+        model.addAttribute("question", question);
+        return "question_detail";
     }
 }

@@ -36,6 +36,19 @@ class QuestionControllerTest {
                 // containsString: 응답 본문(HTML)에 이 글자가 들어 있는가?
                 // containsString: does the response body (HTML) contain this text?
                 .andExpect(content().string(containsString("sbb가 무엇인가요?")))
-                .andExpect(content().string(containsString("스프링부트 모델 질문입니다.")));
+                .andExpect(content().string(containsString("스프링부트 모델 질문입니다.")))
+                // 목록의 제목이 상세 화면 링크인지 확인
+                // Check the subjects link to the detail page
+                .andExpect(content().string(containsString("href=\"/question/detail/1\"")));
+    }
+
+    @Test
+    @DisplayName("GET /question/detail/1: 1번 질문의 제목과 내용이 보인다")
+    void t2() throws Exception {
+        mvc.perform(get("/question/detail/1"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("sbb가 무엇인가요?")))
+                .andExpect(content().string(containsString("sbb에 대해서 알고 싶습니다.")));
     }
 }

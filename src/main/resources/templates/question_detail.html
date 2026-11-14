@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<!--
+  질문 상세 템플릿. QuestionController.detail() 이 model 에 담은 question 하나를 보여준다.
+  The question detail template. Shows the single question that QuestionController.detail() put into the model.
+-->
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>질문 상세</title>
+</head>
+<body>
+<!-- 제목과 내용. th:text 는 HTML 특수문자를 안전하게 바꿔서(escape) 출력한다. -->
+<!-- Subject and content. th:text prints the value with HTML special characters safely escaped. -->
+<h1 th:text="${question.subject}"></h1>
+<div th:text="${question.content}"></div>
+</body>
+</html>

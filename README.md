@@ -332,3 +332,23 @@
 - 실행화면 (테스트 리포트):
 
   ![012-01 실행화면](docs/images/012-01.png)
+
+### 013-01 질문 상세, 상세 화면과 목록 링크
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/013-01)
+- 작업: `GET /question/detail/{id}` (`@PathVariable`), `QuestionService.getQuestion(id)`, `question_detail.html`, 목록 제목을 상세 링크로 (`th:href`), 컨트롤러 테스트 t2
+- 이유: 교재 2-10 / 14163 35강 — 목록에서 질문을 클릭해 내용을 보는 기능
+- 결과: 테스트 16개 통과, 목록에서 제목 클릭 → `/question/detail/1` 상세 화면 확인
+- 핵심 변경:
+  ```java
+  @GetMapping("/question/detail/{id}")
+  public String detail(Model model, @PathVariable int id) {
+      model.addAttribute("question", questionService.getQuestion(id));
+      return "question_detail";
+  }
+  ```
+  ```html
+  <a th:href="@{|/question/detail/${question.id}|}" th:text="${question.subject}"></a>
+  ```
+- 실행화면 (목록에서 제목 클릭 후):
+
+  ![013-01 실행화면](docs/images/013-01.png)
