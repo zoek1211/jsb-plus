@@ -28,7 +28,15 @@
           th:each="question, loop : ${paging}": repeats over this page's questions (a Page can be looped like a list). loop holds iteration info (count, etc.).
         -->
         <tr th:each="question, loop : ${paging}">
-            <td th:text="${loop.count}"></td>
+            <!--
+              게시물 번호 (교재 3-03): 전체 개수 - (현재 페이지 × 페이지 크기) - 이 페이지 안에서의 순서(0부터)
+              예) 전체 302개, 첫 페이지 첫 줄 → 302 - 0 - 0 = 302, 두 번째 페이지 첫 줄 → 302 - 10 - 0 = 292
+              loop.count(1부터) 를 쓰면 페이지마다 1~10 이 반복된다 (022-01 화면).
+              Post number (book 3-03): total count - (current page × page size) - position within this page (from 0)
+              e.g. 302 in total: first row of page 1 → 302 - 0 - 0 = 302; first row of page 2 → 302 - 10 - 0 = 292
+              Using loop.count (from 1) repeats 1–10 on every page (as in the 022-01 screen).
+            -->
+            <td th:text="${paging.totalElements - (paging.number * paging.size) - loop.index}"></td>
             <td>
                 <a th:href="@{|/question/detail/${question.id}|}" th:text="${question.subject}"></a>
             </td>

@@ -48,6 +48,17 @@ class QuestionControllerTest {
     }
 
     @Test
+    @DisplayName("GET /question/list: 게시물 번호가 전체 개수부터 거꾸로 매겨진다 (2, 1)")
+    void t1_numbering() throws Exception {
+        mvc.perform(get("/question/list"))
+                .andExpect(status().isOk())
+                // 첫 줄(최신 질문)의 번호는 전체 개수 2
+                // The first row (newest question) is numbered with the total count, 2
+                .andExpect(content().string(containsString("<td>2</td>")))
+                .andExpect(content().string(containsString("<td>1</td>")));
+    }
+
+    @Test
     @DisplayName("GET /question/detail/1: 1번 질문의 제목과 내용이 보인다")
     void t2() throws Exception {
         mvc.perform(get("/question/detail/1"))

@@ -575,3 +575,16 @@
 - 실행화면 (`/question/list?page=7`):
 
   ![022-01 실행화면](docs/images/022-01.jpg)
+
+### 023-01 게시물 번호, 전체 개수부터 거꾸로 번호 매기기
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/023-01)
+- 작업: 목록 번호를 `loop.count` 대신 `paging.totalElements - (paging.number * paging.size) - loop.index` 로, 컨트롤러 테스트 추가
+- 이유: 교재 3-03 — 페이지마다 1~10 이 반복되지 않고, 전체에서의 순서가 이어지도록
+- 결과: 테스트 25개 통과, 2페이지 번호 293~284 (전체 303개)
+- 핵심 변경:
+  ```html
+  <td th:text="${paging.totalElements - (paging.number * paging.size) - loop.index}"></td>
+  ```
+- 실행화면 (`?page=1`, 즉 2페이지):
+
+  ![023-01 실행화면](docs/images/023-01.jpg)
