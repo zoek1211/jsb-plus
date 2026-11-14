@@ -1,33 +1,26 @@
 package com.back.answer;
 
+import com.back.global.jpa.entity.BaseEntity;
 import com.back.question.Question;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
 import static jakarta.persistence.FetchType.LAZY;
-import static jakarta.persistence.GenerationType.IDENTITY;
 
-// 답변 엔티티 → answer 테이블. @Id, @GeneratedValue, @Column 의 뜻은 Question.java 와 같다.
-// Answer entity → answer table. @Id, @GeneratedValue and @Column mean the same as in Question.java.
+// 답변 엔티티 → answer 테이블. @Column 의 뜻은 Question.java 와 같다.
+// Answer entity → answer table. @Column means the same as in Question.java.
 @Entity
 // getter/setter 자동 생성 (자세한 설명은 Question.java 참고). 테스트·샘플 데이터에서 답변 값을 넣고 읽기 위해 필요하다.
 // Generates getters/setters (see Question.java for details). Needed to set and read answer values in tests and sample data.
 @Getter
 @Setter
-public class Answer {
-    @Id
-    @GeneratedValue(strategy = IDENTITY)
-    private int id;
-
-    private LocalDateTime createDate;
+// id, createDate, modifyDate 는 BaseEntity 에서 물려받는다 (010-02).
+// id, createDate and modifyDate are inherited from BaseEntity (010-02).
+public class Answer extends BaseEntity {
 
     // @ManyToOne: "여러(Many) 답변이 하나(One)의 질문에 속한다"는 관계.
     // DB에는 Question 객체 전체가 아니라 질문의 id만 저장된다 → answer 테이블에 question_id 컬럼(외래 키)이 생긴다.

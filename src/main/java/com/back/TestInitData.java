@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 
 // 테스트용 샘플 데이터를 만드는 클래스.
 // Creates sample data for tests.
@@ -87,7 +86,6 @@ public class TestInitData {
         // Methods available thanks to @Setter (006-01).
         q1.setSubject("sbb가 무엇인가요?");
         q1.setContent("sbb에 대해서 알고 싶습니다.");
-        q1.setCreateDate(LocalDateTime.now());
         // save → INSERT SQL 실행. 저장 후 DB가 매긴 번호(1)가 q1.id 에 들어간다.
         // save → runs an INSERT. After saving, the number the database assigned (1) is put into q1.id.
         questionRepository.save(q1);
@@ -95,7 +93,6 @@ public class TestInitData {
         Question q2 = new Question();
         q2.setSubject("스프링부트 모델 질문입니다.");
         q2.setContent("id는 자동으로 생성되나요?");
-        q2.setCreateDate(LocalDateTime.now());
         // 2번 질문에 샘플 답변 1개. cascade = PERSIST 덕분에 아래 save(q2) 할 때 답변도 함께 INSERT 된다.
         // One sample answer on question 2. Thanks to cascade = PERSIST, save(q2) below also INSERTs the answer.
         q2.addAnswer("네 자동으로 생성됩니다.");

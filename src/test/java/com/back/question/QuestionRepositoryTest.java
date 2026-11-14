@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 // AssertJ: 테스트 검사(assertion)를 문장처럼 읽히게 써 주는 라이브러리. 테스트 스타터에 이미 포함되어 있다.
@@ -195,7 +194,6 @@ class QuestionRepositoryTest {
         // 어떤 질문의 답변인지 연결한다. DB에는 question_id = 2 로 저장된다 (004-02 의 외래 키).
         // Link the answer to its question. The database stores question_id = 2 (the foreign key from 004-02).
         answer.setQuestion(question);
-        answer.setCreateDate(LocalDateTime.now());
         // → INSERT INTO answer (content, create_date, question_id) VALUES (?, ?, ?)
         answerRepository.save(answer);
 
@@ -247,5 +245,16 @@ class QuestionRepositoryTest {
 
         assertThat(answers).hasSize(1);
         assertThat(answers.get(0).getContent()).isEqualTo("네 자동으로 생성됩니다.");
+    }
+
+    @Test
+    @DisplayName("JPA Auditing: 생성일·수정일이 자동으로 채워진다")
+    void t12() {
+        // TestInitData 는 setCreateDate 를 부르지 않는다. 그래도 BaseEntity 의 @CreatedDate·@LastModifiedDate 덕분에 값이 들어 있어야 한다.
+        // TestInitData never calls setCreateDate. The values must still be there thanks to BaseEntity's @CreatedDate and @LastModifiedDate.
+        Question question = questionRepository.findById(1).orElseThrow();
+
+        assertThat(question.getCreateDate()).isNotNull();
+        assertThat(question.getModifyDate()).isNotNull();
     }
 }

@@ -232,3 +232,25 @@
 - 실행화면:
 
   ![010-01 실행화면](docs/images/010-01.jpg)
+
+### 010-02 공통 엔티티, BaseEntity 와 JPA Auditing
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/010-02)
+- 작업: `com.back.global.jpa.entity.BaseEntity` (id, createDate, modifyDate) 추가, `Question`·`Answer` 가 상속, `@EnableJpaAuditing`, 직접 부르던 `setCreateDate(LocalDateTime.now())` 제거, 테스트 t12
+- 이유: 14168 5~6강 — 모든 엔티티의 공통 필드를 한 곳에서 관리하고 날짜는 자동으로 채움. 교재는 엔티티마다 id·날짜를 반복하고 수정일은 3-09에서야 추가
+- 결과: 테스트 15개 통과, `create table question (id ..., create_date, modify_date, content, subject ...)` 확인
+- 핵심 변경:
+  ```java
+  @MappedSuperclass
+  @EntityListeners(AuditingEntityListener.class)
+  @Getter
+  public abstract class BaseEntity {
+      @Id @GeneratedValue(strategy = IDENTITY) private int id;
+      @CreatedDate private LocalDateTime createDate;
+      @LastModifiedDate private LocalDateTime modifyDate;
+  }
+
+  public class Question extends BaseEntity { ... }
+  ```
+- 실행화면:
+
+  ![010-02 실행화면](docs/images/010-02.jpg)
