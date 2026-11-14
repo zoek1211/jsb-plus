@@ -1108,3 +1108,18 @@
   README.md: 22개 항목에 핵심 변경·실행화면 삽입
   ```
 - 실행화면: 해당 없음 (문서 변경)
+
+### 000-07 결과 영상, HyperFrames 프로젝트 생성과 SPEC
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/000-07)
+- 작업: `video/` 에 HyperFrames 프로젝트 생성, 영상 기획(`STORYLINES.md`·`SPEC.md`), 한글 글꼴 Pretendard 추가, 색·글꼴을 루트 변수로 선언
+- 이유: 교재 1~3장 구현 결과와 "교재에서 무엇이 바뀌었는가"를 약 5분 영상으로 설명하기 위함. 세 가지 줄거리 중 "질문 하나의 여행"(샘플 질문 하나를 따라가며 정거장마다 교재 방식 실패 → 우리 방식 통과)을 선택. 내레이션은 Edge TTS(ko-KR-SunHiNeural). HyperFrames 기본 글꼴에는 한글이 없어 Pretendard 파일을 프로젝트에 넣음
+- 결과: `npx hyperframes check` 통과(오류 0, 임시 화면이라 애니메이션 없음 경고 1). 스냅샷에서 한글 제목이 Pretendard 800 으로 그려짐. 검사·렌더 결과물(`video/.hyperframes/`, `video/renders/`)은 `.gitignore`
+- 핵심 변경:
+  ```html
+  <!-- video/index.html: 한글 글꼴을 프로젝트 파일로 연결 -->
+  @font-face { font-family: "Pretendard"; src: url("assets/fonts/Pretendard-ExtraBold.woff2"); font-weight: 800; }
+  :root { --ground: #f6f8fa; --ink: #1f2328; --book: #cf222e; --ours: #1a7f37; }  /* 빨강 = 교재·실패, 초록 = 우리·통과 */
+  ```
+- 실행화면 (임시 제목 스냅샷):
+
+  ![000-07 실행화면](docs/images/000-07.png)

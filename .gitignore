@@ -46,3 +46,10 @@ out/
 db_dev.mv.db
 db_dev.trace.db
 db_dev.lock.db
+
+### HyperFrames 영상 (video project) ###
+# 검사 리포트·스냅샷·렌더 결과는 다시 만들 수 있으므로 저장소에 넣지 않는다.
+# Check reports, snapshots and renders can be regenerated, so they stay out of git.
+video/.hyperframes/
+video/renders/
+video/node_modules/
