@@ -44,4 +44,16 @@ class AnswerControllerTest {
                 .andExpect(content().string(containsString("1개의 답변이 있습니다.")))
                 .andExpect(content().string(containsString("테스트 답변입니다.")));
     }
+
+    @Test
+    @DisplayName("POST /answer/create/1: 내용이 비어 있으면 저장하지 않고 오류 메시지를 보여준다")
+    void t2() throws Exception {
+        mvc.perform(post("/answer/create/1").param("content", ""))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("내용은 필수항목입니다.")))
+                // 저장되지 않았으므로 답변은 여전히 0개
+                // Nothing was saved, so there are still 0 answers
+                .andExpect(content().string(containsString("0개의 답변이 있습니다.")));
+    }
 }

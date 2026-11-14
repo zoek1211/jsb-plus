@@ -17,12 +17,12 @@
     -->
     <form th:action="@{/question/create}" th:object="${form}" method="post">
         <!--
-          검증 오류 표시. #fields.hasAnyErrors(): 오류가 하나라도 있는가? #fields.allErrors(): 모든 오류 메시지 (14168 23강).
-          Validation errors. #fields.hasAnyErrors(): is there any error? #fields.allErrors(): every error message (14168 lecture 23).
+          검증 오류 표시: 공통 조각 form_errors.html 로 바꿔 끼운다 (019-01, 교재 2-17).
+          th:replace="~{파일이름 :: 조각이름}": 이 div 를 그 조각으로 통째로 교체한다.
+          Validation errors: swapped in from the shared fragment form_errors.html (019-01, book 2-17).
+          th:replace="~{file :: fragment}": replaces this whole div with that fragment.
         -->
-        <div class="alert alert-danger" role="alert" th:if="${#fields.hasAnyErrors()}">
-            <div th:each="err : ${#fields.allErrors()}" th:text="${err}"></div>
-        </div>
+        <div th:replace="~{form_errors :: formErrorsFragment}"></div>
         <div class="mb-3">
             <label for="subject" class="form-label">제목</label>
             <!--

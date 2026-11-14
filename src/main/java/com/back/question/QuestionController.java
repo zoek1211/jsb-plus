@@ -1,5 +1,6 @@
 package com.back.question;
 
+import com.back.answer.AnswerForm;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -55,7 +56,9 @@ public class QuestionController {
     // {id}: a placeholder that captures part of the URL path. @PathVariable puts that value into the int id parameter.
     // Without @PathVariable, Spring doesn't know where id comes from and fails.
     @GetMapping("/detail/{id}")
-    public String detail(Model model, @PathVariable int id) {
+    // @ModelAttribute("answerForm"): 상세 화면 아래 답변 폼(th:object="${answerForm}")에 쓸 빈 폼 객체 (019-01).
+    // @ModelAttribute("answerForm"): an empty form object for the answer form at the bottom of the page (th:object="${answerForm}") (019-01).
+    public String detail(Model model, @PathVariable int id, @ModelAttribute("answerForm") AnswerForm answerForm) {
         Question question = questionService.getQuestion(id);
         model.addAttribute("question", question);
         return "question_detail";

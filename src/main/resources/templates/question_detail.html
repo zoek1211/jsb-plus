@@ -42,9 +42,13 @@
         </div>
     </div>
 
-    <!-- 답변 등록 폼 → POST /answer/create/{질문id} / Answer form → POST /answer/create/{question id} -->
-    <form th:action="@{|/answer/create/${question.id}|}" method="post" class="my-3">
-        <textarea name="content" id="content" rows="10" class="form-control"></textarea>
+    <!--
+      답변 등록 폼 → POST /answer/create/{질문id}. th:object 로 AnswerForm 과 연결하고, 오류는 공통 조각으로 표시 (019-01).
+      Answer form → POST /answer/create/{question id}. Tied to AnswerForm with th:object; errors shown via the shared fragment (019-01).
+    -->
+    <form th:action="@{|/answer/create/${question.id}|}" th:object="${answerForm}" method="post" class="my-3">
+        <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+        <textarea th:field="*{content}" rows="10" class="form-control"></textarea>
         <input type="submit" value="답변등록" class="btn btn-primary my-2">
     </form>
 </div>

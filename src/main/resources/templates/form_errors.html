@@ -1,0 +1,12 @@
+<!--
+  여러 폼에서 같이 쓰는 "검증 오류 표시" 조각(fragment) (교재 2-17, 14168 25강).
+  사용하는 쪽: <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+  반드시 th:object 가 있는 <form> 안에서 써야 한다. #fields 가 그 폼 객체의 오류를 가리키기 때문이다.
+  A shared "validation errors" fragment used by several forms (book 2-17, 14168 lecture 25).
+  Usage: <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+  It must be used inside a <form> that has th:object, because #fields refers to that form object's errors.
+-->
+<div th:fragment="formErrorsFragment" class="alert alert-danger" role="alert"
+     th:if="${#fields.hasAnyErrors()}">
+    <div th:each="err : ${#fields.allErrors()}" th:text="${err}"></div>
+</div>

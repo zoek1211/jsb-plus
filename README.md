@@ -511,3 +511,27 @@
 - 실행화면 (제목 없이 저장):
 
   ![018-02 실행화면](docs/images/018-02.png)
+
+### 019-01 공통 템플릿, 폼 오류 조각(form_errors.html)과 답변 검증
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/019-01)
+- 작업: `templates/form_errors.html` (`th:fragment="formErrorsFragment"`), 질문 폼과 답변 폼이 `th:replace` 로 사용, `AnswerForm` record (`@NotBlank`), `AnswerController` 에 `@Valid` + `BindingResult`, 상세 화면 답변 폼 `th:object="${answerForm}"`, 테스트 t2
+- 이유: 교재 2-17 / 14168 25강 — 반복되는 오류 표시 HTML 을 한 곳에서 관리, 빈 답변 저장 방지
+- 결과: 테스트 22개 통과, 빈 답변 등록 시 "내용은 필수항목입니다." 표시, 답변 0개 유지
+- 핵심 변경:
+  ```html
+  <!-- form_errors.html -->
+  <div th:fragment="formErrorsFragment" class="alert alert-danger" th:if="${#fields.hasAnyErrors()}">
+      <div th:each="err : ${#fields.allErrors()}" th:text="${err}"></div>
+  </div>
+  <!-- 사용 -->
+  <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+  ```
+  ```java
+  public String createAnswer(Model model, @PathVariable int id,
+          @ModelAttribute("answerForm") @Valid AnswerForm answerForm, BindingResult bindingResult) {
+      if (bindingResult.hasErrors()) { model.addAttribute("question", question); return "question_detail"; }
+      ...
+  ```
+- 실행화면 (빈 답변 등록):
+
+  ![019-01 실행화면](docs/images/019-01.jpg)
