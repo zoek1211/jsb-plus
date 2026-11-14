@@ -1236,3 +1236,24 @@
   ![000-13 실행화면](docs/images/000-13.png)
 
   ![000-13 BaseEntity](docs/images/000-13-base.png)
+
+### 000-14 결과 영상, 웹 장(S11–S14) 만들기
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/000-14)
+- 작업: 웹 장(영상 134.3–180.1 s)을 장면 파일 2개로 만들고 `index.html` 에 올림
+  - `web1.html` (S11–S12): 질문 카드가 목록 마지막 페이지의 자기 줄로 들어감 → 카메라 1.7 배 push → "번호"·"답변 개수" 칸 표시 → 번호 공식과 실제 계산 `302 − (30 × 10) − 1 = 1` / `GET /question/detail/999` → 처음 500(`NoSuchElementException`, 013-02 전 실제 화면) → 지금 404(`DataNotFoundException`) → "서버 고장?" vs "없는 질문"
+  - `web2.html` (S13–S14): 제목을 비우고 저장한 실제 화면에 "저장 안 함 + 오류 문구"·"입력한 내용은 그대로" 표시, 교재 `@Getter @Setter` 클래스(취소선) → 우리 `record QuestionForm` / 같은 창이 목록 1페이지로 바뀌며 내비게이션 바 → 테스트 데이터 300개 → 페이지 번호
+- 이유: 화면 기능(목록·번호·404·입력 검증·레이아웃·페이징)을 실제 앱 화면 위에서 짚어 보여주기 위함. 목록 마지막 페이지는 이번에 새로 캡처(`list-last.png`)하고 표·페이지 번호 위치를 agent-browser 로 재서 표시 상자를 맞춤
+- 결과: `npx hyperframes check` 오류 0. 고친 것: 페이지 대부분이 비어 있어 글자가 14px 정도로 작음 → S11 은 카메라 확대, S13–S14 는 캡처 왼쪽 위만 확대해 자름. 번호 공식 줄바꿈, 26px 코드 → 28px, DB 장 끝 정지에 `data-hold`. 내레이션 4개 -16 LUFS
+- 핵심 변경:
+  ```css
+  /* 캡처의 왼쪽 위만 확대해서 보이기: 창은 960x700, 캡처는 1536 폭으로 키우고 넘치는 부분은 자른다 */
+  #w2-shots { width: 960px; height: 700px; overflow: hidden; }
+  #w2-shots img { width: 1536px; height: 960px; }
+  ```
+- 실행화면 (144 s: 번호 공식 / 159 s: 500 vs 404 / 179.8 s: 레이아웃·페이징):
+
+  ![000-14 실행화면](docs/images/000-14.png)
+
+  ![000-14 404](docs/images/000-14-404.png)
+
+  ![000-14 페이징](docs/images/000-14-paging.png)

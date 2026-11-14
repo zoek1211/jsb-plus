@@ -1,0 +1,311 @@
+<!--
+  웹 장 ② 입력 검증과 레이아웃·페이징 (S13–S14, 영상 160.2–180.1 s, 이 장면 기준 0–19.9 s).
+  Web chapter ② validation, layout and paging (S13–S14, film 160.2–180.1 s, local 0–19.9 s).
+
+  S13 0–11.6   왼쪽 창: 제목을 비우고 저장한 실제 화면(create-error.png) — 오류 문구와 남아 있는 내용을 짚는다.
+               오른쪽: 교재의 @Getter @Setter 클래스(취소선) → 우리 record QuestionForm, 오류 문구가 화면과 같은 글자임을 초록으로.
+               Left: the real page after saving with an empty title — marks the error and the kept content.
+               Right: the book's @Getter @Setter class (struck) → our record QuestionForm; the message matches the page.
+  S14 11.6–19.9 같은 창이 목록 1페이지(list.png)로 바뀌고, 말에 맞춰 내비게이션 바 → 테스트 데이터 줄 → 페이지 번호를 짚는다.
+               The same window turns into list page 1; navbar → test-data rows → page numbers are marked as spoken.
+
+  캡처 좌표: 캡처를 1536 폭으로 확대해 왼쪽 위만 보인다(CSS 1px = 1.067px), 캡처 위쪽 = 화면 y 200, 왼쪽 = x 60.
+  Capture coordinates: enlarged to 1536 wide, top-left only (1 CSS px = 1.067 px); capture top = y 200, left = x 60.
+    create-error: 오류 상자 CSS y 122–180, 내용 첫 줄 y 320–344 / list: nav y 0–57, 표 y 127–578, 페이지 번호 x 565–875 y 594–632.
+
+  문장 시각 (이 장면 기준):
+    S13 음성 0.4 s — 0.5–6.89 "제목을 비우면 저장하지 않고, 입력한 내용은 그대로 둔 채 오류를 보여줍니다." / 6.84–10.74 "폼은 자바 레코드로…"
+    S14 음성 12.0 s — 12.1–19.04 "공통 레이아웃과 내비게이션 바, 그리고 삼백 개의 테스트 데이터로 페이징을 만들었습니다."
+-->
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      background: var(--ground);
+      font-family: var(--font-display);
+      color: var(--ink);
+      overflow: hidden;
+    }
+    #w2-win {
+      position: absolute;
+      left: 60px;
+      top: 140px;
+      width: 960px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(31, 35, 40, 0.12);
+      overflow: hidden;
+    }
+    #w2-url {
+      position: relative;
+      height: 60px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+      background: #f6f8fa;
+      font-family: var(--font-code);
+      font-size: 28px;
+      color: #57606a;
+    }
+    #w2-url span {
+      position: absolute;
+      left: 24px;
+      top: 0;
+      line-height: 60px;
+    }
+    /* 캡처의 왼쪽 위 900x656 CSS 영역만 보이게 확대해 자른다 (페이지 대부분이 비어 있어 전체를 보이면 글자가 너무 작다). */
+    /* Show only the top-left 900x656 CSS area, enlarged (most of the page is empty; the whole page makes text too small). */
+    #w2-shots {
+      position: relative;
+      width: 960px;
+      height: 700px;
+      overflow: hidden;
+    }
+    #w2-shots img {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1536px;
+      height: 960px;
+    }
+    .w2-box {
+      position: absolute;
+      border: 4px solid var(--ours);
+      border-radius: 8px;
+    }
+    .w2-red {
+      border-color: var(--book);
+    }
+    .w2-label {
+      position: absolute;
+      font-size: 34px;
+      font-weight: 800;
+    }
+    #w2-errbox {
+      left: 130px;
+      top: 324px;
+      width: 900px;
+      height: 74px;
+    }
+    #w2-keepbox {
+      left: 130px;
+      top: 530px;
+      width: 380px;
+      height: 48px;
+    }
+    #w2-errlabel {
+      left: 60px;
+      top: 70px;
+      color: var(--book);
+    }
+    #w2-keeplabel {
+      left: 520px;
+      top: 70px;
+      color: var(--ours);
+    }
+
+    /* 오른쪽: 폼 코드 / Right: the form code */
+    #w2-book {
+      position: absolute;
+      left: 1040px;
+      top: 140px;
+      width: 784px;
+      padding: 18px 24px;
+      background: var(--book-soft);
+      border-radius: 10px;
+      font-family: var(--font-code);
+      font-size: 28px;
+      white-space: nowrap;
+    }
+    #w2-book b {
+      font-family: var(--font-display);
+      font-size: 28px;
+      color: var(--book);
+      margin-right: 16px;
+    }
+    #w2-book-strike {
+      position: absolute;
+      left: 90px;
+      top: 50%;
+      height: 4px;
+      width: 0;
+      background: var(--book);
+    }
+    #w2-code {
+      position: absolute;
+      left: 1040px;
+      top: 240px;
+      width: 784px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(31, 35, 40, 0.12);
+      overflow: hidden;
+    }
+    #w2-code .bar {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      background: var(--ours-soft);
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--ours);
+    }
+    #w2-code .lines {
+      padding: 16px 0;
+      font-family: var(--font-code);
+      font-size: 28px;
+    }
+    #w2-code .lines div {
+      height: 44px;
+      line-height: 44px;
+      padding: 0 20px;
+      white-space: pre;
+    }
+    .w2-kw {
+      color: #8250df;
+      font-weight: 700;
+    }
+    #w2-msg {
+      background: rgba(218, 251, 225, 0);
+    }
+
+    /* S14 라벨 (창 오른쪽, 짚는 곳과 같은 높이) / S14 labels (right of the window, level with what they mark) */
+    .w2-side {
+      position: absolute;
+      left: 1060px;
+      font-size: 40px;
+      font-weight: 800;
+      color: var(--ours);
+    }
+    .w2-side small {
+      display: block;
+      margin-top: 6px;
+      font-family: var(--font-code);
+      font-size: 28px;
+      font-weight: 500;
+      color: #57606a;
+    }
+    #w2-s-nav {
+      top: 196px;
+    }
+    #w2-s-rows {
+      top: 540px;
+    }
+    #w2-s-page {
+      top: 800px;
+    }
+    #w2-navbox {
+      left: 64px;
+      top: 203px;
+      width: 952px;
+      height: 58px;
+    }
+    #w2-rowsbox {
+      left: 130px;
+      top: 377px;
+      width: 900px;
+      height: 442px;
+    }
+    #w2-pagebox {
+      left: 655px;
+      top: 828px;
+      width: 346px;
+      height: 52px;
+    }
+  </style>
+
+  <div id="root" data-composition-id="web2" data-width="1920" data-height="1080">
+    <!-- 창은 장 내내 같은 자리: 안의 캡처만 바뀐다 ("한 화면이 다시 짜임"). -->
+    <!-- The window stays put all chapter; only the capture inside changes ("one frame that rebuilds"). -->
+    <div id="w2-frame" class="clip" data-start="0" data-duration="19.9" data-layout-allow-overlap>
+      <div id="w2-win">
+        <div id="w2-url"><span id="w2-u1">localhost:8080/question/create</span><span id="w2-u2">localhost:8080/question/list</span></div>
+        <div id="w2-shots">
+          <img id="w2-img1" src="assets/shots/create-error.png" alt="" />
+          <img id="w2-img2" src="assets/shots/list.png" alt="" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ── S13 ── -->
+    <div id="w2-s13" class="clip" data-start="0" data-duration="11.9" data-layout-allow-overlap>
+      <div id="w2-errbox" class="w2-box w2-red"></div>
+      <div id="w2-keepbox" class="w2-box"></div>
+      <div id="w2-errlabel" class="w2-label">저장 안 함 + 오류 문구</div>
+      <div id="w2-keeplabel" class="w2-label">입력한 내용은 그대로</div>
+      <div id="w2-book" data-layout-allow-occlusion><b>교재</b>class QuestionForm + @Getter @Setter<span id="w2-book-strike" data-layout-allow-occlusion></span></div>
+      <div id="w2-code">
+        <div class="bar">우리 — record</div>
+        <div class="lines">
+          <div><span class="w2-kw">public record</span> QuestionForm(</div>
+          <div id="w2-msg">  @NotBlank(message = "제목은 필수항목입니다.")</div>
+          <div>  @Size(max = 200, …)</div>
+          <div>  String subject,</div>
+          <div>  @NotBlank(message = "내용은 필수항목입니다.")</div>
+          <div>  String content</div>
+          <div>) {}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── S14 ── -->
+    <div id="w2-s14" class="clip" data-start="11.6" data-duration="8.3" data-layout-allow-overlap>
+      <div id="w2-navbox" class="w2-box"></div>
+      <div id="w2-rowsbox" class="w2-box"></div>
+      <div id="w2-pagebox" class="w2-box"></div>
+      <div id="w2-s-nav" class="w2-side">공통 레이아웃 + 내비게이션 바<small>layout:decorate="~{layout}"</small></div>
+      <div id="w2-s-rows" class="w2-side">테스트 데이터 300개<small>DevInitData (dev 전용)</small></div>
+      <div id="w2-s-page" class="w2-side">페이징 (10개씩)<small>PageRequest.of(page, 10, …)</small></div>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const blurIn = { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power2.out" };
+    const hidden = { opacity: 0, filter: "blur(8px)" };
+    const boxIn = { opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" };
+    const boxOut = { opacity: 0, scale: 1.15 };
+
+    // 시작 상태: 두 번째 캡처·주소는 숨김. / Start: the second capture and URL hidden.
+    tl.fromTo(["#w2-img2", "#w2-u2"], { opacity: 0 }, { opacity: 0, duration: 0.01 }, 0);
+    tl.fromTo("#w2-win", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.45, ease: "expo.out" }, 0.1);
+
+    // ── S13 문장 1: "제목을 비우면 저장하지 않고" (≈2.4 s) → 오류 상자, "입력한 내용은 그대로" (≈4.4 s) → 내용 상자.
+    // Sentence 1: the error box, then the kept-content box.
+    tl.fromTo("#w2-errbox", boxOut, boxIn, 2.4);
+    tl.fromTo("#w2-errlabel", hidden, blurIn, 2.6);
+    tl.fromTo("#w2-keepbox", boxOut, boxIn, 4.4);
+    tl.fromTo("#w2-keeplabel", hidden, blurIn, 4.6);
+    // 문장 2 "폼은 자바 레코드로": 교재 클래스 → 취소선 → 우리 record 가 줄마다 인쇄, 오류 문구 줄이 초록으로 (화면 글자와 같다).
+    // Sentence 2: the book's class → struck → our record prints line by line; the message line turns green (same text as the page).
+    tl.fromTo("#w2-book", hidden, blurIn, 6.9);
+    tl.to("#w2-book-strike", { width: 640, duration: 0.27, ease: "power2.inOut" }, 7.9);
+    tl.fromTo("#w2-code", hidden, blurIn, 8.2);
+    tl.fromTo(
+      "#w2-code .lines div",
+      { opacity: 0, clipPath: "inset(0 100% 0 0)" },
+      { opacity: 1, clipPath: "inset(0 0% 0 0)", duration: 0.2, ease: "power2.out", stagger: 0.1 },
+      8.3,
+    );
+    tl.to("#w2-msg", { backgroundColor: "rgba(218, 251, 225, 1)", duration: 0.3 }, 9.6);
+
+    // ── S14 (11.6–19.9): S13 표시는 흐려지며 빠지고, 창 안 캡처와 주소만 바뀐다.
+    // S13's marks blur away; only the capture and URL inside the window change.
+    tl.to("#w2-s13 > *", { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power2.in" }, 11.6);
+    tl.to(["#w2-img1", "#w2-u1"], { opacity: 0, duration: 0.2 }, 11.7);
+    tl.to(["#w2-img2", "#w2-u2"], { opacity: 1, duration: 0.25 }, 11.8);
+    // "공통 레이아웃과 내비게이션 바" (≈12.6 s) → "삼백 개의 테스트 데이터" (≈15.4 s) → "페이징" (≈17.6 s)
+    tl.fromTo("#w2-navbox", boxOut, boxIn, 12.6);
+    tl.fromTo("#w2-s-nav", hidden, blurIn, 12.7);
+    tl.fromTo("#w2-rowsbox", boxOut, boxIn, 15.3);
+    tl.fromTo("#w2-s-rows", hidden, blurIn, 15.4);
+    tl.fromTo("#w2-pagebox", boxOut, boxIn, 17.5);
+    tl.fromTo("#w2-s-page", hidden, blurIn, 17.6);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["web2"] = tl;
+  </script>
+</template>

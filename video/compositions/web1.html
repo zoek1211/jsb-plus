@@ -1,0 +1,342 @@
+<!--
+  웹 장 ① 목록과 404 (S11–S12, 영상 134.3–160.2 s, 이 장면 기준 0–25.9 s).
+  Web chapter ① the list and 404 (S11–S12, film 134.3–160.2 s, local 0–25.9 s).
+
+  S11 0–11.4   질문 카드가 다시 나타나 목록 마지막 페이지(list-last.png)의 자기 줄로 들어간다.
+               "번호", "답변 개수" 칸을 초록 테두리로 짚고, 번호 공식과 실제 계산(302 − 30 × 10 − 0 = 2)을 보여준다.
+               The card reappears and drops into its own row on the list's last page. Green boxes mark the number
+               and answer-count columns; then the numbering formula and the real arithmetic.
+  S12 11.4–25.9 GET /question/detail/999 → 처음엔 500 (NoSuchElementException, 013-02 전 실제 화면)
+               → 지금은 404 (DataNotFoundException) → "서버 고장?" vs "없는 질문".
+               GET /question/detail/999 → first a 500 (the real pre-013-02 page) → now a 404 → "broken?" vs "no such question".
+
+  캡처 좌표: list-last.png 는 1440x900 화면을 2배로 찍은 것. 창 안에서는 1280 폭으로 보이므로 CSS 1px = 0.889px.
+  Capture coordinates: list-last.png is a 1440x900 page at 2x, shown 1280 wide, so 1 CSS px = 0.889 px here.
+    1번 질문 줄 CSS y 209–250, 2번 줄 168–209, 번호 칸 x 72–150, 답변 배지 x ≈ 386 (agent-browser 로 측정).
+
+  문장 시각 (이 장면 기준):
+    S11 음성 0.4 s — 0.5–3.35 "이제 질문이 화면에 나옵니다." / 3.3–7.0 "목록, 번호, 답변 개수까지." / 7.0–10.58 "번호는 전체 개수에서 거꾸로 셉니다."
+    S12 음성 11.8 s — 11.9–16.55 "…처음엔 서버 오류 오백이 났습니다." / 16.5–19.9 "이제는 정확히 사백사를 돌려줍니다." / 19.9–25.08 "…서버 고장처럼 보이면 안 되니까요."
+-->
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      background: var(--ground);
+      font-family: var(--font-display);
+      color: var(--ink);
+      overflow: hidden;
+    }
+    .w1-window {
+      position: absolute;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(31, 35, 40, 0.12);
+      overflow: hidden;
+    }
+    .w1-url {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+      background: #f6f8fa;
+      font-family: var(--font-code);
+      font-size: 28px;
+      color: #57606a;
+    }
+    /* 카메라: 목록 창과 짚는 상자들을 함께 감싸, 확대해도 상자가 제자리에 붙어 있게 한다. */
+    /* Camera: wraps the list window and its boxes so the boxes stay attached when zoomed. */
+    #w1-cam {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+      transform-origin: 0 0;
+    }
+    #w1-list {
+      left: 80px;
+      top: 120px;
+      width: 1280px;
+    }
+    #w1-list img {
+      display: block;
+      width: 1280px;
+      height: 800px;
+    }
+    /* 운반체 카드 (훅과 같은 모양) / The carrier card (same look as the hook) */
+    #w1-card {
+      position: absolute;
+      left: 560px;
+      top: 340px;
+      width: 800px;
+      padding: 40px 48px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(31, 35, 40, 0.12);
+    }
+    #w1-card-title {
+      font-size: 56px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    #w1-card-body {
+      margin-top: 18px;
+      font-size: 34px;
+      font-weight: 600;
+      color: #57606a;
+    }
+    /* 짚는 상자와 라벨 / Marking boxes and labels */
+    .w1-box {
+      position: absolute;
+      border: 4px solid var(--ours);
+      border-radius: 8px;
+    }
+    .w1-label {
+      position: absolute;
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--ours);
+    }
+    #w1-row {
+      left: 140px;
+      top: 361px;
+      width: 1160px;
+      height: 44px;
+      border-color: var(--ours);
+      background: rgba(218, 251, 225, 0.35);
+    }
+    #w1-num {
+      left: 140px;
+      top: 324px;
+      width: 76px;
+      height: 82px;
+    }
+    #w1-num-label {
+      left: 140px;
+      top: 470px;
+    }
+    #w1-badge {
+      left: 404px;
+      top: 324px;
+      width: 40px;
+      height: 82px;
+    }
+    #w1-badge-label {
+      left: 404px;
+      top: 470px;
+    }
+    /* 번호 공식 카드 / The numbering formula card */
+    #w1-formula {
+      position: absolute;
+      left: 160px;
+      top: 720px;
+      width: 1600px;
+      padding: 24px 32px;
+      background: #fff;
+      border: 2px solid var(--ours);
+      border-radius: 12px;
+      font-family: var(--font-code);
+      font-size: 28px;
+      line-height: 1.6;
+    }
+    #w1-formula .cm {
+      color: #57606a;
+    }
+    #w1-formula .hit {
+      color: var(--ours);
+      font-weight: 700;
+    }
+
+    /* ── S12 ── */
+    #w1-req {
+      position: absolute;
+      left: 160px;
+      top: 90px;
+      font-family: var(--font-code);
+      font-size: 40px;
+      font-weight: 700;
+    }
+    .w1-err {
+      position: absolute;
+      left: 160px;
+      width: 1120px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(31, 35, 40, 0.12);
+      overflow: hidden;
+    }
+    .w1-err .head {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      font-size: 30px;
+      font-weight: 800;
+    }
+    .w1-err img {
+      display: block;
+      width: 1120px;
+    }
+    #w1-500 {
+      top: 180px;
+      border: 3px solid var(--book);
+    }
+    #w1-500 .head {
+      background: var(--book-soft);
+      color: var(--book);
+    }
+    #w1-500 img {
+      height: 226px;
+    }
+    #w1-404 {
+      top: 540px;
+      border: 3px solid var(--ours);
+    }
+    #w1-404 .head {
+      background: var(--ours-soft);
+      color: var(--ours);
+    }
+    #w1-404 img {
+      height: 238px;
+    }
+    #w1-fix {
+      position: absolute;
+      left: 160px;
+      top: 880px;
+      width: 1120px;
+      padding: 18px 24px;
+      background: var(--ours-soft);
+      border-radius: 10px;
+      font-family: var(--font-code);
+      font-size: 28px;
+      white-space: nowrap;
+    }
+    .w1-verdict {
+      position: absolute;
+      left: 1340px;
+      width: 480px;
+      font-size: 56px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .w1-verdict small {
+      display: block;
+      margin-top: 8px;
+      font-size: 30px;
+      font-weight: 600;
+      color: #57606a;
+    }
+    #w1-v500 {
+      top: 250px;
+      color: var(--book);
+    }
+    #w1-v404 {
+      top: 620px;
+      color: var(--ours);
+    }
+  </style>
+
+  <div id="root" data-composition-id="web1" data-width="1920" data-height="1080">
+    <!-- ── S11 ── -->
+    <div id="w1-s11" class="clip" data-start="0" data-duration="11.7" data-layout-allow-overlap>
+      <div id="w1-cam" data-layout-allow-overflow>
+      <div id="w1-list" class="w1-window">
+        <div class="w1-url">localhost:8080/question/list?page=30</div>
+        <img src="assets/shots/list-last.png" alt="" />
+      </div>
+      <div id="w1-row" class="w1-box"></div>
+      <div id="w1-num" class="w1-box"></div>
+      <div id="w1-num-label" class="w1-label">번호</div>
+      <div id="w1-badge" class="w1-box"></div>
+      <div id="w1-badge-label" class="w1-label">답변 개수</div>
+      </div>
+      <div id="w1-formula">
+        <div>${paging.totalElements - (paging.number * paging.size) - loop.index}</div>
+        <div id="w1-f1" class="cm">마지막 페이지 첫 줄: <span class="hit">302 − (30 × 10) − 0 = 2</span></div>
+        <div id="w1-f2" class="cm">그다음 줄: <span class="hit">302 − (30 × 10) − 1 = 1</span>  ← sbb가 무엇인가요?</div>
+      </div>
+      <div id="w1-card">
+        <div id="w1-card-title">sbb가 무엇인가요?</div>
+        <div id="w1-card-body">sbb에 대해서 알고 싶습니다.</div>
+      </div>
+    </div>
+
+    <!-- ── S12 ── -->
+    <div id="w1-s12" class="clip" data-start="11.4" data-duration="14.5">
+      <div id="w1-req">GET /question/detail/999</div>
+      <div id="w1-500" class="w1-err">
+        <div class="head"><span>500 Internal Server Error</span><span>처음</span></div>
+        <img src="assets/shots/500-before.png" alt="" />
+      </div>
+      <div id="w1-404" class="w1-err">
+        <div class="head"><span>404 Not Found</span><span>지금 (013-02)</span></div>
+        <img src="assets/shots/404-top.png" alt="" />
+      </div>
+      <div id="w1-fix">.orElseThrow(() -&gt; new DataNotFoundException(…));</div>
+      <div id="w1-v500" class="w1-verdict">서버 고장?<small>사용자는 이렇게 본다</small></div>
+      <div id="w1-v404" class="w1-verdict">없는 질문<small>정확한 이유를 알려 준다</small></div>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const blurIn = { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power2.out" };
+    const hidden = { opacity: 0, filter: "blur(8px)" };
+
+    // ── S11 (0–11.4) ──
+    // 0 초: 카드가 보인 채로 시작(썸네일·이음새), 목록 창이 뒤에서 들어온다.
+    // At 0 s the card is already visible; the list window arrives behind it.
+    tl.fromTo("#w1-list", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.45, ease: "expo.out" }, 0.4);
+    // "질문이 화면에 나옵니다" (≈1.2 s): 카드가 1번 질문 줄로 줄어들며 들어간다 (끝에서 사라짐).
+    // The card shrinks into question 1's row and disappears into it.
+    tl.fromTo(
+      "#w1-card",
+      { x: 0, y: 0, scale: 1, opacity: 1, transformOrigin: "0 0" },
+      { x: -420, y: 21, scale: 0.4, opacity: 0, duration: 0.7, ease: "power3.in" },
+      1.2,
+    );
+    tl.fromTo("#w1-row", { opacity: 0 }, { opacity: 1, duration: 0.25 }, 1.8);
+    // "목록, 번호, 답변 개수까지": 번호 칸 → 답변 배지.
+    // "list, number, answer count": the number column, then the answer badge.
+    // 목록 글자가 작아서(페이지가 거의 비어 있다) 카메라가 표 쪽으로 1.7 배 밀고 들어간다.
+    // The list text is small (the page is mostly empty), so the camera pushes 1.7x into the table.
+    tl.fromTo("#w1-cam", { scale: 1, x: 0, y: 0 }, { scale: 1.7, x: -40, y: -190, duration: 1.2, ease: "sine.inOut" }, 2.2);
+    tl.to("#w1-row", { opacity: 0, duration: 0.25 }, 3.4);
+    tl.fromTo("#w1-num", { opacity: 0, scale: 1.2 }, { opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" }, 4.3);
+    tl.fromTo("#w1-num-label", hidden, blurIn, 4.4);
+    tl.fromTo("#w1-badge", { opacity: 0, scale: 1.2 }, { opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" }, 5.4);
+    tl.fromTo("#w1-badge-label", hidden, blurIn, 5.5);
+    // "번호는 전체 개수에서 거꾸로": 공식 → 실제 계산 두 줄.
+    // The formula → two lines of real arithmetic.
+    tl.fromTo("#w1-formula", hidden, blurIn, 7.2);
+    tl.fromTo("#w1-f1", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 8.3);
+    tl.fromTo("#w1-f2", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 9.2);
+
+    // ── S12 (11.4–25.9) ──
+    tl.to("#w1-s11 > *", { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power2.in" }, 11.4);
+    tl.fromTo("#w1-req", hidden, blurIn, 11.7);
+    // "처음엔 서버 오류 오백" (≈14.5 s) / "first a server error 500"
+    tl.fromTo("#w1-500", { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" }, 14.4);
+    // "이제는 정확히 사백사" (≈17.6 s) + 고친 코드 / "now exactly 404" + the fix
+    tl.fromTo("#w1-404", { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" }, 17.6);
+    tl.fromTo(
+      "#w1-fix",
+      { opacity: 0, clipPath: "inset(0 100% 0 0 round 10px)" },
+      { opacity: 1, clipPath: "inset(0 0% 0 0 round 10px)", duration: 0.4, ease: "power3.out" },
+      18.6,
+    );
+    // "…서버 고장처럼 보이면 안 되니까요": 사용자 눈으로 본 두 결과.
+    // The two results as a user sees them.
+    tl.fromTo("#w1-v500", hidden, blurIn, 20.9);
+    tl.fromTo("#w1-v404", hidden, blurIn, 22.6);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["web1"] = tl;
+  </script>
+</template>
