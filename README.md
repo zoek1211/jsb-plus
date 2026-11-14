@@ -313,3 +313,22 @@
 - 실행화면 (`http://localhost:8080/` 접속 결과):
 
   ![011-03 실행화면](docs/images/011-03.png)
+
+### 012-01 서비스, QuestionService 추가
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/012-01)
+- 작업: `QuestionService.getList()` 추가, `QuestionController` 가 리포지터리 대신 서비스를 사용
+- 이유: 교재 2-09 / 14163 34강 — 컨트롤러(웹) · 서비스(처리 규칙) · 리포지터리(DB) 역할 분리
+- 결과: 테스트 15개 통과, 화면 동작은 그대로 (리팩터링)
+- 핵심 변경:
+  ```java
+  @Service
+  @RequiredArgsConstructor
+  public class QuestionService {
+      private final QuestionRepository questionRepository;
+      public List<Question> getList() { return questionRepository.findAll(); }
+  }
+  // QuestionController: questionRepository.findAll() → questionService.getList()
+  ```
+- 실행화면 (테스트 리포트):
+
+  ![012-01 실행화면](docs/images/012-01.png)
