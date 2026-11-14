@@ -4,8 +4,12 @@
 
   navbar-expand-lg: 화면이 넓으면 메뉴를 펼치고, 좁으면(모바일) 햄버거 버튼 안에 접는다.
   navbar-expand-lg: shows the menu on wide screens and folds it into a hamburger button on narrow (mobile) screens.
+
+  xmlns:sec: 스프링 시큐리티 타임리프 문법(sec:authorize 등)을 쓰겠다는 선언 (027-01).
+  xmlns:sec: declares that Spring Security's Thymeleaf syntax (sec:authorize, ...) is used (027-01).
 -->
-<nav th:fragment="navbarFragment" class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+<nav th:fragment="navbarFragment" class="navbar navbar-expand-lg navbar-light bg-light border-bottom"
+     xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <div class="container-fluid">
         <!-- 사이트 이름. 누르면 첫 화면(/ → 질문 목록)으로 / The site name. Clicking goes to the front page (/ → question list) -->
         <a class="navbar-brand" th:href="@{/}">SBB</a>
@@ -25,8 +29,26 @@
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/question/list}">질문 목록</a>
                 </li>
-                <li class="nav-item">
+                <!-- sec:authorize="isAnonymous()": 로그인하지 않았을 때만 보인다 / Shown only when not logged in -->
+                <li class="nav-item" sec:authorize="isAnonymous()">
+                    <a class="nav-link" th:href="@{/user/login}">로그인</a>
+                </li>
+                <li class="nav-item" sec:authorize="isAnonymous()">
                     <a class="nav-link" th:href="@{/user/signup}">회원가입</a>
+                </li>
+                <!-- sec:authorize="isAuthenticated()": 로그인했을 때만 보인다 / Shown only when logged in -->
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <!--
+                      로그아웃은 POST 폼 (CSRF 토큰 포함). 링크처럼 보이도록 btn-link 클래스.
+                      sec:authentication="name": 로그인한 사용자 아이디를 출력
+                      Logout is a POST form (with the CSRF token), styled like a link with btn-link.
+                      sec:authentication="name": prints the logged-in username
+                    -->
+                    <form th:action="@{/user/logout}" method="post" class="d-inline">
+                        <button type="submit" class="nav-link btn btn-link">
+                            로그아웃 (<span sec:authentication="name"></span>)
+                        </button>
+                    </form>
                 </li>
             </ul>
         </div>

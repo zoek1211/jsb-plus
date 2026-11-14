@@ -648,3 +648,32 @@
   ![026-01 불일치](docs/images/026-01-error.png)
 
   ![026-01 실행화면](docs/images/026-01.png)
+
+### 027-01 로그인·로그아웃, 폼 로그인과 UserSecurityService
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/027-01)
+- 작업: `UserRole` enum, `UserSecurityService implements UserDetailsService`, `SecurityConfig` 에 `formLogin(loginPage "/user/login")`·`logout(POST /user/logout)`, `login_form.html` (`param.error` 경고), 내비게이션 바 `sec:authorize` 로 로그인/로그아웃 전환, 샘플 회원 user1·user2 (`TestInitData`), 로그인 성공·실패 테스트
+- 이유: 교재 3-07 — 로그인한 사용자만 쓸 수 있는 기능(글쓴이, 수정·삭제, 추천)의 기반. 로그아웃은 교재의 GET 링크 대신 CSRF 토큰이 있는 POST 폼
+- 결과: 테스트 31개 통과 (`authenticated().withUsername("user1")`, 틀린 비밀번호 → `/user/login?error`). 브라우저에서 틀린 비밀번호 경고 → 로그인 후 "로그아웃 (sbbuser)" → 로그아웃 후 메뉴 원래대로
+- 핵심 변경:
+  ```java
+  public UserDetails loadUserByUsername(String username) {
+      SiteUser siteUser = userRepository.findByUsername(username)
+              .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+      UserRole role = "admin".equals(username) ? UserRole.ADMIN : UserRole.USER;
+      return new User(siteUser.getUsername(), siteUser.getPassword(), List.of(new SimpleGrantedAuthority(role.getValue())));
+  }
+
+  .formLogin(login -> login.loginPage("/user/login").defaultSuccessUrl("/"))
+  .logout(logout -> logout.logoutUrl("/user/logout").logoutSuccessUrl("/").invalidateHttpSession(true));
+  ```
+  ```html
+  <li sec:authorize="isAnonymous()"><a th:href="@{/user/login}">로그인</a></li>
+  <li sec:authorize="isAuthenticated()">
+      <form th:action="@{/user/logout}" method="post"><button>로그아웃 (<span sec:authentication="name"></span>)</button></form>
+  </li>
+  ```
+- 실행화면 (틀린 비밀번호 / 로그인 후):
+
+  ![027-01 실패](docs/images/027-01-error.png)
+
+  ![027-01 실행화면](docs/images/027-01.png)

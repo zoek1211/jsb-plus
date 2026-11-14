@@ -11,7 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -73,5 +76,27 @@ class UserControllerTest {
                         .param("password2", "1234").param("email", "dup2@test.com"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("이미 등록된 사용자입니다.")));
+    }
+
+    @Test
+    @DisplayName("POST /user/login: 샘플 회원 user1/1234 로 로그인하면 / 로 이동하고 인증된다")
+    void t4() throws Exception {
+        // formLogin(): 시큐리티의 로그인 폼 제출(POST /login 계열)을 흉내 낸다. loginProcessingUrl 을 우리 주소로 지정.
+        // formLogin(): simulates submitting Security's login form. We point loginProcessingUrl at our URL.
+        mvc.perform(formLogin("/user/login").user("user1").password("1234"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"))
+                // authenticated().withUsername(...): 로그인 상태이고 아이디가 이것인가?
+                // authenticated().withUsername(...): logged in, with this username?
+                .andExpect(authenticated().withUsername("user1"));
+    }
+
+    @Test
+    @DisplayName("POST /user/login: 비밀번호가 틀리면 /user/login?error 로 이동하고 인증되지 않는다")
+    void t5() throws Exception {
+        mvc.perform(formLogin("/user/login").user("user1").password("wrong"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/user/login?error"))
+                .andExpect(unauthenticated());
     }
 }

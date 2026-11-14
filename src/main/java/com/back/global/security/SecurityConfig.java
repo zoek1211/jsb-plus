@@ -43,6 +43,23 @@ public class SecurityConfig {
                 .headers(headers -> headers
                         .addHeaderWriter(new XFrameOptionsHeaderWriter(
                                 XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
+                )
+                // 폼 로그인 (교재 3-07): 로그인 화면 주소와 로그인 성공 후 이동할 주소.
+                // POST /user/login 은 우리가 만들지 않는다. 시큐리티가 username·password 를 받아 UserSecurityService 로 확인한다.
+                // Form login (book 3-07): the login page URL and where to go after a successful login.
+                // We don't write POST /user/login ourselves; Security receives username/password and checks them via UserSecurityService.
+                .formLogin(login -> login
+                        .loginPage("/user/login")
+                        .defaultSuccessUrl("/")
+                )
+                // 로그아웃: POST /user/logout 요청이 오면 세션을 지우고 / 로 이동.
+                // 교재는 GET 링크로 로그아웃하지만, 시큐리티 기본값처럼 POST + CSRF 토큰으로만 받아 다른 사이트가 몰래 로그아웃시키지 못하게 한다.
+                // Logout: on POST /user/logout, clear the session and go to /.
+                // The book logs out with a GET link; following Security's default, we accept only POST with a CSRF token so other sites can't log users out secretly.
+                .logout(logout -> logout
+                        .logoutUrl("/user/logout")
+                        .logoutSuccessUrl("/")
+                        .invalidateHttpSession(true)
                 );
         return http.build();
     }

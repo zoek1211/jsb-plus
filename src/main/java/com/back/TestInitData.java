@@ -2,6 +2,8 @@ package com.back;
 
 import com.back.question.Question;
 import com.back.question.QuestionRepository;
+import com.back.user.UserRepository;
+import com.back.user.UserService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +56,11 @@ public class TestInitData {
     // The repository used to save questions. final + @RequiredArgsConstructor → constructor injection.
     private final QuestionRepository questionRepository;
 
+    // 샘플 회원을 만들 때 쓴다 (비밀번호 암호화 포함, 027-01).
+    // Used to create sample members (including password encryption, 027-01).
+    private final UserService userService;
+    private final UserRepository userRepository;
+
     // @Bean: 이 메서드가 반환하는 객체를 스프링 빈으로 등록한다.
     // ApplicationRunner: 앱(스프링)이 완전히 시작된 직후 한 번 실행되는 코드. 샘플 데이터를 넣기 딱 좋은 시점이다.
     // @Bean: registers the object this method returns as a Spring bean.
@@ -79,6 +86,15 @@ public class TestInitData {
     // → prevents a half-done state where only one question got saved.
     @Transactional
     void work1() {
+        // 샘플 회원 2명 (027-01). 회원이 하나도 없을 때만 만든다. 비밀번호는 둘 다 1234 (개발·테스트 전용 값).
+        // 질문 검사보다 먼저 두어, 이미 질문이 있는 개발 DB에도 회원이 생기게 한다.
+        // 2 sample members (027-01), created only when there are no members yet. Both passwords are 1234 (dev/test-only values).
+        // Placed before the question check so members also get created in a dev database that already has questions.
+        if (userRepository.count() == 0) {
+            userService.create("user1", "user1@test.com", "1234");
+            userService.create("user2", "user2@test.com", "1234");
+        }
+
         // 이미 데이터가 있으면 다시 넣지 않는다. 같은 테스트 실행에서 스프링이 여러 번 뜨더라도 데이터가 중복되지 않게 한다.
         // Skip if data already exists, so the questions aren't duplicated even if Spring starts more than once in a test run.
         if (questionRepository.count() > 0) return;

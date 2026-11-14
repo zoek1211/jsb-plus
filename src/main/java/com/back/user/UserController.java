@@ -53,4 +53,11 @@ public class UserController {
 
         return "redirect:/";
     }
+
+    // GET /user/login → 로그인 화면. 로그인 처리(POST)는 시큐리티가 한다 (SecurityConfig.formLogin).
+    // GET /user/login → the login page. Security handles the login itself (POST) (SecurityConfig.formLogin).
+    @GetMapping("/login")
+    public String login() {
+        return "login_form";
+    }
 }
