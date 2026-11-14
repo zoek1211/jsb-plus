@@ -1,0 +1,301 @@
+<!--
+  DB 장 ① mappedBy (S06–S07, 영상 69.7–92.1 s, 이 장면 기준 0–22.4 s).
+  DB chapter ① mappedBy (S06–S07, film 69.7–92.1 s, local 0–22.4 s).
+
+  S06 0–10.4   질문 카드가 question 테이블로 "저장"되며 사라지고, answer 테이블 옆에 교재 코드 한 줄
+               (@OneToMany(mappedBy = "question", …)). "빼면?" → mappedBy 에 취소선 → 빨간 중간 테이블
+               question_answers (question_id, answers_id) 가 두 테이블 사이에 생긴다 (005-01 에서 실제로 생긴 테이블).
+               The card is "saved" into the question table; the book's line sits below. "Remove it?" → mappedBy is
+               struck → a red join table question_answers appears between them (the real table from 005-01).
+  S07 10.4–22.4 우리 줄(초록)로 mappedBy 를 되돌리면 중간 테이블이 사라지고 answer.question_id → question.id 외래 키 선.
+               위에 실제 커밋 005-01(실험) → 005-02(고침).
+               Restoring mappedBy (green) removes the join table; a foreign-key line answer.question_id → question.id.
+               Above, the real commits 005-01 (the experiment) → 005-02 (the fix).
+
+  문장 시각 (assets/vo/S06.srt, S07.srt, 이 장면 기준):
+    S06 음성 0.4 s — 0.5–4.09 "교재는 처음부터 매핑드 바이를 씁니다." / 4.04–6.36 "빼면 어떻게 될까요?" / 6.36–9.51 "쓸모없는 중간 테이블이 생깁니다."
+    S07 음성 10.8 s — 10.9–15.86 "…외래 키를 그대로 씁니다." / 15.81–21.56 "직접 실수해 보고 고치니…"
+-->
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      background: var(--ground);
+      font-family: var(--font-display);
+      color: var(--ink);
+      overflow: hidden;
+    }
+    /* 앞 장 마지막의 작은 질문 카드 (같은 자리·크기) / The small card from the last chapter (same place and size) */
+    #db1-card {
+      position: absolute;
+      left: 120px;
+      top: 140px;
+      width: 520px;
+      padding: 26px 31px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 8px 21px rgba(31, 35, 40, 0.12);
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    /* 테이블 상자 (ER 그림 모양): 이름 줄 + 컬럼 줄들. / A table box (ER style): name row + column rows. */
+    .db1-table {
+      position: absolute;
+      width: 560px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(31, 35, 40, 0.12);
+      overflow: hidden;
+      font-family: var(--font-code);
+      font-size: 28px;
+    }
+    .db1-table .name {
+      padding: 12px 24px;
+      font-weight: 700;
+      background: #f6f8fa;
+      border-bottom: 1px solid var(--line);
+    }
+    .db1-table .col {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 24px;
+      height: 52px;
+      align-items: center;
+    }
+    .db1-table .col span:last-child {
+      color: #57606a;
+    }
+    #db1-q {
+      left: 200px;
+      top: 300px;
+    }
+    #db1-a {
+      left: 1160px;
+      top: 300px;
+    }
+    /* 중간 테이블: 빨강 = 필요 없는데 생긴 것. / Join table: red = created though unneeded. */
+    #db1-qa {
+      left: 780px;
+      top: 640px;
+      width: 360px;
+      border: 3px solid var(--book);
+    }
+    #db1-qa .name {
+      color: var(--book);
+      background: var(--book-soft);
+    }
+    #db1-qa-label {
+      position: absolute;
+      left: 780px;
+      top: 820px;
+      width: 360px;
+      text-align: center;
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--book);
+    }
+    /* 외래 키로 쓰이는 컬럼 강조 (초록) / The column used as the foreign key (green) */
+    #db1-fk {
+      background: var(--ours-soft);
+    }
+    /* 선: SVG 하나에 모두 그린다. stroke-dashoffset 으로 "그려지는" 효과. */
+    /* Lines: all in one SVG; stroke-dashoffset makes them "draw". */
+    #db1-lines {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+    }
+    /* 코드 한 줄 (교재/우리) / One code line (book / ours) */
+    .db1-code {
+      position: absolute;
+      left: 200px;
+      top: 880px;
+      width: 1520px;
+      height: 76px;
+      display: flex;
+      align-items: center;
+      border-radius: 10px;
+      font-family: var(--font-code);
+      font-size: 30px;
+      white-space: pre;
+    }
+    .db1-code b {
+      width: 120px;
+      flex: none;
+      text-align: center;
+      font-family: var(--font-display);
+      font-size: 28px;
+    }
+    #db1-book {
+      background: var(--book-soft);
+    }
+    #db1-book b {
+      color: var(--book);
+    }
+    #db1-ours {
+      background: var(--ours-soft);
+    }
+    #db1-ours b {
+      color: var(--ours);
+    }
+    .db1-mb {
+      position: relative;
+    }
+    #db1-mb-strike {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      height: 4px;
+      width: 0;
+      background: var(--book);
+    }
+    #db1-ours .db1-mb {
+      color: var(--ours);
+      font-weight: 700;
+    }
+    /* 외래 키 선 옆 라벨 / The label beside the foreign-key line */
+    #db1-fk-label {
+      position: absolute;
+      left: 976px;
+      top: 440px;
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--ours);
+    }
+    /* 실제 커밋 두 줄 / The two real commits */
+    .db1-commit {
+      position: absolute;
+      left: 200px;
+      display: flex;
+      gap: 20px;
+      align-items: baseline;
+      font-size: 32px;
+      font-weight: 600;
+    }
+    .db1-commit code {
+      font-family: var(--font-code);
+      font-weight: 700;
+    }
+    #db1-c1 {
+      top: 140px;
+    }
+    #db1-c1 code {
+      color: var(--book);
+    }
+    #db1-c2 {
+      top: 200px;
+    }
+    #db1-c2 code {
+      color: var(--ours);
+    }
+  </style>
+
+  <div id="root" data-composition-id="db1" data-width="1920" data-height="1080">
+    <!-- 질문 카드 (곧 question 테이블로 들어간다) / The card (drops into the question table) -->
+    <div id="db1-cardclip" class="clip" data-start="0" data-duration="1.2">
+      <div id="db1-card">sbb가 무엇인가요?</div>
+    </div>
+
+    <div id="db1-stage" class="clip" data-start="0" data-duration="22.4" data-layout-allow-overlap>
+      <div id="db1-q" class="db1-table">
+        <div class="name">question</div>
+        <div class="col" id="db1-qid"><span>id</span><span>INT PK</span></div>
+        <div class="col"><span>subject</span><span>VARCHAR(200)</span></div>
+        <div class="col"><span>content</span><span>TEXT</span></div>
+        <div class="col"><span>create_date</span><span>TIMESTAMP</span></div>
+      </div>
+      <div id="db1-a" class="db1-table">
+        <div class="name">answer</div>
+        <div class="col"><span>id</span><span>INT PK</span></div>
+        <div class="col"><span>content</span><span>TEXT</span></div>
+        <div class="col"><span>create_date</span><span>TIMESTAMP</span></div>
+        <div class="col" id="db1-fk"><span>question_id</span><span>INT FK</span></div>
+      </div>
+
+      <!-- 선: 중간 테이블로 가는 선 2개(빨강), 외래 키 선 1개(초록) -->
+      <!-- Lines: 2 to the join table (red), 1 foreign key (green) -->
+      <svg id="db1-lines" viewBox="0 0 1920 1080">
+        <path id="db1-l1" d="M 760 430 H 820 V 640" fill="none" stroke="#cf222e" stroke-width="4" stroke-dasharray="400" stroke-dashoffset="400" />
+        <path id="db1-l2" d="M 1160 430 H 1100 V 640" fill="none" stroke="#cf222e" stroke-width="4" stroke-dasharray="400" stroke-dashoffset="400" />
+        <path id="db1-l3" d="M 1160 544 H 960 V 388 H 760" fill="none" stroke="#1a7f37" stroke-width="5" stroke-dasharray="600" stroke-dashoffset="600" />
+      </svg>
+
+      <div id="db1-fk-label">외래 키</div>
+      <div id="db1-qa" class="db1-table">
+        <div class="name">question_answers</div>
+        <div class="col"><span>question_id</span><span>INT</span></div>
+        <div class="col"><span>answers_id</span><span>INT</span></div>
+      </div>
+      <div id="db1-qa-label">필요 없는 중간 테이블</div>
+
+      <div id="db1-book" class="db1-code" data-layout-allow-occlusion>
+        <b>교재</b><span>@OneToMany(<span class="db1-mb" data-layout-allow-occlusion>mappedBy = "question"<span id="db1-mb-strike"></span></span>, cascade = CascadeType.REMOVE)</span>
+      </div>
+      <div id="db1-ours" class="db1-code">
+        <b>우리</b><span>@OneToMany(<span class="db1-mb">mappedBy = "question"</span>, cascade = CascadeType.REMOVE)</span>
+      </div>
+
+      <div id="db1-c1" class="db1-commit"><code>005-01</code><span>@OneToMany 추가 (mappedBy 없이 실험)</span></div>
+      <div id="db1-c2" class="db1-commit"><code>005-02</code><span>@OneToMany에 mappedBy 추가</span></div>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const blurIn = { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power2.out" };
+    const hidden = { opacity: 0, filter: "blur(8px)" };
+
+    // ── S06 (0–10.4) ──
+    // 카드가 question 테이블 이름 줄로 내려앉으며 녹아든다 = "저장". 테이블은 그 사이 흐림 → 선명.
+    // The card settles into the question table's name row and dissolves = "saved". Tables sharpen meanwhile.
+    tl.fromTo("#db1-q", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.4, ease: "expo.out" }, 0.2);
+    tl.fromTo(
+      "#db1-card",
+      { x: 0, y: 0, scale: 1, opacity: 1 },
+      { x: 80, y: 160, scale: 0.6, opacity: 0, duration: 0.7, ease: "power3.in" },
+      0.3,
+    );
+    tl.fromTo("#db1-a", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.4, ease: "expo.out" }, 0.9);
+    // "교재는 처음부터 매핑드 바이를" — 교재 줄. / The book's line.
+    tl.fromTo("#db1-book", hidden, blurIn, 1.3);
+    // "빼면 어떻게 될까요?" — mappedBy 에 취소선, 흐려짐. / "Remove it?" — mappedBy struck and dimmed.
+    tl.to("#db1-mb-strike", { width: "100%", duration: 0.27, ease: "power2.inOut" }, 4.5);
+    tl.to("#db1-book .db1-mb", { opacity: 0.35, duration: 0.25 }, 4.8);
+    // "쓸모없는 중간 테이블이 생깁니다" — 빨간 선 2개가 그려지고 중간 테이블이 나타난다.
+    // "A useless join table appears" — two red lines draw and the join table appears.
+    tl.fromTo(["#db1-l1", "#db1-l2"], { strokeDashoffset: 400 }, { strokeDashoffset: 0, duration: 0.5, ease: "power2.inOut" }, 6.5);
+    tl.fromTo("#db1-qa", { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" }, 6.9);
+    tl.fromTo("#db1-qa-label", hidden, blurIn, 8.0);
+
+    // ── S07 (10.4–22.4) ──
+    // 교재 줄 → 우리 줄 (흐림 교체). / Book line → our line (blur swap).
+    tl.to("#db1-book", { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power2.in" }, 10.9);
+    tl.fromTo(
+      "#db1-ours",
+      { opacity: 0, clipPath: "inset(0 100% 0 0 round 10px)" },
+      { opacity: 1, clipPath: "inset(0 0% 0 0 round 10px)", duration: 0.4, ease: "power3.out" },
+      11.1,
+    );
+    // 중간 테이블과 빨간 선이 사라지고, answer.question_id 가 초록으로, 외래 키 선이 그려진다 ("외래 키를 그대로").
+    // The join table and red lines go; answer.question_id turns green and the foreign-key line draws.
+    tl.to(["#db1-qa", "#db1-qa-label", "#db1-l1", "#db1-l2"], { opacity: 0, filter: "blur(8px)", duration: 0.25, ease: "power2.in" }, 12.4);
+    tl.fromTo("#db1-fk", { backgroundColor: "rgba(218, 251, 225, 0)" }, { backgroundColor: "rgba(218, 251, 225, 1)", duration: 0.3 }, 13.4);
+    tl.fromTo("#db1-l3", { strokeDashoffset: 600 }, { strokeDashoffset: 0, duration: 0.6, ease: "power2.inOut" }, 13.7);
+    tl.fromTo("#db1-qid", { backgroundColor: "rgba(218, 251, 225, 0)" }, { backgroundColor: "rgba(218, 251, 225, 1)", duration: 0.3 }, 14.2);
+    // "직접 실수해 보고 고치니" — 실제 커밋: 실험(005-01) → 고침(005-02).
+    // "I made the mistake and fixed it" — the real commits: experiment (005-01) → fix (005-02).
+    tl.fromTo("#db1-c1", hidden, blurIn, 16.1);
+    tl.fromTo("#db1-c2", hidden, blurIn, 17.5);
+    // "왜 필요한지 분명해졌습니다" (≈19.8 s): 외래 키 선에 이름표. / The foreign-key line gets its label.
+    tl.fromTo("#db1-fk-label", hidden, blurIn, 19.8);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["db1"] = tl;
+  </script>
+</template>

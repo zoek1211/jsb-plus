@@ -1,0 +1,233 @@
+<!--
+  DB 장 ② 가짜 초록불 (S08, 영상 92.1–108.9 s, 이 장면 기준 0–16.8 s).
+  DB chapter ② the false green (S08, film 92.1–108.9 s, local 0–16.8 s).
+
+  왼쪽: 교재 방식 테스트 t2 (if (oq.isPresent()) …). 오른쪽: 비어 있는 question 테이블과 테스트 결과.
+  데이터가 없는데 ✔ 통과 → if 블록이 통째로 건너뛰어짐 → 우리 방식 orElseThrow() → 데이터가 없으면 ✘ 실패
+  → 처음의 ✔ 에 "가짜 초록불" 표시. (007-01 에서 findById(99) 로 실제로 확인한 결과)
+  Left: the book-style test t2 (if (oq.isPresent()) …). Right: an empty question table and the results.
+  No data, yet ✔ passes → the whole if block is skipped → our orElseThrow() → with no data it ✘ fails
+  → the first ✔ is labelled "false green". (Verified for real in 007-01 with findById(99).)
+
+  문장 시각 (assets/vo/S08.srt, 이 장면 기준, 음성 0.4 s 시작):
+    0.5–4.6 "교재의 테스트는 데이터가 없어도 통과했습니다." / 4.56–8.43 "값이 없으면 검사를 건너뛰기 때문입니다."
+    8.43–11.84 "그래서 없으면 실패하도록 바꿨습니다." / 11.84–15.94 "테스트가 초록이라고 해서 항상 맞는 건 아니었습니다."
+-->
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      background: var(--ground);
+      font-family: var(--font-display);
+      color: var(--ink);
+      overflow: hidden;
+    }
+    .db2-win {
+      position: absolute;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(31, 35, 40, 0.12);
+      overflow: hidden;
+    }
+    .db2-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 56px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+      font-family: var(--font-code);
+      font-size: 28px;
+      color: #57606a;
+    }
+    .db2-bar b {
+      font-family: var(--font-display);
+      font-weight: 800;
+    }
+    .db2-code {
+      padding: 18px 0;
+      font-family: var(--font-code);
+      font-size: 28px;
+    }
+    .db2-code div {
+      position: relative;
+      height: 46px;
+      line-height: 46px;
+      padding: 0 28px;
+      white-space: pre;
+    }
+    /* 교재 테스트 창 / The book-style test window */
+    #db2-book {
+      left: 120px;
+      top: 150px;
+      width: 1000px;
+    }
+    #db2-book .db2-bar {
+      background: var(--book-soft);
+    }
+    #db2-book .db2-bar b {
+      color: var(--book);
+    }
+    /* 건너뛴 if 블록: 왼쪽 빨간 괄호 + "건너뜀" / The skipped if block: red bracket + "skipped" */
+    #db2-skip {
+      position: absolute;
+      left: 96px;
+      top: 316px;
+      width: 14px;
+      height: 92px;
+      border: 4px solid var(--book);
+      border-right: none;
+      border-radius: 8px 0 0 8px;
+    }
+    #db2-skip-label {
+      position: absolute;
+      left: 120px;
+      top: 490px;
+      font-size: 34px;
+      font-weight: 800;
+      color: var(--book);
+    }
+    /* 우리 테스트 창 / Our test window */
+    #db2-ours {
+      left: 120px;
+      top: 640px;
+      width: 1000px;
+    }
+    #db2-ours .db2-bar {
+      background: var(--ours-soft);
+    }
+    #db2-ours .db2-bar b {
+      color: var(--ours);
+    }
+    #db2-key {
+      color: var(--ours);
+      font-weight: 700;
+    }
+    /* 오른쪽: 빈 테이블 / Right: the empty table */
+    #db2-table {
+      left: 1240px;
+      top: 150px;
+      width: 560px;
+    }
+    #db2-table .db2-bar {
+      background: #f6f8fa;
+      color: var(--ink);
+      font-weight: 700;
+    }
+    #db2-empty {
+      padding: 28px 24px;
+      font-size: 30px;
+      font-weight: 600;
+      color: #57606a;
+    }
+    /* 테스트 결과 줄 / Test result rows */
+    .db2-res {
+      position: absolute;
+      left: 1240px;
+      width: 560px;
+      padding: 18px 24px;
+      border-radius: 12px;
+      font-size: 34px;
+      font-weight: 800;
+    }
+    .db2-res small {
+      display: block;
+      margin-top: 6px;
+      font-family: var(--font-code);
+      font-size: 28px;
+      font-weight: 500;
+    }
+    #db2-pass {
+      top: 360px;
+      background: var(--ours-soft);
+      color: var(--ours);
+    }
+    #db2-fake {
+      position: absolute;
+      left: 1240px;
+      top: 486px;
+      font-size: 38px;
+      font-weight: 800;
+      color: var(--book);
+    }
+    #db2-fail {
+      top: 700px;
+      background: var(--book-soft);
+      color: var(--book);
+    }
+  </style>
+
+  <div id="root" data-composition-id="db2" data-width="1920" data-height="1080">
+    <div id="db2-stage" class="clip" data-start="0" data-duration="16.8">
+      <div id="db2-book" class="db2-win">
+        <div class="db2-bar"><b>교재</b>QuestionRepositoryTest.t2()</div>
+        <div class="db2-code">
+          <div>Optional&lt;Question&gt; oq = questionRepository.findById(1);</div>
+          <div id="db2-if">if (oq.isPresent()) {</div>
+          <div class="db2-in">    Question q = oq.get();</div>
+          <div class="db2-in">    assertEquals("sbb가 무엇인가요?", q.getSubject());</div>
+          <div id="db2-close">}</div>
+        </div>
+      </div>
+      <div id="db2-skip"></div>
+      <div id="db2-skip-label">↑ if 블록 안쪽 2줄을 건너뜀</div>
+
+      <div id="db2-table" class="db2-win">
+        <div class="db2-bar">question</div>
+        <div id="db2-empty">데이터 0개 (비어 있음)</div>
+      </div>
+      <div id="db2-pass" class="db2-res">✔ t2() 통과<small>assert 0개 실행</small></div>
+      <!-- data-hold: 마지막 3초 정지는 의도된 것 (말이 끝날 때까지 읽는 시간). / A deliberate final hold. -->
+      <div id="db2-fake" data-hold>↑ 가짜 초록불</div>
+
+      <div id="db2-ours" class="db2-win">
+        <div class="db2-bar"><b>우리</b>QuestionRepositoryTest.t2()</div>
+        <div class="db2-code">
+          <div>Question q = questionRepository.findById(1)<span id="db2-key">.orElseThrow()</span>;</div>
+          <div>assertEquals("sbb가 무엇인가요?", q.getSubject());</div>
+        </div>
+      </div>
+      <div id="db2-fail" class="db2-res">✘ t2() 실패<small>NoSuchElementException</small></div>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const blurIn = { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power2.out" };
+    const hidden = { opacity: 0, filter: "blur(8px)" };
+
+    // 문장 1 "교재의 테스트는 데이터가 없어도 통과했습니다": 테스트 코드 → 빈 테이블 → ✔ 통과.
+    // Sentence 1: the test code → the empty table → ✔ passes.
+    tl.fromTo("#db2-book", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.4, ease: "expo.out" }, 0.2);
+    tl.fromTo("#db2-table", hidden, blurIn, 1.9);
+    tl.fromTo("#db2-pass", { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 0.3, ease: "expo.out" }, 3.4);
+
+    // 문장 2 "값이 없으면 검사를 건너뛰기": if 줄이 빨강으로, 안쪽 두 줄은 흐려지고 빨간 괄호와 "건너뜀".
+    // Sentence 2: the if line turns red, the two inner lines dim, a red bracket and "skipped".
+    tl.fromTo("#db2-if", { backgroundColor: "rgba(255, 235, 233, 0)" }, { backgroundColor: "rgba(255, 235, 233, 1)", duration: 0.3 }, 5.0);
+    tl.to(".db2-in", { opacity: 0.3, duration: 0.3 }, 5.9);
+    tl.fromTo("#db2-skip", { opacity: 0, clipPath: "inset(0 0 100% 0)" }, { opacity: 1, clipPath: "inset(0 0 0% 0)", duration: 0.35, ease: "power2.inOut" }, 6.0);
+    tl.fromTo("#db2-skip-label", hidden, blurIn, 6.4);
+
+    // 문장 3 "그래서 없으면 실패하도록": 우리 테스트가 인쇄되고, 같은 빈 테이블에서 ✘ 실패.
+    // Sentence 3: our test prints and, on the same empty table, ✘ fails.
+    tl.fromTo(
+      "#db2-ours",
+      { opacity: 0, clipPath: "inset(0 100% 0 0 round 12px)" },
+      { opacity: 1, clipPath: "inset(0 0% 0 0 round 12px)", duration: 0.45, ease: "power3.out" },
+      8.8,
+    );
+    tl.fromTo("#db2-key", { backgroundColor: "rgba(218, 251, 225, 0)" }, { backgroundColor: "rgba(218, 251, 225, 1)", duration: 0.3 }, 9.6);
+    tl.fromTo("#db2-fail", { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 0.3, ease: "expo.out" }, 10.4);
+
+    // 문장 4 "초록이라고 해서 항상 맞는 건 아니었습니다": 처음 ✔ 가 회색으로 바래고 "가짜 초록불".
+    // Sentence 4: the first ✔ fades to grey and gets "false green".
+    tl.to("#db2-pass", { backgroundColor: "#eaeef2", color: "#8c959f", duration: 0.4 }, 12.3);
+    tl.fromTo("#db2-fake", hidden, blurIn, 12.8);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["db2"] = tl;
+  </script>
+</template>

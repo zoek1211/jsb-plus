@@ -1211,3 +1211,28 @@
   ![000-12 실행화면](docs/images/000-12.png)
 
   ![000-12 README](docs/images/000-12-readme.png)
+
+### 000-13 결과 영상, DB 장(S06–S10) 만들기
+- [링크](https://github.com/zoek1211/jsb-plus/releases/tag/000-13)
+- 작업: DB 장(영상 69.7–134.3 s)을 장면 파일 3개로 나눠 만들고 `index.html` 에 올림 (한 파일이 너무 길어지지 않게)
+  - `db1.html` (S06–S07): 질문 카드가 `question` 테이블로 "저장" → 교재의 `mappedBy` 줄 → 빼면 빨간 중간 테이블 `question_answers (question_id, answers_id)` → 우리 줄로 되돌리면 사라지고 `answer.question_id → question.id` 외래 키 선, 실제 커밋 005-01(실험) → 005-02(고침)
+  - `db2.html` (S08): 교재식 `if (oq.isPresent())` 테스트가 빈 테이블에서도 ✔ → if 블록 안쪽 2줄 건너뜀 → 우리 `orElseThrow()` 는 ✘ `NoSuchElementException` → 처음 ✔ 에 "가짜 초록불"
+  - `db3.html` (S09–S10): ✘ `LazyInitializationException` → 테스트 클래스 `@Transactional` + `@ManyToOne(fetch = LAZY)` 로 ✔ → `getAnswers()` 를 부를 때만 SQL 한 번 / `Question`·`Answer` 에 반복되던 `id`·`createDate` 가 `BaseEntity` 로 모이고 `@CreatedDate`·`@LastModifiedDate`
+- 이유: 교재와 다르게 한 DB 부분 4가지(005, 007, 009, 010)를 "교재 방식의 문제 → 우리 방식" 순서로 보여주기 위함. 테이블·컬럼·오류 메시지·커밋 제목은 모두 README 작업내역과 실제 커밋에서 가져옴
+- 결과: `npx hyperframes check` 오류 0. 고친 것: 3초 넘게 멈춘 구간 3곳(외래 키 라벨, 오류 이름 밑줄 추가, 끝 정지는 `data-hold`), git log 스크롤이 창 제목 줄 밑으로 지나가는 겹침 표시, S10 상자 글자 잘림·줄바꿈(상자 폭 확대). 내레이션 5개 -16 LUFS
+- 핵심 변경:
+  ```html
+  <!-- 선은 SVG 로 그리고 stroke-dashoffset 을 줄여 "그려지는" 효과를 낸다 -->
+  <path id="db1-l3" d="M 1160 544 H 960 V 388 H 760" stroke="#1a7f37"
+        stroke-dasharray="600" stroke-dashoffset="600" />
+  ```
+  ```js
+  tl.fromTo("#db1-l3", { strokeDashoffset: 600 }, { strokeDashoffset: 0, duration: 0.6 }, 13.7); // 외래 키 선
+  ```
+- 실행화면 (79 s: mappedBy 를 빼면 생기는 중간 테이블 / 104 s: 가짜 초록불 / 133.5 s: BaseEntity):
+
+  ![000-13 mappedBy](docs/images/000-13-mappedby.png)
+
+  ![000-13 실행화면](docs/images/000-13.png)
+
+  ![000-13 BaseEntity](docs/images/000-13-base.png)

@@ -1,0 +1,346 @@
+<!--
+  DB 장 ③ LAZY 와 BaseEntity (S09–S10, 영상 108.9–134.3 s, 이 장면 기준 0–25.4 s).
+  DB chapter ③ LAZY and BaseEntity (S09–S10, film 108.9–134.3 s, local 0–25.4 s).
+
+  S09 0–13.9   테스트 t11 ✘ LazyInitializationException (009-03 수정 전의 실제 메시지)
+               → 고친 코드(테스트 클래스 @Transactional, @ManyToOne(fetch = LAZY)) → ✔
+               → 오른쪽 그림: 답변 목록은 처음엔 비어 있다가 getAnswers() 를 부를 때 SQL 한 줄로 채워진다.
+               Test t11 ✘ LazyInitializationException (009-03's real pre-fix message) → the fix → ✔
+               → right: the answers list starts empty and fills with one SQL query when getAnswers() is called.
+  S10 13.9–25.4 Question·Answer 에 똑같이 있던 id·createDate 가 위의 BaseEntity 하나로 모이고(상속 선),
+               @CreatedDate·@LastModifiedDate 가 붙는다 (010-02).
+               id and createDate, repeated in Question and Answer, gather into one BaseEntity above
+               (inheritance lines), and @CreatedDate / @LastModifiedDate appear (010-02).
+
+  문장 시각 (assets/vo/S09.srt, S10.srt, 이 장면 기준):
+    S09 음성 0.4 s — 0.5–4.18 "…지연 로딩 오류가 났습니다." / 4.13–8.1 "…레이지와 트랜잭션으로 해결했습니다." / 8.1–13.0 "…필요할 때만 불러옵니다."
+    S10 음성 14.3 s — 14.4–19.98 "…베이스 엔티티 하나로 모았습니다." / 19.93–24.53 "생성일과 수정일은 제이피에이가 자동으로…"
+-->
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      background: var(--ground);
+      font-family: var(--font-display);
+      color: var(--ink);
+      overflow: hidden;
+    }
+    .db3-win {
+      position: absolute;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(31, 35, 40, 0.12);
+      overflow: hidden;
+    }
+    .db3-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 56px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+      background: #f6f8fa;
+      font-family: var(--font-code);
+      font-size: 28px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .db3-lines {
+      padding: 14px 0;
+      font-family: var(--font-code);
+      font-size: 28px;
+    }
+    .db3-lines div {
+      position: relative;
+      height: 46px;
+      line-height: 46px;
+      padding: 0 28px;
+      white-space: pre;
+    }
+    .db3-cm {
+      color: #57606a;
+    }
+
+    /* ── S09 ── */
+    #db3-err {
+      left: 120px;
+      top: 150px;
+      width: 1000px;
+    }
+    #db3-err-head {
+      position: relative;
+      height: 64px;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      font-size: 34px;
+      font-weight: 800;
+      background: var(--book-soft);
+      color: var(--book);
+    }
+    #db3-err-ok {
+      position: absolute;
+      inset: 0;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      background: var(--ours-soft);
+      color: var(--ours);
+    }
+    #db3-err-body {
+      padding: 22px 28px 26px;
+    }
+    #db3-err-name {
+      font-family: var(--font-code);
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--book);
+    }
+    #db3-err-name {
+      position: relative;
+      display: inline-block;
+    }
+    #db3-err-band {
+      position: absolute;
+      left: 0;
+      bottom: -4px;
+      height: 6px;
+      width: 0;
+      background: var(--book);
+    }
+    #db3-err-msg {
+      margin-top: 8px;
+      font-family: var(--font-code);
+      font-size: 28px;
+      color: #57606a;
+    }
+    #db3-fix {
+      left: 120px;
+      top: 470px;
+      width: 1000px;
+    }
+    #db3-fix .db3-bar {
+      background: var(--ours-soft);
+      color: var(--ours);
+      font-family: var(--font-display);
+      font-weight: 800;
+    }
+    .db3-ann {
+      color: var(--ours);
+      font-weight: 700;
+    }
+    /* 오른쪽 그림: 질문 상자 → 답변 목록 상자 (점선 = 아직 안 불러옴) */
+    /* Right diagram: question box → answers box (dashed = not loaded yet) */
+    #db3-qbox {
+      left: 1240px;
+      top: 150px;
+      width: 560px;
+    }
+    #db3-qbox .db3-lines div {
+      padding: 0 24px;
+    }
+    #db3-call {
+      position: absolute;
+      left: 1240px;
+      top: 400px;
+      font-family: var(--font-code);
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--ours);
+    }
+    #db3-abox {
+      position: absolute;
+      left: 1240px;
+      top: 470px;
+      width: 560px;
+      height: 250px;
+      padding: 20px 24px;
+      border: 3px dashed var(--line);
+      border-radius: 12px;
+      font-size: 30px;
+      font-weight: 600;
+      color: #57606a;
+    }
+    #db3-abox-solid {
+      position: absolute;
+      inset: -3px;
+      padding: 20px 24px;
+      border: 3px solid var(--ours);
+      border-radius: 12px;
+      background: #fff;
+    }
+    #db3-sql {
+      margin-top: 12px;
+      font-family: var(--font-code);
+      font-size: 28px;
+      line-height: 1.45;
+      color: var(--ink);
+    }
+
+    /* ── S10 ── */
+    .db3-cls {
+      width: 660px;
+    }
+    #db3-base {
+      left: 550px;
+      top: 120px;
+      width: 820px;
+    }
+    #db3-base .db3-bar {
+      background: var(--ours-soft);
+      color: var(--ours);
+    }
+    #db3-qcls {
+      left: 170px;
+      top: 560px;
+    }
+    #db3-acls {
+      left: 1090px;
+      top: 560px;
+    }
+    .db3-dup {
+      background: rgba(255, 235, 233, 0);
+    }
+    .db3-ext {
+      color: var(--ours);
+    }
+    #db3-inherit {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 1080px;
+    }
+  </style>
+
+  <div id="root" data-composition-id="db3" data-width="1920" data-height="1080">
+    <!-- ── S09 ── -->
+    <div id="db3-s09" class="clip" data-start="0" data-duration="14.2">
+      <div id="db3-err" class="db3-win">
+        <div id="db3-err-head">✘ t11() 실패<span id="db3-err-ok">✔ t11() 통과</span></div>
+        <div id="db3-err-body">
+          <div id="db3-err-name">LazyInitializationException<span id="db3-err-band"></span></div>
+          <div id="db3-err-msg">Cannot lazily initialize collection … (no session)</div>
+        </div>
+      </div>
+      <div id="db3-fix" class="db3-win">
+        <div class="db3-bar">우리 — 009-03</div>
+        <div class="db3-lines">
+          <div><span class="db3-ann">@Transactional</span>   <span class="db3-cm">// 테스트 클래스 전체</span></div>
+          <div>class QuestionRepositoryTest { ... }</div>
+          <div> </div>
+          <div><span class="db3-ann">@ManyToOne(fetch = LAZY)</span>   <span class="db3-cm">// Answer</span></div>
+          <div>private Question question;</div>
+        </div>
+      </div>
+
+      <div id="db3-qbox" class="db3-win">
+        <div class="db3-bar">question #2</div>
+        <div class="db3-lines">
+          <div>subject, content …</div>
+          <div class="db3-cm">answers → ?</div>
+        </div>
+      </div>
+      <div id="db3-call">question.getAnswers()</div>
+      <div id="db3-abox">
+        아직 안 불러옴
+        <div id="db3-abox-solid">
+          필요할 때 한 번 조회
+          <div id="db3-sql">select … from answer
+where question_id = ?</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── S10 ── -->
+    <div id="db3-s10" class="clip" data-start="13.9" data-duration="11.5">
+      <svg id="db3-inherit" viewBox="0 0 1920 1080">
+        <path id="db3-i1" d="M 500 560 V 470 H 800 V 342" fill="none" stroke="#1a7f37" stroke-width="4" stroke-dasharray="500" stroke-dashoffset="500" />
+        <path id="db3-i2" d="M 1420 560 V 470 H 1120 V 342" fill="none" stroke="#1a7f37" stroke-width="4" stroke-dasharray="500" stroke-dashoffset="500" />
+      </svg>
+      <div id="db3-base" class="db3-win">
+        <div class="db3-bar">abstract class BaseEntity</div>
+        <div class="db3-lines">
+          <div>int id</div>
+          <div><span id="db3-cd" class="db3-ann">@CreatedDate </span>LocalDateTime createDate</div>
+          <div><span id="db3-md" class="db3-ann">@LastModifiedDate </span>LocalDateTime modifyDate</div>
+        </div>
+      </div>
+      <div id="db3-qcls" class="db3-win db3-cls">
+        <div class="db3-bar">class Question<span class="db3-ext"> extends BaseEntity</span></div>
+        <div class="db3-lines">
+          <div class="db3-dup">int id</div>
+          <div class="db3-dup">LocalDateTime createDate</div>
+          <div>String subject</div>
+          <div>String content</div>
+        </div>
+      </div>
+      <div id="db3-acls" class="db3-win db3-cls">
+        <div class="db3-bar">class Answer<span class="db3-ext"> extends BaseEntity</span></div>
+        <div class="db3-lines">
+          <div class="db3-dup">int id</div>
+          <div class="db3-dup">LocalDateTime createDate</div>
+          <div>String content</div>
+          <div>Question question</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const blurIn = { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power2.out" };
+    const hidden = { opacity: 0, filter: "blur(8px)" };
+
+    // ── S09 (0–14.2) ──
+    // 문장 1: 실패한 테스트와 실제 오류 메시지 (009-03 수정 전).
+    // Sentence 1: the failing test and its real error message (009-03 before the fix).
+    tl.fromTo("#db3-err", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.4, ease: "expo.out" }, 0.2);
+    tl.fromTo("#db3-err-ok", { opacity: 0 }, { opacity: 0, duration: 0.01 }, 0.2);
+    // "지연 로딩 오류가 났습니다" (≈2.4 s): 오류 이름에 빨간 밑줄. / A red underline sweeps under the error name.
+    tl.to("#db3-err-band", { width: "100%", duration: 0.4, ease: "power2.inOut" }, 2.4);
+    // 문장 2 "레이지와 트랜잭션으로 해결": 고친 코드가 줄마다 인쇄되고, 결과가 ✔ 로 바뀌며 오류 글자는 흐려진다.
+    // Sentence 2: the fix prints line by line; the result flips to ✔ and the error text dims.
+    tl.fromTo("#db3-fix", hidden, blurIn, 4.4);
+    tl.fromTo(
+      "#db3-fix .db3-lines div",
+      { opacity: 0, clipPath: "inset(0 100% 0 0)" },
+      { opacity: 1, clipPath: "inset(0 0% 0 0)", duration: 0.25, ease: "power2.out", stagger: 0.12 },
+      4.6,
+    );
+    tl.to("#db3-err-ok", { opacity: 1, duration: 0.25 }, 6.6);
+    tl.to("#db3-err-body", { opacity: 0.3, duration: 0.25 }, 6.6);
+    // 문장 3 "필요할 때만 불러옵니다": 질문 상자 → 점선 답변 상자 → getAnswers() 를 부르면 SQL 한 줄로 채워진다.
+    // Sentence 3: question box → dashed answers box → calling getAnswers() fills it with one SQL query.
+    tl.fromTo("#db3-qbox", hidden, blurIn, 8.3);
+    tl.fromTo("#db3-abox", hidden, blurIn, 8.8);
+    tl.fromTo("#db3-abox-solid", { opacity: 0 }, { opacity: 0, duration: 0.01 }, 8.8);
+    tl.fromTo("#db3-call", hidden, blurIn, 10.4);
+    tl.to("#db3-abox-solid", { opacity: 1, duration: 0.3, ease: "power2.out" }, 10.9);
+
+    // ── S10 (13.9–25.4) ──
+    tl.to("#db3-s09 > *", { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power2.in" }, 13.9);
+    // 두 클래스가 들어온다 ("extends BaseEntity" 는 아직 숨김). / Both classes arrive ("extends" still hidden).
+    tl.fromTo(["#db3-qcls", "#db3-acls"], { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.4, ease: "expo.out", stagger: 0.15 }, 14.2);
+    tl.fromTo(".db3-ext", { opacity: 0 }, { opacity: 0, duration: 0.01 }, 14.2);
+    // "반복되던 아이디와 날짜" (≈16.0 s): 두 클래스의 같은 줄이 빨강으로.
+    // "the repeated id and date" (≈16.0 s): the same rows in both classes turn red.
+    tl.to(".db3-dup", { backgroundColor: "rgba(255, 235, 233, 1)", duration: 0.3 }, 16.0);
+    // "베이스 엔티티 하나로" (≈17.6 s): BaseEntity 가 위에 생기고, 빨간 줄은 흐려지고, 상속 선과 extends.
+    // "into one BaseEntity" (≈17.6 s): BaseEntity appears above, red rows dim, inheritance lines and "extends".
+    tl.fromTo("#db3-base", { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 0.35, ease: "expo.out" }, 17.6);
+    tl.fromTo(["#db3-cd", "#db3-md"], { opacity: 0 }, { opacity: 0, duration: 0.01 }, 17.6);
+    tl.to(".db3-dup", { opacity: 0.25, duration: 0.3 }, 18.0);
+    tl.fromTo(["#db3-i1", "#db3-i2"], { strokeDashoffset: 500 }, { strokeDashoffset: 0, duration: 0.5, ease: "power2.inOut" }, 18.1);
+    tl.to(".db3-ext", { opacity: 1, duration: 0.25 }, 18.5);
+    // 문장 2 "생성일과 수정일은 JPA가 자동으로": 두 날짜 앞에 어노테이션이 차례로.
+    // Sentence 2: the annotations land in front of the two dates.
+    tl.to("#db3-cd", { opacity: 1, duration: 0.25 }, 20.6);
+    tl.to("#db3-md", { opacity: 1, duration: 0.25 }, 21.3);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["db3"] = tl;
+  </script>
+</template>
